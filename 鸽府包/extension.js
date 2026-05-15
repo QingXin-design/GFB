@@ -1,4 +1,3 @@
-
 import { lib, game, ui, get, ai, _status } from '../../noname.js';
 import { characterRank } from './character/characterRank.js'
 import { gflib } from './main/gflib.js';
@@ -13,9 +12,9 @@ export let type = 'extension';
 
 // ====================== 自更新配置（你只需要改这里！） ======================
 const UPDATE_CONFIG = {
-    repoUrl: "https://raw.giteeusercontent.com/li-ze54321/GFB/master/鸽府包", // 改成你的仓库地址
+    repoUrl: "https://cdn.jsdelivr.net/gh/QingXin-design/GFB@master/鸽府包",
     extensionName: "鸽府包",
-    currentVersion: "1.0.0", // 你当前版本号
+    currentVersion: "0.0.0",
 };
 // ========================================================================
 
@@ -324,51 +323,48 @@ export default async function () {
 	}
 }
 
-function checkExtensionUpdate() {
-	const url = "https://gitee.com/li-ze54321/GFB/raw/master/鸽府包/update.json";
+async function checkExtensionUpdate() {
+	try {
+		let res = await fetch("https://cdn.jsdelivr.net/gh/QingXin-design/GFB@master/鸽府包/info.json");
+		let onlineInfo = await res.json();
+		let onlineVer = onlineInfo.version ?? "1.0.0";
+		let localVer = "1.0.0";
 
-	fetch(url)
-		.then(res => {
-			if (!res.ok) throw new Error("获取更新文件失败");
-			return res.json();
-		})
-		.then(data => {
-			const newVer = data.version;
-			const currentVersion = UPDATE_CONFIG.currentVersion;
-			if (newVer === currentVersion) {
-				alert("✅ 鸽府包已是最新版本");
+		if (onlineVer === localVer) {
+			alert("✅ 鸽府包已是最新版本");
+			return;
+		}
+
+		if (!confirm(`发现新版本 ${localVer} → ${onlineVer}\n是否更新？`)) return;
+
+		// 固定要更新的文件列表
+		let files = [
+			"character/characterData.js",
+		];
+
+		let idx = 0;
+		function nextDown() {
+			if (idx >= files.length) {
+				alert("✅ 更新完成，即将重启");
+				game.reload();
 				return;
 			}
-
-			if (!confirm(`发现新版本：${currentVersion} → ${newVer}\n是否立即更新？`)) return;
-
-			const files = data.files || [];
-			let index = 0;
-
-			function next() {
-				if (index >= files.length) {
-					alert("✅ 更新完成！即将重启游戏");
-					game.reload();
-					return;
-				}
-
-				const file = files[index];
-				const fileUrl = `https://gitee.com/li-ze54321/GFB/raw/master/鸽府包/${file}`;
-
-				game.download(fileUrl, () => {
-					index++;
-					next();
-				}, (err) => {
-					alert(`下载失败：${file}`);
-				});
-			}
-
-			next();
-		})
-		.catch(err => {
-			alert("❌ 更新失败：" + err.message);
-			console.error(err);
-		});
+			let f = files[idx];
+			let url = `https://cdn.jsdelivr.net/gh/QingXin-design/GFB@master/鸽府包/${f}`;
+			// 直接下载，不额外调用会报错的目录方法
+			game.download(url,()=>{
+				idx++;
+				nextDown();
+			},()=>{
+				idx++;
+				nextDown();
+			});
+		}
+		nextDown();
+	} catch(e) {
+		alert("❌ 更新失败，请稍后再试");
+		console.error(e);
+	}
 }
 // ================================================================
 
