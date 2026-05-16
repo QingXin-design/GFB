@@ -10,106 +10,6 @@ import { basic } from './main/basic.js';
 import { extensionDefaultPackage } from './main/main.js';
 export let type = 'extension';
 
-// ====================== 鸽府包 独立在线更新系统（对标官方在线更新扩展） ======================
-const UPDATE_CONFIG = {
-    repoUrl: "https://cdn.jsdelivr.net/gh/QingXin-design/GFB@master/鸽府包",
-    extensionName: "鸽府包",
-    currentVersion: "0.0.0",
-    // 需要自动更新的文件列表（你所有扩展文件）
-    updateFiles: [
-        "manifest.json",
-    ]
-};
-
-// 自带超时的安全请求（和在线更新扩展一致）
-function myFetch(url, timeout = 8000) {
-    return new Promise((resolve, reject) => {
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), timeout);
-        fetch(url, { signal: controller.signal })
-            .then(res => {
-                clearTimeout(timer);
-                if (res.ok) resolve(res);
-                else reject("请求失败");
-            })
-            .catch(err => {
-                clearTimeout(timer);
-                reject(err);
-            });
-    });
-}
-
-// 主更新逻辑（和在线更新扩展同机制）
-// ========================= 稳定版更新（不报错！） =========================
-async function checkExtensionUpdate() {
-    try {
-        const res = await fetch(`${UPDATE_CONFIG.repoUrl}/info.json`);
-        const onlineInfo = await res.json();
-        const localVer = UPDATE_CONFIG.currentVersion;
-        const onlineVer = onlineInfo.version || "0.0.0";
-
-        if (localVer === onlineVer) {
-            alert(`✅ 鸽府包已是最新版\n当前版本：${localVer}`);
-            return;
-        }
-
-        if (!confirm(`🔔 发现新版本！
-当前版本：${localVer}
-最新版本：${onlineVer}
-
-是否立即更新？`)) return;
-
-        alert("📥 开始更新…\n更新完成将自动重启");
-
-        // ==============================================
-        // 稳定写入文件（PC/手机通用，不触发无名杀BUG）
-        // ==============================================
-        const fs = window.require('fs');
-        const path = window.require('path');
-        const extPath = path.join(__dirname, 'extension', '鸽府包');
-
-        let index = 0;
-        const total = UPDATE_CONFIG.updateFiles.length;
-
-        async function downloadNext() {
-            if (index >= total) {
-                alert("✅ 更新完成！");
-                game.reload();
-                return;
-            }
-
-            const file = UPDATE_CONFIG.updateFiles[index];
-            const url = `${UPDATE_CONFIG.repoUrl}/${file}`;
-
-            try {
-                let res = await fetch(url);
-                let arrayBuffer = await res.arrayBuffer();
-                let buffer = Buffer.from(arrayBuffer);
-
-                let fullPath = path.join(extPath, file);
-                let dir = path.dirname(fullPath);
-
-                if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-                fs.writeFileSync(fullPath, buffer);
-
-            } catch (e) {
-                console.warn("跳过/下载失败：", file);
-            }
-
-            index++;
-            downloadNext();
-        }
-
-        downloadNext();
-
-    } catch (err) {
-        alert("❌ 更新检查失败：网络异常");
-        console.error(err);
-    }
-}
-// ======================================================================
-// ==========================================================================================
-
 gflib(lib, game, ui, get, ai, _status, '鸽府包');
 //非常感谢源·天将士允许我搬运魔力值和通灵值机制，致敬，我在此基础上做了一些修改。
 lib.gflib_custom.mp.push(function (player) {
@@ -356,6 +256,22 @@ export default async function () {
 						return originalBlock.apply(this, args);
 					};
 				}
+				/*function SkillBlockers() {
+					for (let skillKey in lib.skill) {
+						const skill = lib.skill[skillKey];
+						// 重写技能阻断逻辑
+						if (skill.skillBlocker && typeof skill.skillBlocker === "function") {
+							const originalBlocker = skill.skillBlocker;
+							skill.skillBlocker = function (event, player) {
+								if (player && (player.name === "gzhlb_sm" || player.name === "wzzs_aesdd")) {
+									return false;
+								}
+								return originalBlocker.call(this, event, player);
+							};
+						}
+					}
+				}
+				SkillBlockers();*/
 				const trigger = lib.element?.trigger?.execute;
 				if (trigger) {
 					lib.element.trigger.execute = function (event) {
@@ -380,34 +296,16 @@ export default async function () {
 					};
 				}
 			},
-
-			// ====================== 自动添加更新按钮 ======================
-			config: await (async () => {
-				const original = await basic.resolve(config);
-				return {
-					...original,
-					update_gfb: {
-						name: "<button style='padding:5px 10px;font-size:14px'>检查鸽府包更新</button>",
-						onclick: checkExtensionUpdate,
-					},
-				};
-			})(),
-			// ==============================================================
-
+			config: await basic.resolve(config),
 			help: await basic.resolve(help),
 			package: await basic.resolve(extensionDefaultPackage),
 			files: { 'character': [], 'card': [], 'skill': [], 'audio': [] },
 		};
-
-		// 注入版本号
-		extension.package.version = UPDATE_CONFIG.currentVersion;
-
 		Object.keys(extensionInfo)
 			.filter(key => key !== 'name')
 			.forEach(key => {
 				extension.package[key] = extensionInfo[key];
 			});
-
 		return extension;
 	} catch (err) {
 		console.error('扩展加载失败：', err);
