@@ -150,23 +150,26 @@ export const config = {
 		onclick: async function () {
 			let btn = this;
 			btn.innerHTML = `<button style='padding:5px 10px; font-size:14px;'>正在检测更新...</button>`;
-			
 			try {
 				await update(true);
 				btn.innerHTML = `<button style='padding:5px 10px; font-size:14px;'>更新完成</button>`;
 			} catch {
 				btn.innerHTML = `<button style='padding:5px 10px; font-size:14px;'>更新失败</button>`;
 			}
-
 			setTimeout(() => {
 				btn.innerHTML = `<button style='padding:5px 10px; font-size:14px;'>检查更新</button>`;
 			}, 2000);
 		}
 	},
-	auto_update: {
-          name: `<font color="#ff9800">自动检测更新`,
-          init: true,
-          intro: "启动游戏时自动检查更新",
+	gfb_zxgx: {
+          name: `<font color="#ADFF2F">自动检测更新`,
+          init: false,
+          intro: "启动游戏时自动检查更新（需联网）",
+		  onclick: function(bool) {
+			if(bool != lib.config.extension_鸽府包_gfb_zxgx){
+				game.saveConfig('extension_鸽府包_gfb_zxgx', bool);
+			};
+		}
     },
 	gfb_ltcd: {
 		name: `<font color='#ADFF2F'>自动关闭聊天框</font></span>`,
