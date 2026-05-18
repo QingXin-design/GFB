@@ -1,0 +1,42 @@
+.plotBg{/*底图背景*/
+    bottom:0;
+    left:0;
+    width:100%;
+    height:45%;
+    background:rgb(0,0,0,0.5);
+}
+.plotBg>.plotChar-left,
+.plotBg>.plotChar-right{/*玩家图片的整体形象*/
+    --width:300px; 
+    position:absolute;
+    background-size:cover;
+    background-repeat:no-repeat;
+    width:var(--width);
+    height:calc(var(--width) * 295 / 250);
+    bottom:0;
+    -webkit-mask:radial-gradient(calc(var(--width)*115/250) calc(var(--width)*160/250) at 125px 192px,#000 70%, transparent 100%);
+}
+.plotBg>.plotChar-left{/*调整左侧玩家图位置*/
+    left:80px;
+}
+.plotBg>.plotChar-right{/*调整右侧玩家图位置*/
+    right:80px;
+}
+.plotBg>.plotTextBg{/*文字背景*/
+    position:absolute;
+    top:0;
+    left:50%;
+    transform:translateX(-50%);
+    width:47%;
+    height:100%;
+    overflow:auto;
+}
+.plotBg>.plotTextBg>.plotText{/*文字*/
+    color: #efdbb6;
+    font-size: 30px;
+    font-family: 'yuanli';
+    position: relative;
+    display: block;
+    text-align: center;
+    top:20px;
+}

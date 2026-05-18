@@ -1,0 +1,223 @@
+/*简略信息页*/
+
+.popup-container>.skillsDialog{
+	top: calc(63.5% - var(--h) / 2 + var(--bt));
+	left: calc(54% - var(--w) / 2 + var(--bl));
+}
+.skillsDialog{
+	--w: 536px;
+	--h: 305px;
+	--bt: calc(var(--h) * 40 / 290);
+	--bl: calc(var(--w) * 38 / 497);
+	--bb: calc(var(--h) * 17 / 290);
+	--dw: calc(var(--w) - 2 * var(--bl));
+	--dh: calc(var(--h) - var(--bt) - var(--bb));
+
+	width: var(--dw);
+	height: var(--dh);
+	position: absolute;
+	box-sizing: border-box;
+	padding: 10px;
+}
+.skillsDialog::before{
+	content: "";
+	top: calc(0% - var(--bt));
+	left: calc(0% - var(--bl));
+	width: var(--w);
+	height: var(--h);
+	position: absolute;
+	background-size: 100% 100%;
+}
+.skillsDialog>div{
+	top: 0;
+	height: 100%;
+	position: absolute;
+}
+.skillsDialog>div.charImage{/*武将图*/
+	left: -230px;
+	top: -50px;
+	width: 250px;
+	height: 295px;
+	background-size: cover;
+	position: relative;
+	background-repeat: no-repeat;
+	-webkit-mask: radial-gradient(115px 160px at 125px 160px, #000 70%, transparent 100%);
+}
+.skillsDialog>div.skinChange{/*切换原画*/
+	left:-190px;
+	top:-20px;
+	width: 45px;
+	height: 45px;
+	background-image: url("./image/skin.png");
+	background-size: 100% 100%;
+}
+.skillsDialog>div.skinType{/*皮肤类型*/
+	left: -420px;
+	top: -180px;
+	width: 120px;
+	height: 120px;
+	background-size: cover;
+	position: relative;
+	background-repeat: no-repeat;
+}
+.skillsDialog>div.name{/*名字+武将级别*/
+	position: relative;
+	left: 55px;
+	top: -400px;
+	width: 500px;
+	height: 23px;
+	color: white;
+	font-size: 23px;
+	font-family: yuanli;
+	letter-spacing: 1.5px;
+	text-shadow: 0 0 2px rgb(170, 170, 170), 0 0 3px rgb(170, 170, 170), 0 0 4px rgb(170, 170, 170), 0 0 4px rgb(118, 118, 118), 0 0 4px rgb(118, 118, 118);
+}
+.skillsDialog>div.pack{/*武将包名*/
+	position: relative;
+	right: 25px;
+	top: -425px;
+	width: max-content;
+	height: 20px;
+	color: rgba(255, 201, 1, 1);
+	font-size: 20px;
+	font-family: yuanli;
+	letter-spacing: 1px;
+	float: right;
+}
+.skillsDialog>div.left{
+	left: 0;
+	width: 50%;
+}
+.skillsDialog>div.right{
+	left: 0;
+	width: 100%;
+	box-sizing: border-box;
+	padding: 30px 10px 20px 20px;
+	overflow: auto;
+}
+.skillsDialog>div.right div{
+	position: relative;
+}
+.skillsDialog>div.right .xcaption{
+	width: 100%;
+	text-align: center;
+	font-size: 20px;
+	font-weight: bold;
+	padding: 10px 0;
+	font-family: "yuanli";
+}
+.skillsDialog>div.right>.skillBg{
+    width: 100%;
+    height: 100%;
+    top: 3%;
+    overflow-y: auto;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.skillsDialog>div.right>.skillBg>.xskill{
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    word-break: break-word;
+    align-items: baseline;
+}
+
+.skillsDialog>div.right>.skillBg>.xskill>div[data-color]{/*技能名*/
+    margin:2px;
+	text-align: center;
+	font-family: "xingkai";
+	font-weight: 500;
+	font-size: 20px;
+	color: #f7f5e7;
+	padding: 3px 6px;
+	background-image: url("./image/skillName.png");
+	background-size: 100% 100%;
+}
+
+.skillsDialog>div.right>.skillBg>.xskill>div:not([data-color]){/*技能描述*/
+    color: #f7f3e0;
+    text-shadow: none;
+    font-size: 16px;
+    font-family: "yuanli";
+    font-weight: 500;
+    line-height: 1em;
+    white-space: pre-wrap;
+    word-break: break-word;
+    flex: 1;
+    top:-6px;
+}
+
+.skinTypeText{/*皮肤名字文字*/
+	left: 0px;
+	top: 110px;
+	width: 200px;
+	height: 24.5px;
+	font-family: "heiti";
+	text-indent: 1em;
+	font-size: 14px;
+	position: relative;
+	line-height: 1.5em;
+	color: #f7f3e0;
+	background-size: contain;
+	background-position: left;
+	background-repeat: no-repeat;
+}
+.skillsDialog>.yanshengBg{/*衍生技背景*/
+    width:280px;
+    right:-290px;
+    height:180px;
+    transform:translateY(-50%);
+    top:50%; 
+    background-image: url("./image/skillbgq.png");
+	background-size: 100% 100%;
+}
+.skillsDialog>div.yanshengBg div{
+	position: relative;
+}
+.skillsDialog>.yanshengBg>.yanshengName{
+    color: rgba(255, 201, 1, 1);
+    font-family: yuanli;
+    font-size: 20px;
+    left:10px;
+    top:5px;
+}
+.skillsDialog>.yanshengBg>.skillsBg{
+    top:8%;
+    width:100%;
+    height:80%;
+    overflow-y: auto;
+}
+.skillsDialog>.yanshengBg>.skillsBg>.xskill{
+    padding: 0px 10px 0px 10px;
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    word-break: break-word;
+    align-items: baseline;
+}
+.skillsDialog>.yanshengBg>.skillsBg>.xskill>div[data-color]{/*技能名*/
+    margin:2px;
+	text-align: center;
+	font-family: "xingkai";
+	font-weight: 500;
+	font-size: 20px;
+	color: #f7f5e7;
+	padding: 3px 6px;
+	background-image: url("./image/skillName.png");
+	background-size: 100% 100%;
+}
+.skillsDialog>.yanshengBg>.skillsBg>.xskill>div:not([data-color]){/*技能描述*/
+    color: #f7f3e0;
+    text-shadow: none;
+    font-size: 14px;
+    font-family: "yuanli";
+    font-weight: 500;
+    line-height: 1em;
+    white-space: pre-wrap;
+    word-break: break-word;
+    flex: 1;
+    top:-6px;
+}

@@ -1,0 +1,100 @@
+.wishBg{/*背景图*/
+    width:100%;
+    height:100%;
+    left:0px;
+    top:0px;
+    z-index:8;
+    background-image:url('./image/wishBg.png');
+    background-size:100% 100%;
+}
+.wishBg>.wishBgHide{/*与页面菜单重合的背景*/
+    top:50%;
+	left:50%;
+	height:85.4%;
+	width:66.9%;
+	transform:translate(-50%, -50%);
+	background-image:url('./image/bigBg.png');
+    background-size:100% 100%;
+}
+.wishBg>.wishBgHide>.modeText{/*标题文字*/
+    font-family:'yuanli';
+    color:#6b4224;
+    font-size:47px;
+    position:relative;
+	left:19.9%;
+	top:10%;
+	text-shadow:none;
+}
+.wishBg>.wishBgHide>.sousuo{/*搜索按钮*/
+    background-image: url('./image/bpSs.png');
+    background-size: 100% 100%;
+    bottom: 73%;
+    right: 29%;
+    width: 17.23%;
+    height: 5.5%;
+}
+.sousuoInput{/*输入文本框*/
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    top: 5%;
+    width: 60%;
+    height: 10%;
+    font-size: 30px;
+    display: none;
+}
+.wishBg>.wishBgHide>.close{/*关闭按钮*/
+    background-image: url('./image/bpCancel.png');
+    background-size: 100% 100%;
+    top: 3.5%;
+    right: 2%;
+    width: 35px;
+    height:35px;
+}
+.wishBg>.wishBgHide>.leftBg{/*左侧背景*/
+    background-image: url('./image/bpPlansBg.png');
+    background-size:100% 100%;
+    top:4%;
+    left:0.1%;
+    height:92%;
+    width:18.5%;
+    overflow-y:auto;
+    overflow-x:hidden;
+    display: block;
+}
+.wishBg>.wishBgHide>.rightBg{/*右侧背景*/
+    right:1.7%;
+    bottom:4%;
+    height:63%;
+    width:78.5%;
+    overflow-y:auto;
+    overflow-x:hidden;
+    background-color:rgb(20,0,0,0.1);
+}
+.wishBg>.wishBgHide>.leftBg>.modeLbtn{/*模式名称*/
+    text-align: center;
+    align-items: center;
+    font-family:'yuanli';
+    color:#805c34;
+    position:relative;
+	font-weight:580;
+	display: block;
+	font-size: 25px;
+	height:9.41%;
+	text-shadow:none;
+	width:100%;
+	padding-top: 20px;
+}
+.wishBg>.wishBgHide>.leftBg>.modeLbtn::before{/*模式名下划线*/
+	content:"";
+	background-image:url("./image/bpCPackLine.png");
+	line-height: 15;
+	background-size:100% 100%;
+	width:90%;
+	height:1px;
+	position:absolute;
+	bottom:-1px;
+	transform:translateX(-50%);
+	left:50%;
+}
