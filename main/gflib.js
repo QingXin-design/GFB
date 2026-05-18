@@ -3856,7 +3856,7 @@ if (document.readyState === "complete") {
 		}
 	};
 
-	lib.skill.gzjcb_fenghuan = {
+	lib.skill.gzhlb_fenghuan = {
 		trigger: {
 			global: 'useSkillBefore',
 		},
