@@ -56,7 +56,7 @@ export default async (manual = false) => {
             needUpdate.push(filePath);
             continue;
         }
-        const isImageVideo = filePath.endsWith('.jpg') || filePath.endsWith('.png') || filePath.endsWith('.mp4') || filePath.endsWith('.mp3');
+        const isImageVideo = filePath.endsWith('.jpg') || filePath.endsWith('.png')  || filePath.endsWith('.gif') || filePath.endsWith('.mp4') || filePath.endsWith('.mp3');
         if (isImageVideo) {
             continue;
         }
