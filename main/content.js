@@ -8,7 +8,6 @@ export async function content(config,pack){
 	lib.rank.rarity.epic.add(...characterRank.SS);
 	lib.rank.rarity.legend.add(...characterRank.SSS);
 	if (lib.config.extension_鸽府包_gfb_zxgx == true) {
-		let needUpdateVersion = false;
 		const proxyList = [
 			"",
 			"https://gh-proxy.com/",
@@ -43,12 +42,9 @@ export async function content(config,pack){
 					localVersion = localManifest.version || "0.0.0";
 				} catch (e) {}
 			}
-			if (remoteManifest > localVersion) {
-				needUpdateVersion = true;
+			if (remoteManifest.version > localVersion) {
+				await update(true);
 			}
-		}
-		if (needUpdateVersion) {
-			await update(true);
 		}
 	}
 };
