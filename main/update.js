@@ -137,7 +137,8 @@ export default async (manual = false) => {
                 return all;
             };
             const localFiles = await clean("extension/鸽府包");
-            const toDelete = localFiles.filter(f => !remoteManifest.files[f] && f !== "manifest.json");
+            // 不清图片
+            const toDelete = localFiles.filter(f => !remoteManifest.files[f] && f !== "manifest.json" && !f.startsWith("image/character/"));
             if (toDelete.length) {
                 const delProg = createProgress("清理旧文件", toDelete.length);
                 for (let i = 0; i < toDelete.length; i++) {
