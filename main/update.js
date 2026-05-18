@@ -4,7 +4,7 @@ import { createProgress } from "../../../noname/library/update.js";
 // 感谢秋礼提供的在线更新OwO，我在此基础上进行了一些修改
 /**
  * 更新函数
- * @param {boolean} manual
+ * @param {boolean}
  */
 export default async (manual = false) => {
     if (_status.connectMode && manual) {
@@ -47,6 +47,25 @@ export default async (manual = false) => {
         if (manual) alert("获取更新清单失败，请检查网络或切换镜像");
         return;
     }
+    // 版本号对比
+    let localVersion = "0.0.0";
+    const localManifestPath = "extension/鸽府包/manifest.json";
+    const localManifestExists = await game.promises.checkFile(localManifestPath);
+    if (localManifestExists) {
+        try {
+            const localData = await game.promises.readFile(localManifestPath);
+            const localManifest = JSON.parse(new TextDecoder().decode(localData));
+            localVersion = localManifest.version || "0.0.0";
+        } catch (e) {
+            console.warn("读取本地manifest失败", e);
+        }
+    }
+    const isRemoteNewer = remoteManifest.version > localVersion;
+    if (!isRemoteNewer) {
+        if (manual) alert(`已是最新版本(${remoteManifest.version})`);
+        return;
+    }
+    // 对比文件哈希
     const needUpdate = [];
     const hex = Array.from({ length: 256 }, (_, i) => i.toString(16).padStart(2, '0'));
     for (const [filePath, remoteHash] of Object.entries(remoteManifest.files)) {
@@ -56,7 +75,7 @@ export default async (manual = false) => {
             needUpdate.push(filePath);
             continue;
         }
-        const isImageVideo = filePath.endsWith('.jpg') || filePath.endsWith('.png')  || filePath.endsWith('.gif') || filePath.endsWith('.mp4') || filePath.endsWith('.mp3');
+        const isImageVideo = filePath.endsWith('.jpg') || filePath.endsWith('.gif') || filePath.endsWith('.png') || filePath.endsWith('.mp4') || filePath.endsWith('.mp3');
         if (isImageVideo) {
             continue;
         }
@@ -69,10 +88,10 @@ export default async (manual = false) => {
         }
     }
     if (needUpdate.length === 0) {
-        if (manual) alert(`已是最新版本 (${remoteManifest.version})`);
+        if (manual) alert(`已是最新版本(${remoteManifest.version})`);
         return;
     }
-    if (manual && !confirm(`发现新版本 ${remoteManifest.version}\n需更新 ${needUpdate.length} 个文件，是否继续？`)) {
+    if (manual && !confirm(`【鸽府包】发现新版本${remoteManifest.version}\n需更新${needUpdate.length}个文件，是否更新？`)) {
         return;
     }
     const prog = createProgress("更新鸽府包扩展", needUpdate.length);
