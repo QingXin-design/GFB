@@ -75,10 +75,6 @@ export default async (manual = false) => {
             needUpdate.push(filePath);
             continue;
         }
-        const isImageVideo = filePath.endsWith('.jpg') || filePath.endsWith('.gif') || filePath.endsWith('.png') || filePath.endsWith('.mp4') || filePath.endsWith('.mp3');
-        if (isImageVideo) {
-            continue;
-        }
         try {
             const buf = await crypto.subtle.digest('SHA-1', await game.promises.readFile(localFullPath));
             const localHash = Array.from(new Uint8Array(buf), x => hex[x]).join('');
@@ -137,8 +133,7 @@ export default async (manual = false) => {
                 return all;
             };
             const localFiles = await clean("extension/鸽府包");
-            // 不清图片
-            const toDelete = localFiles.filter(f => !remoteManifest.files[f] && f !== "manifest.json" && !f.startsWith("image/character/"));
+            const toDelete = localFiles.filter(f => !remoteManifest.files[f] && f !== "manifest.json");
             if (toDelete.length) {
                 const delProg = createProgress("清理旧文件", toDelete.length);
                 for (let i = 0; i < toDelete.length; i++) {
