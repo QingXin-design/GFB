@@ -3898,7 +3898,7 @@ if (document.readyState === "complete") {
 			}
 			"step 1"
 			player
-				.chooseTarget(true, get.prompt("gzjcb_fenghuan"), "请选择一名与你距不大于1的角色并将〖" + get.translation(trigger.skill) + "〗对其的指定改为发起者自己。", function (card, player, target) {
+				.chooseTarget(true, get.prompt("gzhlb_fenghuan"), "请选择一名与你距不大于1的角色并将〖" + get.translation(trigger.skill) + "〗对其的指定改为发起者自己。", function (card, player, target) {
 					return trigger.targets.includes(target) && get.distance(player, target) <= 1;
 				})
 				.set("ai", function (target) {
