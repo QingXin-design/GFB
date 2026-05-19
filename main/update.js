@@ -65,14 +65,26 @@ export default async (manual = false) => {
         if (manual) alert(`已是最新版本(${remoteManifest.version})`);
         return;
     }
+    // 白名单
+    const PROTECTED_PATHS = [
+        "extension/Leaderboard/rank/",
+    ];
+    const isProtected = (filePath) => {
+        return PROTECTED_PATHS.some(p => filePath.startsWith(p));
+    };
     // 对比文件哈希
     const needUpdate = [];
     const hex = Array.from({ length: 256 }, (_, i) => i.toString(16).padStart(2, '0'));
     for (const [filePath, remoteHash] of Object.entries(remoteManifest.files)) {
+        if (isProtected(filePath)) continue;
         const localFullPath = `extension/鸽府包/${filePath}`;
         const exists = await game.promises.checkFile(localFullPath);
         if (!exists) {
             needUpdate.push(filePath);
+            continue;
+        }
+        const isImageVideo = filePath.endsWith('.jpg') || filePath.endsWith('.gif') || filePath.endsWith('.png') || filePath.endsWith('.mp4') || filePath.endsWith('.mp3');
+        if (isImageVideo) {
             continue;
         }
         try {
@@ -133,7 +145,11 @@ export default async (manual = false) => {
                 return all;
             };
             const localFiles = await clean("extension/鸽府包");
-            const toDelete = localFiles.filter(f => !remoteManifest.files[f] && f !== "manifest.json");
+            const toDelete = localFiles.filter(f =>
+                !remoteManifest.files[f] &&
+                f !== "manifest.json" &&
+                !isProtected(f) // 白名单不删除
+            );
             if (toDelete.length) {
                 const delProg = createProgress("清理旧文件", toDelete.length);
                 for (let i = 0; i < toDelete.length; i++) {
