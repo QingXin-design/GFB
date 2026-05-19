@@ -24,12 +24,10 @@ lib.onover.push(function(bool) {
     lib.config.extension_鸽府包_winner_player.changci = Number(lib.config.extension_鸽府包_winner_player.changci) || 0;
     lib.config.extension_鸽府包_winner_player.shengchang = Number(lib.config.extension_鸽府包_winner_player.shengchang) || 0;
     lib.config.extension_鸽府包_winner_player.pingju = Number(lib.config.extension_鸽府包_winner_player.pingju) || 0;
-
     // 初始化连胜数据
     if (!lib.config.extension_鸽府包_qysy) {
         game.saveConfig('extension_鸽府包_qysy', { win: 0, lose: 0 });
     }
-
     const playerHeroMap = {};
     const currentUid = window.SyncModule.utils.getNickname();
     game.filterPlayer2(player => {
@@ -67,7 +65,6 @@ lib.onover.push(function(bool) {
             processCharacters(target.getFriends(null, true));
         }
     }
-
     // 单机通过game.me判断，不依赖UID
     let isMyWin = false;
     let isPingju = bool !== true && bool !== false;
