@@ -85,33 +85,23 @@ let block = {
 				},
 				silentForce: true,
 				filter(event, player, name) {
-					// 30% 基础概率
 					// if (Math.random() > 0.7) return false;
-
-					// 防止同时机重复触发
 					if (player.storage.gzt_pingjian_cd === name) return false;
-
-					// 时机黑名单（安全版，不报错）
 					const TRIGGER_BLACKLIST = ["logSkill"];
 					if (typeof name === "string" && TRIGGER_BLACKLIST.some(keyword => name.includes(keyword))) {
 						return false;
 					}
-
-					// ===================== 概率逻辑完整放入 filter =====================
 					const nowTrigger = name;
 					const blackListMethod = [
 						"awakenSkill","removeSkill","addSkill","addTempSkill",
 						"update","init","die","removeGaintag","hasSkillTag","useSkill",
 						"addJudge","clearSkills","GFBgmAndBg","GFVideo","playerBgm","audio","music"
 					];
-
 					const mainSkills = [];
 					const subSkills = [];
-
 					for (const skName in lib.skill) {
 						const sk = lib.skill[skName];
 						if (!sk || !sk.content) continue;
-
 						const code = sk.content.toString();
 						let forbidden = false;
 						for (const m of blackListMethod) {
@@ -121,8 +111,6 @@ let block = {
 							}
 						}
 						if (forbidden) continue;
-
-						// 安全匹配时机，绝对不报错
 						let match = false;
 						if (sk.trigger?.player) {
 							const p = sk.trigger.player;
@@ -148,11 +136,8 @@ let block = {
 							mainSkills.push(sk);
 						}
 					}
-
 					const total = mainSkills.length > 0 ? mainSkills.length : subSkills.length;
 					if (total === 0) return false;
-
-					// 概率公式：5个=10%，50个及以上=100%
 					let rate;
 					if (total >= 50) {
 						rate = 100;
@@ -160,16 +145,13 @@ let block = {
 						rate = 10 + 2 * (total - 5);
 					}
 					rate = Math.max(rate, 0);
-
 					const roll = Math.random() * 100;
 					return roll <= rate;
-					// ==================================================================
 				},
 				async content(event, trigger, player) {
 					player.storage.gzt_pingjian_cd = event.triggername;
 					const nowTrigger = event.triggername;
 					const tempSkillName = "gzt_pingjian_temp_skill";
-
 					// 清理旧技能
 					if (player.storage.gzt_pingjian_temp) {
 						const last = player.storage.gzt_pingjian_temp;
@@ -177,18 +159,15 @@ let block = {
 						if (lib.skill[last]) delete lib.skill[last];
 						player.storage.gzt_pingjian_temp = [];
 					}
-
 					const blackListMethod = [
 						"awakenSkill","removeSkill","addSkill","addTempSkill",
 						"update","init","die","removeGaintag","hasSkillTag","useSkill",
 						"addJudge","clearSkills","GFBgmAndBg","GFVideo","playerBgm","audio","music"
 					];
-
 					const mainSkills = [];
 					const mainSkillNames = [];
 					const subSkills = [];
 					const subSkillNames = [];
-
 					for (const skName in lib.skill) {
 						const sk = lib.skill[skName];
 						if (!sk || !sk.content) continue;
@@ -198,7 +177,6 @@ let block = {
 							if (code.includes(`player.${m}(`)) { forbidden = true; break; }
 						}
 						if (forbidden) continue;
-
 						let match = false;
 						if (sk.trigger?.player) {
 							const p = sk.trigger.player;
@@ -220,7 +198,6 @@ let block = {
 							mainSkillNames.push(skName);
 						}
 					}
-
 					let finalSkills, finalSkillNames;
 					if (mainSkills.length > 0) {
 						finalSkills = mainSkills;
@@ -231,17 +208,14 @@ let block = {
 						finalSkillNames = subSkillNames;
 						console.log(`【评鉴】无主技能，启用子技能池，共${subSkills.length}个`);
 					}
-
 					if (finalSkills.length === 0) {
 						console.log(`【评鉴】时机：${nowTrigger}，无匹配技能`);
 						event.finish();
 						return;
 					}
-
 					const randomIndex = Math.floor(Math.random() * finalSkills.length);
 					const randSkill = finalSkills[randomIndex];
 					const randSkillName = finalSkillNames[randomIndex];
-
 					console.log(`==================================================`);
 					console.log(`【评鉴】时机：${nowTrigger}，技能：${randSkillName}`);
 					console.log(`【评鉴】触发时机：${nowTrigger}`);
@@ -249,7 +223,6 @@ let block = {
 					console.log(`【评鉴】技能完整内容：`);
 					console.log(randSkill.content);
 					console.log(`==================================================`);
-
 					// 创建临时技能
 					if (lib.skill[tempSkillName]) delete lib.skill[tempSkillName];
 					lib.skill[tempSkillName] = {
@@ -261,10 +234,8 @@ let block = {
 						filter: randSkill.filter || (() => true),
 						content: randSkill.content,
 					};
-
 					player.addSkill(tempSkillName);
 					player.storage.gzt_pingjian_temp = tempSkillName;
-
 					event.finish();
 				},
 			};
