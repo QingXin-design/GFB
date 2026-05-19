@@ -1,5 +1,5 @@
 {
-  "version": "1.2.1",
+  "version": "1.2.2",
   "files": {
     "extension.js": "17f2ab0b450c8edbb8002f230ca1c3a5a25c2e4a",
     "info.json": "3f602d53811b70de72113a9e43be2447f67d2d6c",
@@ -11,7 +11,7 @@
     "main/main.js": "4279a5cafc8a0ce031267d3a54fe6bfc9fda191c",
     "main/precontent.js": "a75c5a0612759747aeefb463dfe42a05c03e1473",
     "main/shipei.js": "f3185accd46f66b82f99553659f00391c2f2f045",
-    "main/update.js": "973066097b55edbd97170e102e99b6eedb13c805",
+    "main/update.js": "fb0db78f45e10de8062f9cbb42955912941fcb8b",
     "image/hp/frozenGlass1.png": "98314b82542875fd2bb5c94856c9509416bc18ce",
     "image/hp/frozenGlass2.png": "c6a4f79b301068d3ad2d7761dd41b5bf142e229f",
     "image/group/ge.png": "d6e2c91f28144be576a5bb0fecfb49cf1eaf5cd9",
@@ -275,7 +275,7 @@
     "character/dynamicTranslate.js": "1eef380319455e2b1893b943e988126afdd1e3f6",
     "character/index.js": "af50d351da31e3b1f41597bc162568791d94e51a",
     "character/perfectPair.js": "0af0f4886d2a070e4eb1d11a09b649a442984a0b",
-    "character/skill.js": "e357b4bc8188154d4dcf1679a1413f26c1ee3498",
+    "character/skill.js": "348eca42f4d4f1ee4018b65ed45690e9f2c573e7",
     "character/translate.js": "3d353eb9ddbcb009c3d96c13c379f634835498af",
     "card/card.js": "c84e33554e4fa7baf3ae8a74007e1ede9dfae92e",
     "card/image/cxm_cy_basic.png": "1cd94bcd1da1dd353987bcbfc4d4b43874047587",
