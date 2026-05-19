@@ -7,11 +7,9 @@ if (!window.SyncModule && gflib?.SyncModule) {
 }
 window.SyncModule.init();
 let playerOwnedExtensions = [];
-
 function isInOnlineRoom() {
     return !!_status.connectMode && !!game.roomId;
 }
-
 function stripHTML(html) {
     if (!html) return '';
     html = html.replace(/<style[\s\S]*?<\/style>/gi, '');
@@ -26,7 +24,6 @@ function splitAuthors(authorStr) {
     if (!authorStr) return [];
     return authorStr.split(/，|、|&&|&|\||\s+/).filter(item => item);
 }
-
 // 获取所有扩展名称
 function getAllExtensions() {
     return new Promise((resolve) => {
@@ -35,7 +32,6 @@ function getAllExtensions() {
         }, () => resolve([]));
     });
 }
-
 // 遍历扩展
 function findMyInfoAndAuthor() {
     return new Promise((resolve) => {
@@ -52,15 +48,14 @@ function findMyInfoAndAuthor() {
             if(playerName == "若怜" || playerName == "梦见月") {
                 playerOwnedExtensions = ['REACGN'];
             }
-            if(playerName == "可爱の鸽子" || playerName == "我去，扫福瑞") {
+            if(playerName == "可爱の鸽子" || playerName == "我去，扫福瑞" || playerName == "电翼单推人") {
                 playerOwnedExtensions = ['鸽府包'];
             }
             if(playerName == "诺离鸡") {
-                playerOwnedExtensions = ['诺言'];
+                playerOwnedExtensions = ['诺岩'];
             }
             return resolve(true);
         }
-
         game.getFileList('extension/', (folders) => {
             let checkedCount = 0;
             const totalFolders = folders?.length || 0;
@@ -93,7 +88,6 @@ function findMyInfoAndAuthor() {
         });
     });
 }
-
 function getExtensionCharacters(extName) {
     const list = [];
     for (const packName in lib.characterPack) {
@@ -112,13 +106,11 @@ function getExtensionCharacters(extName) {
     }
     return list;
 }
-
-// 渲染单个扩展的武将板块（复用函数）
+// 渲染单个扩展的武将板块
 function renderExtensionBox(extName, parent, configItem) {
     const chars = getExtensionCharacters(extName);
     // 空武将扩展直接不显示
     if (chars.length === 0) return;
-
     const extBox = ui.create.div('ext-box', parent);
     extBox.style.width = '100%';
     extBox.style.marginBottom = '24px';
@@ -126,7 +118,6 @@ function renderExtensionBox(extName, parent, configItem) {
     extBox.style.overflow = 'hidden';
     extBox.style.position = 'relative';
     extBox.style.zIndex = 'auto';
-    
     const extTitle = ui.create.div('.ext-title', `【${extName}】的武将`, extBox);
     extTitle.style.color = '#fff';
     extTitle.style.fontSize = '16px';
@@ -137,7 +128,6 @@ function renderExtensionBox(extName, parent, configItem) {
     extTitle.style.float = 'none';
     extTitle.style.position = 'relative';
     extTitle.style.zIndex = '2';
-    
     const charWrap = ui.create.div('char-wrap', extBox);
     charWrap.style.display = 'flex';
     charWrap.style.flexWrap = 'wrap';
@@ -147,7 +137,6 @@ function renderExtensionBox(extName, parent, configItem) {
     charWrap.style.clear = 'both';
     charWrap.style.position = 'relative';
     charWrap.style.zIndex = '1';
-    
     chars.forEach(charName => {
         const imgNode = ui.create.div('char-img', charWrap);
         imgNode.style.width = '64px';
@@ -187,7 +176,6 @@ function renderExtensionBox(extName, parent, configItem) {
                 }
             }
         });
-
         imgNode.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             if (game.createCharacterSkill) {
@@ -196,12 +184,10 @@ function renderExtensionBox(extName, parent, configItem) {
         });
     });
 }
-
 // 权限判断
 function checkAuthorMatch() {
     return true;
 }
-
 game.gfb_ljqy = async function() {
     await findMyInfoAndAuthor();
     if (!checkAuthorMatch()) {
@@ -239,19 +225,16 @@ game.gfb_ljqy = async function() {
         introItem.style.fontSize = '14px';
         introItem.style.color = '#664a2a';
         introItem.style.whiteSpace = 'pre-line';
-
         // 先渲染自己作者的扩展
         playerOwnedExtensions.forEach(extName => {
             renderExtensionBox(extName, rightBg, configItem);
         });
-
         // 再渲染其他所有扩展（每个扩展单独分组，空武将不显示）
         const allExts = await getAllExtensions();
         const otherExts = allExts.filter(ext => !playerOwnedExtensions.includes(ext));
         otherExts.forEach(extName => {
             renderExtensionBox(extName, rightBg, configItem);
         });
-
     let shuru = null;
     const sousuo = ui.create.div('.sousuo', LeaderboardBgHide, function(event) {
         event.stopPropagation();
