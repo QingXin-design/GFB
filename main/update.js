@@ -28,7 +28,8 @@ export default async (manual = false) => {
     let success = false;
     for (const p of [proxy, ...proxyList.filter(x => x !== proxy)]) {
         try {
-            const url = `${p}https://raw.githubusercontent.com/QingXin-design/GFB/main/manifest.json`;
+            // 加时间戳防缓存
+            const url = `${p}https://raw.githubusercontent.com/QingXin-design/GFB/main/manifest.json?${Date.now()}`;
             const controller = new AbortController();
             const timer = setTimeout(() => controller.abort(), 10000);
             const res = await fetch(url, { signal: controller.signal });
@@ -111,7 +112,8 @@ export default async (manual = false) => {
             prog.setFileName(`正在下载：${file}`);
             prog.setProgressValue(i + 1);
             try {
-                const url = `${proxy}https://raw.githubusercontent.com/QingXin-design/GFB/main/${file}`;
+                // 每个文件都加时间戳
+                const url = `${proxy}https://raw.githubusercontent.com/QingXin-design/GFB/main/${file}?${Date.now()}`;
                 const controller = new AbortController();
                 const timer = setTimeout(() => controller.abort(), 15000);
                 const res = await fetch(url, { signal: controller.signal });
@@ -148,7 +150,7 @@ export default async (manual = false) => {
             const toDelete = localFiles.filter(f =>
                 !remoteManifest.files[f] &&
                 f !== "manifest.json" &&
-                !isProtected(f) // 白名单不删除
+                !isProtected(f)
             );
             if (toDelete.length) {
                 const delProg = createProgress("清理旧文件", toDelete.length);
