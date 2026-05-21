@@ -20,7 +20,7 @@ const block = (() => {
 	const isGte1110 = isVersionGte(currentLibVersion, targetVersion);
 	if (isGte1110) {
 		return {
-			gf_gx: { sex: "male", group: "ge", hp: 3, maxHp: 3, skills: ["gf_gongxi", "gf_xiaoji"], noYjhj: true, },
+			gf_gx: { sex: "male", group: "ge", hp: 3, maxHp: 3, skills: ["gf_gongxi", "gf_xiaoji", "gzt_shunfa"] },
 			gf_zj: { sex: "male", group: "ge", hp: 2, maxHp: 3, hujia: 2, skills: ["gf_zhengjia", "gf_pojia"], noYjhj: true, },
 			gf_sb: { sex: "male", group: "ge", hp: 3, maxHp: 3, skills: ["gf_shanbu", "gf_shigui"], noYjhj: true, },
 			gf_gb: { sex: "male", group: "ge", hp: 3, maxHp: 4, hujia: 5, skills: ["gf_gubu", "gf_huoran"], noYjhj: true, },
@@ -79,7 +79,8 @@ const block = (() => {
 			gzt_ggz: { sex: "male", group: "qun", hp: 3, maxHp: 3, skills: ["gzt_baihe", "gzt_xiyun"] },
 			gzt_fl: { sex: "male", group: "qun", hp: 1, maxHp: 1, skills: ["gzt_zhuying", "gzt_zhihuo", "gzt_lidan"] },
 			gzt_byzzq: { sex: "male", group: "qun", hp: 3, maxHp: 3, skills: ["gzt_zhiyin"] },
-			gzt_xushao: { sex: "male", group: "qun", hp: 3, maxHp: 3, skills: ["gzt_pingjian"] },
+			gzt_xushao: { sex: "male", group: "qun", hp: 3, maxHp: 3, skills: ["gzt_pingjian"], noYjhj: true, },
+			gzt_zk: { sex: "male", group: "qun", hp: 4, maxHp: 4, skills: ["gzt_tanbing", "gzt_kuangyan"] },
 
 			// 大明王朝
 			dmwc_xj: { sex: "male", group: "ming", hp: 4, maxHp: 4, skills: ["dmwc_zhoumi", "dmwc_chujian"] },
