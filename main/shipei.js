@@ -968,4 +968,190 @@ export function initShipei(lib, game, ui, get, ai, _status, datasrc) {
         }
     };
     game.addGlobalSkill('gflib_frozenSkill');
+
+    // 瞬发技能
+    game.gfShunfa = {
+        click(player, skillname) {
+            if (!player.isUnderControl(true)) return;
+            const act = game.gfShunfa.getAct(player, skillname);
+            if (act instanceof Promise) act.then(() => {});
+            else game.gfShunfa.doAction(player, skillname);
+        },
+        getAct(player, skillname) {
+            if (game.online) {
+                return game.requestSkillData(skillname, "gfShunfaAction", 10000);
+            }
+            return true;
+        },
+        sync: {
+			gfShunfaAction(client) {
+				lib.skill.gzt_shunfa.doAction(client);
+				return true;
+			},
+		},
+        doAction(player, skillname) {
+            const skill = lib.skill[skillname];
+            if (!skill || !player || !player.isAlive()) return;
+            if (skill.shunfaEffect) skill.shunfaEffect(player);
+        }
+    };
+    Object.assign(lib.message.server, {
+        gfShunfaAction(player) {
+            game.gfShunfa.doAction(player, player.currentSkill);
+        }
+    });
+
+    // 瞬发技按钮配置
+    lib.element.player.gf_initShunfa = function (skillname) {
+        let player = this;
+        if (!skillname || typeof skillname !== "string" || !lib.skill[skillname]) {
+            return;
+        }
+        if (player.node.gf_shunfaBtn) player.node.gf_shunfaBtn.delete();
+        if (player.node.gf_shunfaText) player.node.gf_shunfaText.delete();
+        // 文字
+        let text = ui.create.div(".gf_shunfa_text", player);
+        player.node.gf_shunfaText = text;
+        text.innerText = get.translation(skillname) || "瞬";
+        Object.assign(text.style, {
+            position: "absolute",
+            top: "5px",
+            left: "calc(50% - 15px)",
+            width: "30px",
+            fontSize: "12px",
+            color: "#fff",
+            fontWeight: "bold",
+            textAlign: "center",
+            textShadow: "1px 1px 2px #000",
+            zIndex: "100000",
+            pointerEvents: "none"
+        });
+        // 主按钮
+        let button = ui.create.div(".gf_shunfa_btn", player);
+        player.node.gf_shunfaBtn = button;
+        button.style.backgroundImage = `url(${lib.assetURL}extension/鸽府包/image/hp/button.jpg)`;
+        button.style.backgroundSize = "cover";
+        button.style.backgroundRepeat = "no-repeat";
+        button.style.backgroundPosition = "center";
+        button.style.position = "absolute";
+        button.style.width = "30px";
+        button.style.height = "30px";
+        button.style.top = "20px";
+        button.style.left = "calc(50% - 15px)";
+        button.style.zIndex = "99999";
+        button.style.pointerEvents = "auto";
+        button.innerHTML = "";
+        // 同步文字位置
+        const syncTextPos = () => {
+            text.style.left = button.style.left;
+            text.style.top = `${parseFloat(button.style.top) - 15}px`;
+            text.style.width = button.style.width;
+        };
+        // 播放动画
+        function playClickVideo(posData, targetPlayer) {
+            if (!targetPlayer || !targetPlayer.node) return;
+            if (targetPlayer.node.gf_shunfaVideo) return;
+            let videoBox = ui.create.div(".gf_shunfa_video_box", targetPlayer);
+            targetPlayer.node.gf_shunfaVideo = videoBox;
+            Object.assign(videoBox.style, {
+                position: "absolute",
+                width: posData.width,
+                height: posData.height,
+                top: posData.top,
+                left: posData.left,
+                zIndex: "100001",
+                pointerEvents: "none",
+                opacity: "0"
+            });
+            let video = document.createElement("video");
+            video.src = `${lib.assetURL}extension/鸽府包/image/animation/button.mp4`;
+            video.style.width = "100%";
+            video.style.height = "100%";
+            video.style.objectFit = "cover";
+            video.muted = true;
+            video.loop = false;
+            video.preload = "auto";
+            video.addEventListener("canplaythrough", function() {
+                videoBox.style.opacity = "1";
+                video.play().catch(()=>{});
+            });
+            video.onended = function() {
+                try {
+                    if (targetPlayer.node && targetPlayer.node.gf_shunfaVideo) {
+                        targetPlayer.node.gf_shunfaVideo.delete();
+                        delete targetPlayer.node.gf_shunfaVideo;
+                    }
+                }catch(e){}
+            };
+            videoBox.appendChild(video);
+        }
+        // 房主接收客机发来的消息
+        lib.message.server.gf_shunfa_play = function(pos, playerid){
+            let targetPlayer = lib.playerOL[playerid];
+            if(!targetPlayer) return;
+            game.broadcastAll(playClickVideo, pos, targetPlayer);
+        };
+        // 客机接收房主广播
+        lib.message.client.gf_shunfa_play = function(pos, playerid){
+            let targetPlayer = lib.playerOL[playerid];
+            if(!targetPlayer) return;
+            playClickVideo(pos, targetPlayer);
+        };
+        let isDragging = false;
+        let startX, startY, origLeft, origTop;
+        const MOVE_THRESHOLD = 5;
+        const onDown = (e) => {
+            e.preventDefault();
+            const p = e.touches ? e.touches[0] : e;
+            startX = p.clientX;
+            startY = p.clientY;
+            origLeft = parseFloat(button.style.left);
+            origTop = parseFloat(button.style.top);
+            isDragging = false;
+        };
+        const onMove = (e) => {
+            if (startX === undefined) return;
+            const p = e.touches ? e.touches[0] : e;
+            const dx = p.clientX - startX;
+            const dy = p.clientY - startY;
+            if (Math.abs(dx) > MOVE_THRESHOLD || Math.abs(dy) > MOVE_THRESHOLD) {
+                isDragging = true;
+                button.style.left = origLeft + dx + "px";
+                button.style.top = origTop + dy + "px";
+                syncTextPos();
+            }
+        };
+        const onUp = (e) => {
+            if (startX === undefined) return;
+            if (!isDragging) {
+                doClickAction();
+            }
+            startX = startY = undefined;
+        };
+        // 点击动作
+        function doClickAction() {
+            const skill = lib.skill[skillname];
+            if (!player.isUnderControl(true) || !skill) return;
+            if (skill.clickableFilter && !skill.clickableFilter(player)) return;
+            const pos = {
+                top: button.style.top,
+                left: button.style.left,
+                width: button.style.width,
+                height: button.style.height
+            };
+            playClickVideo(pos, player);
+            if (game.online) {
+                game.send("gf_shunfa_play", pos, player.playerid);
+            } else {
+                game.broadcastAll(playClickVideo, pos, player);
+            }
+            skill.clickable?.(player);
+        }
+        button.addEventListener("mousedown", onDown);
+        document.addEventListener("mousemove", onMove);
+        document.addEventListener("mouseup", onUp);
+        button.addEventListener("touchstart", onDown, { passive: false });
+        document.addEventListener("touchmove", onMove, { passive: false });
+        document.addEventListener("touchend", onUp);
+    };
 }
