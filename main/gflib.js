@@ -3741,6 +3741,11 @@ if (document.readyState === "complete") {
 				skillObj.fixed = true;
 				skillObj.superCharlotte = true;
 			}
+			if (skillObj && skillObj.GFshunfaSkill === true) {
+				skillObj.sync = {
+					gfShunfaAction: lib.message.server.gfShunfaAction
+				};
+			}
 			target[skillName] = skillObj;
 			return true;
 		}
