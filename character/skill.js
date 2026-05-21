@@ -2,6 +2,81 @@ import{lib,game,ui,get,ai,_status}from '../../../noname.js'
 import { translate } from './translate.js'
 let block = {
 	//在这里编写技能。
+	"gzt_tanbing": {
+		init: function (player) {
+			player.gf_initShunfa("gzt_tanbing");
+			player.storage.gzt_tanbing_a = 0;
+			player.storage.gzt_tanbing_b = 0;
+		},
+		trigger: {
+			player: "loseAfter",
+		},
+		GFshunfaSkill: true,
+		silentForce: true,
+		clickableFilter(player) {
+			return player.countMark("gzt_tanbing_a") > player.countMark("gzt_tanbing_b");
+		},
+		clickable(player) {
+			game.gfShunfa.click(player, "gzt_tanbing");
+		},
+		shunfaEffect(player) {
+			var card = get.cardPile2(function (card) {
+				return get.tag(card, "damage");
+			});
+			if (card) {
+				game.broadcastAll((p) => {
+					game.playAudio(`../extension/鸽府包/audio/skill/gzt_tanbing${[1, 2].randomGet()}.mp3`);
+				}, player);
+				let target = game.filterPlayer()[Math.floor(Math.random() * game.filterPlayer().length)];
+				player.useCard(card, target);
+				player.storage.gzt_tanbing_b++;
+			}
+		},
+		async content(event, trigger, player) {
+			player.storage.gzt_tanbing_a += trigger.getl(player).cards2.length;
+		},
+	},
+	"gzt_kuangyan": {
+		trigger: {
+			global: "useCardBefore",
+		},
+		audio: "ext:鸽府包/audio/skill:2",
+		filter(event, player) {
+			return event.targets.includes(player) && get.type(event.card) != "equip";
+		},
+		content() {
+			"step 0";
+			var dialog = [get.prompt("gzhlb_shengtao")];
+			list = lib.inpile.filter(function (i) {
+				return get.type(i) != "equip";
+			});
+			if (list.length) {
+				dialog.push('<div class="text center">你可猜测对你使用牌的牌名</div>');
+				dialog.push([list, "vcard"]);
+			}
+			player.chooseButton(dialog).set("ai", function (button) {
+				var player = _status.event.player,
+					name = button.link[2];
+				return -get.effect(player, { name: name }, player, player);
+			});
+			"step 1";
+			if (result.bool) {
+				event.count = 0;
+				if (trigger.card.name == result.links[0][2]) {
+					player.gainPlayerCard(trigger.player, 'he', true);
+					trigger.player.draw();
+					event.count++;
+				}
+				if (get.type(trigger.card) == result.links[0][0]) {
+					player.draw();
+					event.count++;
+				}
+				if (event.count == 0) player.chooseToDiscard(true, "he");
+			} else {
+				event.finish();
+			}
+		},
+	},
 	"gzt_pingjian": {
 		init: function (player) {
 			player.storage.gzt_pingjian = 4;
