@@ -16,10 +16,8 @@ let block = {
 		clickableFilter(player) {
 			return player.countMark("gzt_tanbing_a") > player.countMark("gzt_tanbing_b");
 		},
-		clickable(player) {
-			game.gfShunfa.click(player, "gzt_tanbing");
-		},
-		shunfaEffect(player) {
+		doAction(player) {
+			if(!player || !player.isAlive()) return;
 			var card = get.cardPile2(function (card) {
 				return get.tag(card, "damage");
 			});
@@ -36,23 +34,29 @@ let block = {
 			player.storage.gzt_tanbing_a += trigger.getl(player).cards2.length;
 		},
 	},
-	"gzt_kuangyan": {
+	"gzt_bingshu": {
 		trigger: {
 			global: "useCardBefore",
 		},
 		audio: "ext:鸽府包/audio/skill:2",
+		frequent: true,
 		filter(event, player) {
-			return event.targets.includes(player) && get.type(event.card) != "equip";
+			return event.targets.includes(player) && event.player != player;
 		},
 		content() {
 			"step 0";
-			var dialog = [get.prompt("gzhlb_shengtao")];
+			var dialog = [get.prompt("gzt_bingshu")];
 			list = lib.inpile.filter(function (i) {
-				return get.type(i) != "equip";
+				return get.type(i) != "equip" && !get.info(i).notarget;
 			});
+			let list2 = [];
+			for (let i = 0; i < 5 && list.length > 0; i++) {
+				let index = Math.floor(Math.random() * list.length);
+				list2.push(list.splice(index, 1)[0]);
+			}
 			if (list.length) {
 				dialog.push('<div class="text center">你可猜测对你使用牌的牌名</div>');
-				dialog.push([list, "vcard"]);
+				dialog.push([list2, "vcard"]);
 			}
 			player.chooseButton(dialog).set("ai", function (button) {
 				var player = _status.event.player,
@@ -71,9 +75,7 @@ let block = {
 					player.draw();
 					event.count++;
 				}
-				if (event.count == 0) player.chooseToDiscard(true, "he");
-			} else {
-				event.finish();
+				if (event.count == 0) player.chooseToDiscard(2, true, "he");
 			}
 		},
 	},
