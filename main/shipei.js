@@ -969,38 +969,6 @@ export function initShipei(lib, game, ui, get, ai, _status, datasrc) {
     };
     game.addGlobalSkill('gflib_frozenSkill');
 
-    // 瞬发技能
-    game.gfShunfa = {
-        click(player, skillname) {
-            if (!player.isUnderControl(true)) return;
-            const act = game.gfShunfa.getAct(player, skillname);
-            if (act instanceof Promise) act.then(() => {});
-            else game.gfShunfa.doAction(player, skillname);
-        },
-        getAct(player, skillname) {
-            if (game.online) {
-                return game.requestSkillData(skillname, "gfShunfaAction", 10000);
-            }
-            return true;
-        },
-        sync: {
-			gfShunfaAction(client) {
-				lib.skill.gzt_shunfa.doAction(client);
-				return true;
-			},
-		},
-        doAction(player, skillname) {
-            const skill = lib.skill[skillname];
-            if (!skill || !player || !player.isAlive()) return;
-            if (skill.shunfaEffect) skill.shunfaEffect(player);
-        }
-    };
-    Object.assign(lib.message.server, {
-        gfShunfaAction(player) {
-            game.gfShunfa.doAction(player, player.currentSkill);
-        }
-    });
-
     // 瞬发技按钮配置
     lib.element.player.gf_initShunfa = function (skillname) {
         let player = this;
