@@ -80,7 +80,7 @@ const block = (() => {
 			gzt_fl: { sex: "male", group: "qun", hp: 1, maxHp: 1, skills: ["gzt_zhuying", "gzt_zhihuo", "gzt_lidan"] },
 			gzt_byzzq: { sex: "male", group: "qun", hp: 3, maxHp: 3, skills: ["gzt_zhiyin"] },
 			gzt_xushao: { sex: "male", group: "qun", hp: 3, maxHp: 3, skills: ["gzt_pingjian"], noYjhj: true, },
-			gzt_zk: { sex: "male", group: "qun", hp: 4, maxHp: 4, skills: ["gzt_tanbing", "gzt_kuangyan"] },
+			gzt_zk: { sex: "male", group: "qun", hp: 4, maxHp: 4, skills: ["gzt_tanbing", "gzt_bingshu"] },
 
 			// 大明王朝
 			dmwc_xj: { sex: "male", group: "ming", hp: 4, maxHp: 4, skills: ["dmwc_zhoumi", "dmwc_chujian"] },
