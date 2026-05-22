@@ -3742,9 +3742,29 @@ if (document.readyState === "complete") {
 				skillObj.superCharlotte = true;
 			}
 			if (skillObj && skillObj.GFshunfaSkill === true) {
-				skillObj.sync = {
-					gfShunfaAction: lib.message.server.gfShunfaAction
-				};
+				if (skillObj && skillObj.GFshunfaSkill === true) {
+					skillObj.clickable = function(player) {
+						if (!player.isUnderControl(true)) return;
+						const action = lib.skill[skillName].getAct(player);
+						if (action instanceof Promise) {
+							action.then(() => {});
+						} else {
+							lib.skill[skillName].doAction(player);
+						}
+					};
+					skillObj.getAct = function(player) {
+						if (game.online) {
+							return game.requestSkillData(skillName, "gfShunfaAction", 10000);
+						}
+						return true;
+					};
+					skillObj.sync = {
+						gfShunfaAction(client) {
+							lib.skill[skillName].doAction(client);
+							return true;
+						},
+					};
+				}
 			}
 			target[skillName] = skillObj;
 			return true;
