@@ -54,6 +54,9 @@ function findMyInfoAndAuthor() {
             if(playerName == "诺离鸡") {
                 playerOwnedExtensions = ['诺岩'];
             }
+            if(playerName == "。") {
+                playerOwnedExtensions = ['赛尔计划'];
+            }
             return resolve(true);
         }
         game.getFileList('extension/', (folders) => {
@@ -202,9 +205,9 @@ game.gfb_ljqy = async function() {
     });
     ui.create.div('.modeText', '祈愿关键词', LeaderboardBgHide);
     const uid = SyncModule.utils.getNickname();
-    window.clskDataMap = window.clskDataMap || {};
+    window.gfDataMap = window.gfDataMap || {};
     const savedKeyword =
-        window.clskDataMap[uid]?.extension_鸽府包_ljqy || lib.config?.extension_鸽府包_ljqy|| '';
+        window.gfDataMap[uid]?.extension_鸽府包_ljqy || lib.config?.extension_鸽府包_ljqy|| '';
         const rightBg = ui.create.div('.rightBg', LeaderboardBgHide);
         rightBg.style.padding = '10px';
         rightBg.style.boxSizing = 'border-box';

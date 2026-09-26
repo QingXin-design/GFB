@@ -24,10 +24,12 @@ lib.onover.push(function(bool) {
     lib.config.extension_鸽府包_winner_player.changci = Number(lib.config.extension_鸽府包_winner_player.changci) || 0;
     lib.config.extension_鸽府包_winner_player.shengchang = Number(lib.config.extension_鸽府包_winner_player.shengchang) || 0;
     lib.config.extension_鸽府包_winner_player.pingju = Number(lib.config.extension_鸽府包_winner_player.pingju) || 0;
+
     // 初始化连胜数据
     if (!lib.config.extension_鸽府包_qysy) {
         game.saveConfig('extension_鸽府包_qysy', { win: 0, lose: 0 });
     }
+
     const playerHeroMap = {};
     const currentUid = window.SyncModule.utils.getNickname();
     game.filterPlayer2(player => {
@@ -65,6 +67,7 @@ lib.onover.push(function(bool) {
             processCharacters(target.getFriends(null, true));
         }
     }
+
     // 单机通过game.me判断，不依赖UID
     let isMyWin = false;
     let isPingju = bool !== true && bool !== false;
@@ -150,7 +153,7 @@ lib.onover.push(function(bool) {
             }
         };
         game.broadcastAll(function(data) {
-            window.clskDataMap = window.clskDataMap || Object.create(null);
+            window.gfDataMap = window.gfDataMap || Object.create(null);
             const localUid = window.SyncModule.utils.getNickname();
             if (!data.isHost && localUid !== data.hostUid) {
                 const localHeroes = data.playerHeroMap[localUid] || [];
@@ -205,10 +208,10 @@ lib.onover.push(function(bool) {
                 game.saveConfig('extension_鸽府包_qysy', localQysy);
             }
             const syncUid = data.selfData.playerUid;
-            window.clskDataMap[syncUid] = window.clskDataMap[syncUid] || {};
-            window.clskDataMap[syncUid].winnerPlayer = data.selfData.playerData;
-            window.clskDataMap[syncUid].winnerConnect = data.selfData.connectWinnerData;
-            window.clskDataMap[syncUid].qysy = data.selfData.qysyData;
+            window.gfDataMap[syncUid] = window.gfDataMap[syncUid] || {};
+            window.gfDataMap[syncUid].winnerPlayer = data.selfData.playerData;
+            window.gfDataMap[syncUid].winnerConnect = data.selfData.connectWinnerData;
+            window.gfDataMap[syncUid].qysy = data.selfData.qysyData;
 
             if (syncUid === localUid) {
                 lib.config.extension_鸽府包_winner_player = data.selfData.playerData;
@@ -284,8 +287,8 @@ game.gfb_slb=function(){
     const leftBg=ui.create.div('.leftBg',LeaderboardBgHide);
     const rightBg=ui.create.div('.rightBg',LeaderboardBgHide);
     const myUid = window.SyncModule.utils.getNickname();
-    const mapPlayerData = window.clskDataMap?.[myUid]?.winnerPlayer || {};
-    const myQysy = window.clskDataMap?.[myUid]?.qysy || lib.config.extension_鸽府包_qysy || { win:0, lose:0 };
+    const mapPlayerData = window.gfDataMap?.[myUid]?.winnerPlayer || {};
+    const myQysy = window.gfDataMap?.[myUid]?.qysy || lib.config.extension_鸽府包_qysy || { win:0, lose:0 };
     const myWinnerData = {
         changci: Number(mapPlayerData.changci) || lib.config.extension_鸽府包_winner_player.changci || 0,
         shengchang: Number(mapPlayerData.shengchang) || lib.config.extension_鸽府包_winner_player.shengchang || 0,
@@ -561,7 +564,7 @@ game.gfb_slb=function(){
         if(name)_status.winnerNames=name;
         else delete _status.winnerNames;
         rightBg.innerHTML = '';
-        const myQysy = window.clskDataMap?.[myUid]?.qysy || lib.config.extension_鸽府包_qysy || { win:0, lose:0 };
+        const myQysy = window.gfDataMap?.[myUid]?.qysy || lib.config.extension_鸽府包_qysy || { win:0, lose:0 };
         let lianStr = '';
         if(myQysy.win > 0) lianStr = `【${myQysy.win}连胜】`;
         else if(myQysy.lose > 0) lianStr = `【${myQysy.lose}连败】`;
@@ -572,10 +575,10 @@ game.gfb_slb=function(){
         // const MAX_RENDER = 100;
         // let renderCount = 0;
         if (_status.connectMode && showOtherPlayers) {
-            for (let uid in window.clskDataMap) {
+            for (let uid in window.gfDataMap) {
                 // if (renderCount >= MAX_RENDER) break;
-                const playerWinnerData = window.clskDataMap[uid]?.winnerConnect || {};
-                const userQysy = window.clskDataMap[uid]?.qysy || { win:0, lose:0 };
+                const playerWinnerData = window.gfDataMap[uid]?.winnerConnect || {};
+                const userQysy = window.gfDataMap[uid]?.qysy || { win:0, lose:0 };
                 for (let character in playerWinnerData) {
                     // if (renderCount >= MAX_RENDER) break;
                     const data = playerWinnerData[character];
