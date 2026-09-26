@@ -29,9 +29,14 @@ let block = {//武将称号
 	"seh_hytz": "圣殿复仇者",
 	"seh_sls": "混沌魔君",
 	"seh_lmht": "空元行者",
+	"seh": "圣灵天启",
 	
 	"aqcs_frws": "凋亡神骸",
 	"aqcs_ars": "生息永恒",
 	"aqcs_lyjd": "绝命终焉",
+	"gzt_yyx": "杨叫兽",
+	"gzt_thk": "陶叫兽",
+	"gzt_lxp": "郎叫兽",
+	"gzr_lg": "龙人之祖",
 };
 export const characterTitle=block;

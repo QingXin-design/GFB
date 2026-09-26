@@ -15,14 +15,39 @@ const prefixToGroupName = {
 	'wzzs': '无职转生',
 	'cxm': '荼家将',
     'dmwc': '大明王朝',
-	'tj': '汝家将',
+	'tj': '朋家将',
 	'gzhlb': '欢乐鸽',
 	'gzt': '鸽杂谈',
 	'seh': '赛尔号',
 	'aqcs': '奥奇传说',
 	'gzlj': '公主连结',
-	'a': '实验体'
+	'a': '实验体',
+	'Mimi': '颠',
+	'gzr': '蛊真人',
 };
+
+// 自定义势力注册
+if (game && game.addGroup) {
+	game.addGroup('ge', 'ge', '鸽势力', {});
+	game.addGroup('ming', 'ming', '大明王朝势力', {});
+	game.addGroup('zhi', 'zhi', '智势力', {});
+	game.addGroup('M', '颠', '颠势力', {});
+	game.addGroup('gzr', '蛊', '蛊势力', {});
+}
+if (lib.translate) {
+	lib.translate['group_ge_bg'] = 'ge';
+	lib.translate['group_ming_bg'] = 'ming';
+	lib.translate['group_zhi_bg'] = 'zhi';
+	lib.translate['group_M_bg'] = '颠';
+	lib.translate['group_gzr_bg'] = '蛊';
+}
+if (lib.groupnature) {
+	lib.groupnature.ge = 'ge';
+	lib.groupnature.ming = 'ming';
+	lib.groupnature.zhi = 'zhi';
+	lib.groupnature.M = 'M';
+	lib.groupnature.gzr = 'gzr';
+}
 
 const allCharacterNames = new Set(Object.keys(characterData));
 for (const [key, originalName] of Object.entries(translate)) {
@@ -34,6 +59,58 @@ for (const [key, originalName] of Object.entries(translate)) {
 		}
 	}
 }
+
+const style = document.createElement('style');
+style.textContent = `
+.blood_pulse_flow {
+  background: linear-gradient(90deg, #100000, #4a0000, #7c0000, #b71c1c, #7c0000, #4a0000, #100000);
+  background-size: 500% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  animation: bloodFlow 8s linear infinite, electricFlicker 10s ease-in-out infinite, starSparkle 2.8s infinite alternate;
+  position: relative;
+}
+@keyframes bloodFlow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 500% 50%; }
+}
+@keyframes electricFlicker {
+  0%, 100% { text-shadow: 0 0 2px #7c0000, 0 0 4px #4a0000; }
+  25% { text-shadow: 0 0 8px #b71c1c, 0 0 16px #7c0000; }
+  50% { text-shadow: 0 0 3px #7c0000, 0 0 6px #4a0000; }
+  75% { text-shadow: 0 0 10px #c62828, 0 0 20px #b71c1c; }
+}
+@keyframes starSparkle {
+  0% { filter: drop-shadow(0 0 1px #ffffff) drop-shadow(0 0 2px #f44336); }
+  50% { filter: drop-shadow(0 0 3px #ffffff) drop-shadow(0 0 6px #e53935); }
+  100% { filter: drop-shadow(0 0 1px #ffffff) drop-shadow(0 0 2px #c62828); }
+}
+/* 自定义势力武将名白字硬边黑描边 让浅色背景下清晰 */
+.player .name[data-nature^="ge"],
+.player .name[data-nature^="ming"],
+.player .name[data-nature^="zhi"],
+.player .name[data-nature^="M"],
+.player .name.name_seat[data-nature^="ge"],
+.player .name.name_seat[data-nature^="ming"],
+.player .name.name_seat[data-nature^="zhi"],
+.player .name.name_seat[data-nature^="M"],
+.button.character .name[data-nature^="ge"],
+.button.character .name[data-nature^="ming"],
+.button.character .name[data-nature^="zhi"],
+.button.character .name[data-nature^="M"] {
+  color: #fff !important;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000 !important;
+}
+`;
+document.head.appendChild(style);
+let selfNick = "<span class='blood_pulse_flow'>阎罗王</span>";
+if (lib.config?.extension_鸽府包_ljmz) {
+    selfNick = `<span class='blood_pulse_flow'>${lib.config.extension_鸽府包_ljmz}</span>`;
+}
+translate["gzt_ym"] = selfNick;
+lib.translate && (lib.translate["gzt_ym"] = selfNick);
 
 const filteredCharacterData = {};
 const isConnectMode = _status.connectMode;
@@ -50,7 +127,13 @@ const baseCondition = char => {
 for (const name in characterData) {
     const char = characterData[name];
     const yjhj = !char.noYjhj && (isConnectMode ? !char.noYjhj : true);
-    const Include = baseCondition(char) && (lib.config.extension_鸽府包_gfb_yjhj ? yjhj : true);
+    let Include = baseCondition(char) && (lib.config.extension_鸽府包_gfb_yjhj ? yjhj : true);
+    // 联机头像gzt_rk始终注册
+    if (name === "gzt_rk") {
+        Include = true;
+        char.isUnseen = true;
+        if (!char.img) char.img = "extension/鸽府包/image/character/stand/gzt_rk.jpg";
+    }
     if (Include) {
         filteredCharacterData[name] = char;
     }
@@ -100,7 +183,7 @@ if (lib.device || lib.node) {
             const imagePath = `extension/鸽府包/image/character/${outcropConfig === true ? "stand" : outcropConfig}/`;
             const suffix = ".jpg";
             for (const id in characterData) {
-                const validPrefixes = ["gf_", "wzzs_", "cxm_","dmwc_" , "tj_", "gzhlb_", "gzt_", "seh_", "aqcs_", "gzlj_", "a_"];
+                const validPrefixes = ["gf_", "wzzs_", "cxm_","dmwc_" , "tj_", "gzhlb_", "gzt_", "seh_", "aqcs_", "gzlj_", "a_", "Mimi_", "gzr_"];
                 if (validPrefixes.some(prefix => id.startsWith(prefix))) {
                     const imgPath = imagePath + id + suffix;
                     const config = characterData[id];
@@ -117,7 +200,8 @@ if (lib.device || lib.node) {
             const underlineIndex = name.indexOf('_');
             const prefix = underlineIndex > 0 ? name.substring(0, underlineIndex) : 'a';
             const namex = underlineIndex > 0 ? name.substring(underlineIndex + 1) : name;
-            if (characterSort.mode_extension_鸽府包[prefix]) characterSort.mode_extension_鸽府包[prefix].push(name);
+            // 联机头像gzt_rk不进选将分组
+            if (characterSort.mode_extension_鸽府包[prefix] && name !== "gzt_rk") characterSort.mode_extension_鸽府包[prefix].push(name);
             if (!translate[name + '_prefix']) translate[name + '_prefix'] = prefixToGroupName[prefix] || prefix;
             const charConfig = characterData[name];
             if (!charConfig[4]) charConfig[4] = [];
@@ -830,7 +914,7 @@ window.gfbCampConfig = {
         qun: ["gzj_pzjn_qun"]
     },
     randomCampList: ['wei', 'shu', 'wu', 'qun'],
-    targetGeneralPrefixes: ["gf", "wzzs", "cxm", "dmwc", "tj", "gzhlb", "gzt", "seh", "aqcs", "gzlj", "a"],
+    targetGeneralPrefixes: ["gf", "wzzs", "cxm", "dmwc", "tj", "gzhlb", "gzt", "seh", "aqcs", "gzlj", "a", "Mimi", "gzr"],
     campIndex: 1,
     skillListIndex: 3,
     skillMountKey: "_skill_name_mounted_flag"
@@ -1817,4 +1901,16 @@ lib.skill["gf_pinzhuang_1"] = {
         event.finish();
     },
 };
+// 手杀神姜维星魂联机修复：mbxinghun -> gzt_xinghun(原版customButton联机报错)
+if (lib.character && lib.character['mb_shen_jiangwei']) {
+    const orig = lib.character['mb_shen_jiangwei'];
+    if (Array.isArray(orig)) {
+        if (Array.isArray(orig[3])) {
+            orig[3] = orig[3].map(s => s === 'mbxinghun' ? 'gzt_xinghun' : s);
+        }
+    } else if (orig.skills && Array.isArray(orig.skills)) {
+        orig.skills = orig.skills.map(s => s === 'mbxinghun' ? 'gzt_xinghun' : s);
+    }
+}
+
 export const character = block;

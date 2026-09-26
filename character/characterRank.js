@@ -9,7 +9,19 @@ let block={//武将评级
         "seh_saier_msdk", "seh_saier_tqdj", "seh_saier_yxlz", "seh_saier_dd", "seh_saier_ly", "seh_saier_gy",
         "aqcs_lzsz_cslz",
         "gzlj_qiunai",
-        "a_cerhao"
+        "gzlj_peike",
+        "gzlj_kekeluo",
+        "gzlj_youyi",
+        "gzlj_zhenqin",
+        "gzlj_kailu",
+        "gzlj_jingliu",
+        "gzlj_meidong",
+        "gzlj_zhuxi",
+        "gzlj_youjiali",
+        "a_cerhao",
+        "gzt_xs", "gzt_zk", "gzt_jd", "gzt_thk", "gzt_lxp", "gzt_jkst", "gzt_sjw", "gzt_whsd", "gzt_sx", "gzt_nlj",
+        "Mimi_ldMimi",
+        "gzhlb_cd", "seh_saier_hytz"
     ],
     S:[
         "gf_gx", "gf_ks", "gf_gb", "gf_phj",
@@ -20,19 +32,24 @@ let block={//武将评级
         "dmwc_xj", "dmwc_zjz", "dmwc_ysf", "dmwc_hzx", "dmwc_cyq", "dmwc_hr",
         "gzhlb_ty", "gzhlb_yl", "gzhlb_yw", "gzhlb_hs", "gzhlb_shenshi", "gzhlb_yll", "gzhlb_hz", "gzhlb_st", "gzhlb_fh", "gzhlb_by", "gzhlb_cy", "gzhlb_yq", "gzhlb_ts",
         "aqcs_ars", "aqcs_gmw_hjsl", "aqcs_gmw_ydn", "aqcs_lzsz_cylz",
-        "a_ayihao", "a_berhao"
+        "a_ayihao", "a_berhao",
+        "gzt_gzxzzn", "gzt_lye", "gzt_jh", "gzt_yyx",
+        "Mimi_xkMimi", "Mimi_lfMimi", "Mimi_xzMimi", "Mimi_krMimi", "Mimi_nlMimi", "Mimi_bhMimi", "Mimi_blMimi", "Mimi_mzMimi", "Mimi_psMimi", "Mimi_gwMimi", 
+        "gzhlb_kes"
     ],
     SS:[
         "gf_zj", "gf_sb", "gf_s", "gf_gp", "gf_sg", "gf_pg", "gf_bs", "gf_ts", "gf_yf", 
         "wzzs_znb",
         "cxm_dz", "cxm_lb",
         "tj_zzh",
-        "gzt_mkb", "gzt_bhx", "gzt_ggz", "gzt_byzzq",
+        "gzt_mkb", "gzt_bhx", "gzt_ggz", "gzt_byzzq", "gzt_lx",
         "dmwc_gg", "dmwc_wyj", "dmwc_ys",
         "gzhlb_Z", "gzhlb_sm", "gzhlb_jx", "gzhlb_flo", "gzhlb_gezij", "gzhlb_rm", "gzhlb_flzc", "gzhlb_gb", "gzhlb_ml", "gzhlb_kl", "gzhlb_B", "gzhlb_tx",
-        "seh_lmht", "seh_hytz", "seh_sls", "seh_saier_cszy", "seh_saier_dtzf", "seh_saier_mmr", "seh_saier_fes", "seh_saier_aoly",
+        "seh_lmht", "seh_hytz", "seh_sls", "seh_saier_cszy", "seh_saier_dtzf", "seh_saier_mmr", "seh_saier_fes", "seh_saier_aoly", "seh",
         "aqcs_frws", "aqcs_gmw", "aqcs_lzsz",
-        "a_aerhao", "a_asanhao", "a_asihao"
+        "a_aerhao", "a_asanhao", "a_asihao",
+        "gzt_ym", "gzt_ht", "gzt_rl", "gzt_cy", "gzt_bg",
+        "Mimi_egMimi", "Mimi_dpMimi"
     ],
     SSS:[
         "gf_gh",
@@ -41,7 +58,9 @@ let block={//武将评级
         "gzhlb_jl", 
         "seh_xsr", 
         "aqcs_lyjd",
-        "a_awuhao"
+        "a_awuhao",
+        "gzr_lg", "gzr_wjmz",
+        "tj_dmssq"
     ]
 };
 export const characterRank=block;
