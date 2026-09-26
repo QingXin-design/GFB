@@ -21,10 +21,12 @@ lib.gflib_custom.mp.push(function (player) {
 lib.gflib_custom.mp.push(function (player) {
 	if (player.name == 'aqcs_cssl') return { gflib_mp: 0, gflib_maxMp: 100, type: 'aqcs_csnl', color: 'linear-gradient(#cccccc, #4B0082)', color2: 'linear-gradient(#ff0000, #cc00ff)' }
 });
+lib.gflib_custom.mp.push(function (player) {
+	if (player.name == 'gzhlb_kes') return { gflib_mp: 0, gflib_maxMp: 1000, type: 'gzhlb_zuizhuangZ', color: 'linear-gradient(#cccccc, #4B0082)', color2: 'linear-gradient(#ff0000, #cc00ff)' }
+});
 lib.gflib_custom.tongling.push(function(player) {
     if (player.name == 'aqcs_lyjd') { return { gflib_tongling: 0, gflib_maxTongling: 2, type: 'gflib_tongling' }; }
 });
-
 lib.gflib_custom.frozen.push(function(player) {
     return { gflib_frozen: 0, type: 'gflib_frozen' };
 });
@@ -34,12 +36,11 @@ const packList = [
 ];
 
 function memberToString(key) {
-	let str = '';
+	const obj = {};
 	for (let i = 0; i < packList.length; i++) {
-		if (packList[i][key])
-			str += `...packList[${i}].${key},`;
+		if (packList[i] && packList[i][key]) Object.assign(obj, packList[i][key]);
 	}
-	return eval('({' + str.slice(0, -1) + '})');
+	return obj;
 }
 const packs = {
 	name: "gfb",
@@ -87,7 +88,7 @@ export default async function () {
 				ui.create.rarity = function (button) {
 					b.call(this, button);
 					const roleName = button.link;
-					const isMatchPrefix = ["gf_", "wzzs_", "cxm_","dmwc_" , "tj_", "gzhlb_", "gzt_", "seh_", "aqcs_", "gzlj_", "a_"].some(prefix => roleName.startsWith(prefix));
+					const isMatchPrefix = ["gf_", "wzzs_", "cxm_","dmwc_" , "tj_", "gzhlb_", "gzt_", "seh_", "aqcs_", "gzlj_", "a_", "Mimi_", "gzr_"].some(prefix => roleName.startsWith(prefix));
 					if (!isMatchPrefix) return;
 					const rarity = game.getRarity(roleName);
 					const intro = button.node.intro;
@@ -184,7 +185,7 @@ export default async function () {
 							return `image/card/${name}.${ext}`;
 						}
 					}; //获取武将名对应立绘路径
-					game.GF_mp4 = async function (name) {
+					/*game.GF_mp4 = async function (name) {
 						return new Promise((resolve) => {
 							const video = document.createElement('video');
 							video.src = `extension/鸽府包/image/animation/${name}.mp4`;
@@ -213,6 +214,43 @@ export default async function () {
 							});
 						});
 					}; //播放mp4
+					*/
+					game.GF_mp4 = async function (name) {
+						return new Promise((resolve) => {
+							const video = document.createElement('video');
+							video.src = `extension/鸽府包/image/animation/${name}.mp4`;
+							video.style.cssText = 'z-index: 999; height: 100%; width: 100%; position: fixed; object-fit: cover; left: 0; right: 0; mix-blend-mode: screen; pointer-events: none; opacity:0;';
+							video.autoplay = true;
+							video.loop = false;
+							video.preload = "auto";
+
+							const backButton = document.createElement('div');
+							backButton.innerHTML = '返回游戏';
+							backButton.style.cssText = 'z-index: 999; position: absolute; bottom: 10px; right: 10px; color: red; font-size: 16px; padding: 5px 10px; background: rgba(0, 0, 0.3); opacity:0;';
+							backButton.onclick = function () {
+								backButton.remove();
+								video.remove();
+								resolve();
+							};
+							document.body.appendChild(video);
+							document.body.appendChild(backButton);
+							video.addEventListener('canplaythrough', function () {
+								void video.offsetWidth;
+								video.style.opacity = "";
+								backButton.style.opacity = "1";
+							});
+							video.addEventListener('error', function () {
+								backButton.remove();
+								video.remove();
+								resolve();
+							});
+							video.addEventListener('ended', function () {
+								backButton.remove();
+								video.remove();
+								resolve();
+							});
+						});
+					};
 				};
 				video();
 			},
@@ -292,10 +330,10 @@ export default async function () {
 							this.player.name !== "gzhlb_sm" &&
 							this.player.name !== "wzzs_aesdd"
 						)) return undefined;
-						return cancel.call(this);
-					};
-				}
-			},
+					return cancel.call(this);
+				};
+			}
+		},
 			config: await basic.resolve(config),
 			help: await basic.resolve(help),
 			package: await basic.resolve(extensionDefaultPackage),
