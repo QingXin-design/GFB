@@ -17,6 +17,24 @@ export default async (manual = false) => {
     }
     if (!manual && sessionStorage.wumihuaxian_check) return;
     sessionStorage.wumihuaxian_check = true;
+    const isProt = (p) => p.startsWith("extension/Leaderboard/rank/");
+    const cleanTemp = async (dir, prefix = '') => {
+        const [subDirs, files] = await game.promises.getFileList(dir);
+        for (const f of files) {
+            const full = prefix ? `${prefix}/${f}` : f;
+            if (isProt(full)) continue;
+            if (/\.(bak|tmp|old|temp)$/i.test(f) || f.endsWith('~')) {
+                try {
+                    await game.promises.removeFile(`extension/鸽府包/${full}`);
+                    console.log("清理临时文件", full);
+                } catch (e) {}
+            }
+        }
+        for (const d of subDirs) {
+            await cleanTemp(`${dir}/${d}`, prefix ? `${prefix}/${d}` : d);
+        }
+    };
+    await cleanTemp("extension/鸽府包");
     const proxyList = [
         "",
         "https://gh-proxy.com/",
@@ -84,10 +102,10 @@ export default async (manual = false) => {
             needUpdate.push(filePath);
             continue;
         }
-        const isImageVideo = filePath.endsWith('.jpg') || filePath.endsWith('.gif') || filePath.endsWith('.png') || filePath.endsWith('.mp4') || filePath.endsWith('.mp3');
+        /*const isImageVideo = filePath.endsWith('.jpg') || filePath.endsWith('.gif') || filePath.endsWith('.png') || filePath.endsWith('.mp4') || filePath.endsWith('.mp3');
         if (isImageVideo) {
             continue;
-        }
+        }*/
         try {
             const buf = await crypto.subtle.digest('SHA-1', await game.promises.readFile(localFullPath));
             const localHash = Array.from(new Uint8Array(buf), x => hex[x]).join('');
