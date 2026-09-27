@@ -50,8 +50,8 @@ export async function precontent(config,pack){
 		textGradient: true,
 		nature: 'icemm'
 	});
-	lib.namePrefix.set('汝家将', {
-		showName: '汝',
+	lib.namePrefix.set('朋家将', {
+		showName: '朋',
 		color: '#00FF00',
 		nature: 'icemm',
 	});
@@ -83,6 +83,11 @@ export async function precontent(config,pack){
 	lib.namePrefix.set('实验体', {
 		showName: '验',
 		color: '#F0FFF0',
+		nature: 'firemm',
+	});
+	lib.namePrefix.set('蛊真人', {
+		showName: '蛊',
+		color: '#4B0082',
 		nature: 'firemm',
 	});
     //单向联机
@@ -131,8 +136,8 @@ export async function precontent(config,pack){
 			textGradient: true,
 			nature: 'icemm'
 		});
-		lib.namePrefix.set('汝家将', {
-			showName: '汝',
+		lib.namePrefix.set('朋家将', {
+			showName: '朋',
 			color: '#00FF00',
 			nature: 'icemm',
 		});
@@ -164,6 +169,11 @@ export async function precontent(config,pack){
 		lib.namePrefix.set('实验体', {
 			showName: '验',
 			color: '#F0FFF0',
+			nature: 'firemm',
+		});
+		lib.namePrefix.set('蛊真人', {
+			showName: '蛊',
+			color: '#4B0082',
 			nature: 'firemm',
 		});
     },[]];

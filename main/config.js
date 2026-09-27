@@ -84,10 +84,10 @@ export const config = {
 					`·<font color='#CD5C5C'>荼乞安</font>`,
 					`·<font color='#CD5C5C'>荼董卓</font>`,
 
-					`<span class=thundertext>===汝家将===</span>`,
-					`·<font color='#00FF00'>汝张春华</font>`,
-					`·<font color='#00FF00'>汝孙茹</font>`,
-					`·<font color='#00FF00'>汝吕蒙</font>`,
+				`<span class=thundertext>===朋家将===</span>`,
+				`·<font color='#00FF00'>朋张春华</font>`,
+				`·<font color='#00FF00'>朋孙茹</font>`,
+				`·<font color='#00FF00'>朋吕蒙</font>`,
 					
 					`<span class=thundertext>===欢乐鸽===</span>`,
 					`·<font color='#1E90FF'>凤乐殴</font>`,
@@ -124,6 +124,9 @@ export const config = {
 
 					`<span class=thundertext>===实验体===</span>`,
 					`·<font color='#F0FFF0'>编号武将：仅为实验使用</font>`,
+
+					`<span class=thundertext>===鸽杂谈·孤悟===</span>`,
+					`·<font color='#FFD700'>嘉豪</font>`,
 
 				];
 				var more = ui.create.div('.help', '<div style="border:2px solid gray"><P align=left>' + log.join('<br>') + '</P>');
@@ -171,6 +174,18 @@ export const config = {
 			};
 		}
     },
+	
+	gfb_fzysq: {
+		name: `<font color='#ADFF2F'>房主有神器</font>`,
+		intro: "联机房主专用，开启后菜单栏出现【房主有神器】按钮，点击可强制打断当前流程并使游戏继续运行，用于处理卡死游戏或烧条等情节（房主与白名单昵称 Mimi 会加载此按钮，单机不显示，默认关闭）",
+		init: false,
+		onclick: function(bool) {
+			if(bool != lib.config.extension_鸽府包_gfb_fzysq){
+				game.saveConfig('extension_鸽府包_gfb_fzysq', bool);
+			};
+			if(lib.gf_shenqiRefresh)lib.gf_shenqiRefresh();
+		},
+	},
 	gfb_ltcd: {
 		name: `<font color='#ADFF2F'>自动关闭聊天框</font></span>`,
 		intro: "已修复了电脑联机聊天输入中文关闭聊天框的问题，开启此功能后发送完消息自动关闭聊天框（注：电脑端聊天不要点输入框，想打什么直接打）",
