@@ -16,6 +16,27 @@ export const card = {
 		"gzhlb_yy": "羽翼",
 		"gzhlb_yy_skill": "羽翼",
 		"gzhlb_yy_info": "你的【杀】可以对自己使用。当你受到自己造成的伤害后，你本回合使用【杀】次数和攻击距离加x（x为已损失体力值且至多为5），然后你弃置此装备。",
+		"Mimi_quantao": "拳击手套",
+		"Mimi_quantao_info": "当你使用【杀】对目标角色造成伤害时，你可以弃置两张手牌，令此伤害+1。",
+		"Mimi_quantao_skill": "拳击手套",
+		"Mimi_tanhuang3": "螺旋弹簧一号",
+		"Mimi_tanhuang3_info": "当你一次性失去至少两张牌后，你摸一张牌。",
+		"Mimi_tanhuang3_skill": "螺旋弹簧",
+		"Mimi_tanhuang4": "螺旋弹簧二号",
+		"Mimi_tanhuang4_info": "当你一次性失去正好两张牌后，你获得一张火【杀】。",
+		"Mimi_tanhuang4_skill": "螺旋弹簧",
+		"Mimi_zhixiang": "空纸箱",
+		"Mimi_zhixiang_info": "你免疫非卡牌伤害。",
+		"Mimi_zhixiang_skill": "空纸箱",
+		"Mimi_jiaodai": "万能胶带",
+		"Mimi_jiaodai_info": "当你仅摸一张牌时，你可以对自己造成1点伤害，视为使用一张【铁索连环】且处于横置状态的角色不可响应你使用的牌。",
+		"Mimi_jiaodai_skill": "万能胶带",
+		"Mimi_xumou": "蓄谋",
+		"Mimi_xumou_info": "菜篮置于判定区的牌，判定阶段自动跳过。",
+		"gzt_mwjy": "美味佳肴",
+		"gzt_mwjy_info": "出牌阶段，对一名角色使用。若判定结果为红色，其恢复一点体力；为梅花，其摸一张牌。",
+		"gzt_zsq": "注射器",
+		"gzt_zsq_info": "出牌阶段，对攻击范围内的一名其他角色使用。其须使用一张【闪】，否则将一张【毒】置入弃牌堆或流失一点体力。",
 	},
     card: {
 		"wzzs_qlm": {
@@ -91,6 +112,198 @@ export const card = {
 				},
 				tag: {
 					valueswap: 1,
+				},
+			},
+		},
+		"Mimi_quantao": {
+			image: "ext:鸽府包/card/image/Mimi_quantao.jpg",
+			fullskin: true,
+			type: "equip",
+			subtype: "equip1",
+			distance: {
+				attackFrom: -1,
+			},
+			skills: ["Mimi_quantao_skill"],
+			ai: {
+				order() {
+					return get.order({ name: "sha" }) - 0.1;
+				},
+				basic: {
+					equipValue: 5,
+				},
+				tag: {
+					valueswap: 1,
+				},
+			},
+		},
+		"Mimi_tanhuang3": {
+			image: "ext:鸽府包/card/image/Mimi_tanhuang.jpg",
+			fullskin: true,
+			type: "equip",
+			subtype: "equip3",
+			skills: ["Mimi_tanhuang3_skill"],
+			ai: {
+				order() {
+					return get.order({ name: "sha" }) - 0.1;
+				},
+				basic: {
+					equipValue: 4,
+				},
+				tag: {
+					valueswap: 1,
+				},
+			},
+		},
+		"Mimi_tanhuang4": {
+			image: "ext:鸽府包/card/image/Mimi_tanhuang.jpg",
+			fullskin: true,
+			type: "equip",
+			subtype: "equip4",
+			skills: ["Mimi_tanhuang4_skill"],
+			ai: {
+				order() {
+					return get.order({ name: "sha" }) - 0.1;
+				},
+				basic: {
+					equipValue: 4,
+				},
+				tag: {
+					valueswap: 1,
+				},
+			},
+		},
+		"Mimi_zhixiang": {
+			image: "ext:鸽府包/card/image/Mimi_zhixiang.jpg",
+			fullskin: true,
+			type: "equip",
+			subtype: "equip2",
+			skills: ["Mimi_zhixiang_skill"],
+			ai: {
+				order() {
+					return get.order({ name: "sha" }) - 0.1;
+				},
+				basic: {
+					equipValue: 5,
+				},
+				tag: {
+					valueswap: 1,
+				},
+			},
+		},
+		"Mimi_jiaodai": {
+			image: "ext:鸽府包/card/image/Mimi_jiaodai.jpg",
+			fullskin: true,
+			type: "equip",
+			subtype: "equip5",
+			skills: ["Mimi_jiaodai_skill"],
+			ai: {
+				order() {
+					return get.order({ name: "sha" }) - 0.1;
+				},
+				basic: {
+					equipValue: 5,
+				},
+				tag: {
+					valueswap: 1,
+				},
+			},
+		},
+		"Mimi_xumou": {
+			image: "ext:鸽府包/card/image/Mimi_xumou.jpg",
+			fullskin: true,
+			type: "delay",
+			noEffect: true,
+			allowDuplicate: true,
+		},
+		"gzt_mwjy": {
+			image: "ext:鸽府包/card/image/gzt_mwjy.jpg",
+			fullskin: true,
+			type: "delay",
+			filterTarget(card, player, target) {
+				return lib.filter.judge(card, player, target);
+			},
+			judge(card) {
+				if (get.suit(card) === "spade") {
+					return -1;
+				}
+				return 1;
+			},
+			judge2(result) {
+				return result.suit !== "spade";
+			},
+			async effect(event, trigger, player, result) {
+				if (result.color === "red") {
+					game.log(player, "的【美味佳肴】判定为红色，恢复了一点体力");
+					await player.recover();
+				} else if (result.suit === "club") {
+					game.log(player, "的【美味佳肴】判定为梅花，摸了一张牌");
+					await player.draw();
+				}
+			},
+		},
+		"gzt_zsq": {
+			image: "ext:鸽府包/card/image/gzt_zsq.png",
+			fullskin: true,
+			type: "basic",
+			enable: true,
+			filterTarget(card, player, target) {
+				return target != player && player.inRange(target);
+			},
+			async content(event, trigger, player) {
+				const target = event.target;
+				const next = target.chooseToUse();
+				next.set("filterCard", (card, player2) => get.name(card) === "shan" && lib.filter.cardRespondable(card, player2));
+				next.set("prompt", "注射器：请使用一张【闪】，否则须将一张【毒】置入弃牌堆或流失1点体力");
+				next.set("ai", (card) => 2);
+				const result = await next.forResult();
+				if (result.bool) return;
+				if (target.countCards("h", card => card.name === "du")) {
+					const result2 = await target.chooseCard()
+					.set("position", "h")
+					.set("filterCard", card => card.name === "du")
+					.set("selectCard", 1)
+					.set("prompt", "注射器：请选择一张【毒】并置入弃牌堆，否则流失1点体力")
+					.set("ai", card => 6 - get.value(card))
+					.forResult();
+					if (result2.bool && result2.cards && result2.cards.length) {
+						const ids = result2.cards.map(card => card.cardid || card.id);
+						game.broadcast(function (idList, srcId) {
+							var list = idList || [];
+							for (var i = 0; i < list.length; i++) {
+								var c = lib.cardOL && lib.cardOL[list[i]];
+								if (!c) continue;
+								var pos = get.position(c);
+								if (pos == "d" || pos == "out") continue;
+								c.discard();
+							}
+							ui.updatehl();
+							var src = game.players.filter(function (x) { return x && x.playerid == srcId; })[0];
+							if (src && src.update) src.update();
+						}, ids, target.playerid);
+						await game.cardsDiscard(result2.cards);
+						ui.updatehl();
+						target.update();
+						return;
+					}
+				}
+				await target.loseHp();
+			},
+			ai: {
+				basic: {
+					useful: 4,
+					value: 4,
+				},
+				order: 4,
+				result: {
+					target(player, target) {
+						if (target.countCards("h", "shan")) return -0.5;
+						if (target.countCards("h", card => card.name === "du")) return -0.8;
+						return -1.5;
+					},
+				},
+				tag: {
+					respond: 1,
+					loseHp: 0.5,
 				},
 			},
 		},
@@ -230,5 +443,118 @@ export const card = {
 				},
 			},
 		},
+		"Mimi_quantao_skill": {
+			equipSkill: true,
+			trigger: {
+				source: "damageBegin1",
+			},
+			frequent: true,
+			filter(event, player) {
+				return event.card && event.card.name == "sha" && player.countCards("h") >= 2;
+			},
+			async content(event, trigger, player) {
+				const next = player.chooseToDiscard(2, "h", "拳击手套：是否弃置两张手牌令此伤害+1？");
+				next.set("ai", function (card) {
+					return 6 - get.value(card);
+				});
+			const result = await next.forResult();
+			if (result.bool) {
+				player.logSkill("Mimi_quantao_skill");
+				trigger.num++;
+				game.log(player, "弃置了两张手牌，令", trigger.player, "受到的伤害+1");
+			}
+		},
+	},
+	"Mimi_tanhuang3_skill": {
+		equipSkill: true,
+		trigger: {
+			player: "loseAfter",
+		},
+		firstDo: true,
+		frequent: true,
+		filter(event, player) {
+			return event.cards && event.cards.length >= 2;
+		},
+		async content(event, trigger, player) {
+			await player.draw();
+		},
+	},
+	"Mimi_tanhuang4_skill": {
+		equipSkill: true,
+		trigger: {
+			player: "loseAfter",
+		},
+		frequent: true,
+		filter(event, player) {
+			return event.cards && event.cards.length == 2;
+		},
+		async content(event, trigger, player) {
+			const card = get.cardPile2(card => {
+                return card.name == "sha" && card.nature == "fire";
+            });
+			if (card) {
+				await player.gain(card, "gain2");
+			} else {
+				const card2 = get.discardPile(card => {
+					return card.name == "sha" && card.nature == "fire";
+				});
+				if (card2) {
+					await player.gain(card2, "gain2");
+				}
+			}
+		},
+	},
+	"Mimi_zhixiang_skill": {
+		equipSkill: true,
+		trigger: {
+			player: "damageBegin4",
+		},
+		frequent: true,
+		filter(event, player) {
+			return !event.card;
+		},
+		async content(event, trigger, player) {
+			trigger.cancel();
+		},
+	},
+	"Mimi_jiaodai_skill": {
+		equipSkill: true,
+		trigger: {
+			player: "useCard",
+		},
+		frequent: true,
+		filter(event, player) {
+			return game.hasPlayer(function (t) {
+				return t != player && t.isLinked();
+			});
+		},
+		async content(event, trigger, player) {
+			trigger.directHit.addArray(game.filterPlayer(function (t) {
+				return t != player && t.isLinked();
+			}));
+			game.log(player, "令处于横置状态的角色不能响应", trigger.card);
+		},
+		group: "Mimi_jiaodai_skill_a",
+		subSkill: {
+			a: {
+				trigger: {
+					player: "drawBegin",
+				},
+				frequent: true,
+				filter(event, player) {
+					return event.num == 1;
+				},
+				async content(event, trigger, player) {
+					const result = await player.chooseBool("万能胶带：是否对自己造成1点伤害并视为使用一张【铁索】？").forResult();
+					if (result.bool) {
+						await player.damage(1, player);
+						const tiesuo = get.autoViewAs({ name: "tiesuo" }, []);
+						await player.chooseUseTarget(tiesuo, true);
+					}
+				},
+				sub: true,
+			},
+		},
+	},
 	},
 }
