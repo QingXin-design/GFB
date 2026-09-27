@@ -100,7 +100,7 @@ const block = (() => {
 			gzt_cy: { sex: "male", group: "qun", hp: 4, maxHp: 4, skills: ["gzt_jiezheng", "gzt_laosou", "gzt_szys"] },
 			gzt_lx: { sex: "male", group: "wu", hp: 4, maxHp: 4, skills: ["gzt_liaoying", "gzt_lianfeng", "gzt_shulve"] },
 			gzt_nlj: { sex: "male", group: "qun", hp: 3, maxHp: 3, skills: ["gzt_bwzl", "gzt_kbkym", "gzt_zldx"] },
-			gzt_hyss: { sex: "female", group: "qun", hp: 4, maxHp: 4, skills: ["gzt_suipian", "gzt_renpao"], isUnseen: true },
+			gzt_hyss: { sex: "female", group: "qun", hp: 4, maxHp: 4, skills: ["gzt_suipian", "gzt_heiyan"], isUnseen: true },
 			gzt_gzxzzn: { sex: "none", group: "qun", hp: 4, maxHp: 4, skills: ["gzt_juwai", "gzt_riyueqianshi", "gzt_hantianzhiding"] },
 			gzt_hs: { sex: "female", group: "qun", hp: 4, maxHp: 4, skills: ["gzt_sizhen", "gzt_aimu"] },
 			gzt_qn: { sex: "female", group: "qun", hp: 4, maxHp: 4, skills: ["gzt_jumin", "gzt_honghuo"] },
