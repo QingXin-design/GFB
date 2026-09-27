@@ -1,5 +1,5 @@
 {
-  "version": "1.5.3",
+  "version": "1.5.4",
   "files": {
     "extension.js": "403495dff0b08e2d84f8746aed3b9ef4549b7b65",
     "info.json": "7b5833d0d60d998d35df1deae3004a5c489e4085",
@@ -338,7 +338,7 @@
     "card/image/wzzs_hlm.png": "6db7d5906e9ac60e83350e11fcfdc72e978857d8",
     "card/image/wzzs_qlm.png": "6cb97850a6cce256759dbb439ae0fccf323b133b",
     "card/image/wzzs_sdkas.png": "710e242c15c4bf5cfe33fd7a1eb0c7180591d9fb",
-    "character/characterData.js": "2b024b21f96091c52eab0ff40be001fe3f714d91",
+    "character/characterData.js": "ed4f5cbec74d86f0ff7f530cab8138fed0affedb",
     "character/characterImage.js": "0bc9729138b4851314157068d0a414a6b7917a62",
     "character/characterIntro.js": "201f87b02524d99d7da6ab68864366acc400d954",
     "character/characterRank.js": "3a2a161ba88e1aa69fe6c7fe932166e170c3d3a3",
@@ -349,8 +349,8 @@
     "character/dynamicTranslate.js": "567c9afc493c0045c2498be2b884535e333750ef",
     "character/index.js": "7686ac50268af55667e2bdc80f7a25023a9f1c5d",
     "character/perfectPair.js": "0af0f4886d2a070e4eb1d11a09b649a442984a0b",
-    "character/skill.js": "bc02c69ed0ff0316d99b784205e080e15b1a25f1",
-    "character/translate.js": "9794fa9aa770a00f84617444b4a6e14306e868db",
+    "character/skill.js": "5f78cc0ef0772c40f777e89e881fc1a2af1d0e5a",
+    "character/translate.js": "59c35783ca69e1b2cfc14d9b34f0485cae233501",
     "extension/Bgm/bgm.js": "fe6f3acb68f8c57e46831a3d88d06165600361f1",
     "extension/CreateCharacterSkill/createCharacterSkill.css": "5a119ddcafa1ff4e0d195499867362680328777a",
     "extension/CreateCharacterSkill/createCharacterSkill.js": "e351c3db70c7783a6a92d1473511e716f8037141",
