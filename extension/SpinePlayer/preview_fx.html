@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>无职转生特效一览 · C1821</title>
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --panel: #ffffff;
+    --border: #e5e7eb;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --accent: #2563eb;
+    --chip: #eef2ff;
+    --stage: #f1f5f9;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    background: var(--bg); color: var(--text); font-size: 14px;
+  }
+  header {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--panel); border-bottom: 1px solid var(--border);
+    padding: 12px 18px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .title { font-size: 17px; font-weight: 700; }
+  .title small { font-weight: 400; color: var(--muted); font-size: 12px; margin-left: 8px; }
+  .bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  #search {
+    flex: 1; min-width: 200px; padding: 7px 11px; border: 1px solid var(--border);
+    border-radius: 8px; font-size: 14px; outline: none;
+  }
+  #search:focus { border-color: var(--accent); }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip {
+    padding: 5px 12px; border-radius: 999px; background: var(--chip); color: var(--accent);
+    border: 1px solid transparent; cursor: pointer; user-select: none; font-size: 13px;
+  }
+  .chip.active { background: var(--accent); color: #fff; }
+  .layout { display: flex; gap: 16px; padding: 16px 18px; align-items: flex-start; }
+  .main { flex: 1; min-width: 0; }
+  .side {
+    width: 320px; flex: none; position: sticky; top: 120px;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px;
+  }
+  .stage {
+    width: 100%; height: 220px; background: var(--stage); border-radius: 10px;
+    overflow: hidden; position: relative;
+  }
+  .stage .spbox { width: 100%; height: 100%; }
+  .stage .placeholder {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    color: var(--muted); font-size: 13px;
+  }
+  .info { margin-top: 12px; }
+  .info .cn { font-size: 16px; font-weight: 700; }
+  .info .id { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .info .cat { display: inline-block; margin-top: 6px; padding: 2px 9px; border-radius: 999px; background: var(--chip); color: var(--accent); font-size: 12px; }
+  pre.code {
+    margin: 12px 0 0; background: #0f172a; color: #e2e8f0; padding: 10px 12px; border-radius: 8px;
+    font-size: 12px; line-height: 1.6; overflow-x: auto; font-family: ui-monospace, Menlo, monospace;
+  }
+  .copy {
+    margin-top: 8px; padding: 6px 12px; border: 1px solid var(--border); background: var(--panel);
+    border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text);
+  }
+  .copy:hover { border-color: var(--accent); color: var(--accent); }
+  section.cat { margin-bottom: 22px; }
+  section.cat > h2 { font-size: 14px; color: var(--muted); margin: 0 0 10px; font-weight: 600; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 12px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+    cursor: pointer; transition: border-color .15s, transform .15s; display: flex; flex-direction: column;
+  }
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .card.sel { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(37,99,235,.25); }
+  .card .spbox { width: 100%; height: 120px; background: var(--stage); }
+  .card .meta { padding: 7px 9px; }
+  .card .cn { font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card .id { font-family: ui-monospace, Menlo, monospace; font-size: 10.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+  .empty { color: var(--muted); padding: 40px; text-align: center; }
+</style>
+</head>
+<body>
+<header>
+  <div class="title">无职转生特效一览 <small>C1821 包 · 共 <span id="total">0</span> 个 · 点击卡片放大预览</small></div>
+  <div class="bar">
+    <input id="search" placeholder="搜索中文名或 id，如：落雷 / atk11 / Kernel" />
+    <div class="chips" id="chips"></div>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="main">
+    <div id="content"></div>
+  </div>
+  <aside class="side">
+    <div class="stage" id="stage">
+      <div class="spbox" id="bigbox"></div>
+      <div class="placeholder" id="stageTip">点击任意卡片在此预览</div>
+    </div>
+    <div class="info" id="info" style="display:none">
+      <div class="cn" id="iCn"></div>
+      <div class="id" id="iId"></div>
+      <span class="cat" id="iCat"></span>
+      <pre class="code" id="iCode"></pre>
+      <button class="copy" id="copyBtn">复制调用代码</button>
+    </div>
+  </aside>
+</div>
+
+<script>
+// 这个页面的脚本是ES模块 file协议下浏览器会直接拦掉所以数量显示0
+if (location.protocol === "file:") {
+  document.addEventListener("DOMContentLoaded", function () {
+    const d = document.createElement("div");
+    d.style.cssText = "position:fixed;left:0;top:0;right:0;z-index:9999;background:#7f1d1d;color:#fff;padding:14px 18px;font:14px/1.7 'Microsoft YaHei',system-ui;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.4)";
+    d.innerHTML = "请先打开无名杀，然后点击地址打开 <b>http://localhost:8089/extension/鸽府包/extension/SpinePlayer/preview_fx.html</b>就可以预览特效了";
+    document.body.appendChild(d);
+  });
+}
+</script>
+<script type="module">
+import SP from "./lib/spine-player.esm.js";
+import { FX_REG, FX_CAT_CN } from "./fx/fxReg.js";
+
+const SpinePlayer = SP.SpinePlayer;
+const CAT_ORDER = ["atk","beatk","special","magic","core","world","shield","buff","pet","team","misc"];
+
+function makeOptions(id, box) {
+  const info = FX_REG[id];
+  const base = `fx/${info.cat}/${id}/${id}`;
+  const clip = info.clip || "idle";
+  return {
+    jsonUrl: base + ".json",
+    atlasUrl: base + ".atlas",
+    animation: clip,
+    alpha: true,
+    premultipliedAlpha: false,
+    preserveDrawingBuffer: true,
+    backgroundColor: "#00000000",
+    fullScreenBackgroundColor: "#00000000",
+    showControls: false,
+    showLoading: false,
+    success: (p) => {
+      try {
+        if (!p.config.viewport) p.config.viewport = {};
+        const d = p.skeleton && p.skeleton.data;
+        if (d && d.x !== undefined && d.width > 0 && d.height > 0) {
+          const vp = p.config.viewport;
+          vp.x = d.x; vp.y = d.y; vp.width = d.width; vp.height = d.height;
+        }
+      } catch (e) {}
+      try { p.setAnimation(clip, false); } catch (e) {}
+      try { if (typeof p.play === "function") p.play(); } catch (e) {}
+      try { if (p.paused) p.paused = false; } catch (e) {}
+    },
+    error: (p, msg) => { console.warn("加载失败", id, msg); },
+  };
+}
+
+function newPlayer(box, id) {
+  box.innerHTML = "";
+  try { return new SpinePlayer(box, makeOptions(id, box)); }
+  catch (e) { console.warn("创建失败", id, e); return null; }
+}
+function disposePlayer(p, box) {
+  try { p && p.dispose && p.dispose(); } catch (e) {}
+  try { if (box) box.innerHTML = ""; } catch (e) {}
+}
+
+// LRU 池
+const MAX_LIVE = 10;
+const liveOrder = [];
+const liveMap = new Map();
+function activate(card) {
+  const id = card.dataset.id;
+  if (liveMap.has(card)) return;
+  const box = card.querySelector(".spbox");
+  while (liveOrder.length >= MAX_LIVE) {
+    const old = liveOrder.shift();
+    deactivate(old);
+  }
+  const p = newPlayer(box, id);
+  liveMap.set(card, p);
+  liveOrder.push(card);
+}
+function deactivate(card) {
+  const p = liveMap.get(card);
+  if (!p) return;
+  disposePlayer(p, card.querySelector(".spbox"));
+  liveMap.delete(card);
+  const i = liveOrder.indexOf(card);
+  if (i >= 0) liveOrder.splice(i, 1);
+}
+
+const io = new IntersectionObserver((entries) => {
+  for (const e of entries) {
+    if (e.isIntersecting) activate(e.target);
+    else deactivate(e.target);
+  }
+}, { rootMargin: "150px" });
+
+// 构建 DOM
+const content = document.getElementById("content");
+let cards = [];
+let currentFilter = "all";
+let currentQuery = "";
+
+function buildGroups() {
+  content.innerHTML = "";
+  cards = [];
+  const cats = currentFilter === "all" ? CAT_ORDER : [currentFilter];
+  let shown = 0;
+  for (const cat of cats) {
+    const items = Object.entries(FX_REG).filter(([, v]) => v.cat === cat);
+    if (!items.length) continue;
+    const sec = document.createElement("section");
+    sec.className = "cat";
+    const h = document.createElement("h2");
+    h.textContent = `${FX_CAT_CN[cat] || cat} · ${items.length} 个`;
+    sec.appendChild(h);
+    const grid = document.createElement("div");
+    grid.className = "grid";
+    for (const [id, info] of items) {
+      if (currentQuery) {
+        const q = currentQuery.toLowerCase();
+        if (!(id.toLowerCase().includes(q) || (info.cn || "").toLowerCase().includes(q))) continue;
+      }
+      const card = document.createElement("div");
+      card.className = "card";
+      card.dataset.id = id;
+      card.innerHTML = `<div class="spbox"></div><div class="meta"><div class="cn">${info.cn || id}</div><div class="id">${id}</div></div>`;
+      card.addEventListener("click", () => selectCard(card, id));
+      grid.appendChild(card);
+      cards.push(card);
+      shown++;
+    }
+    if (grid.childElementCount) sec.appendChild(grid);
+    content.appendChild(sec);
+  }
+  if (!shown) {
+    content.innerHTML = `<div class="empty">没有匹配的特效</div>`;
+  }
+  // 重新观察
+  cards.forEach((c) => io.observe(c));
+}
+
+let selectedCard = null;
+let bigPlayer = null;
+function selectCard(card, id) {
+  if (selectedCard) selectedCard.classList.remove("sel");
+  card.classList.add("sel");
+  selectedCard = card;
+  const info = FX_REG[id];
+  document.getElementById("stageTip").style.display = "none";
+  if (bigPlayer) disposePlayer(bigPlayer, document.getElementById("bigbox"));
+  bigPlayer = newPlayer(document.getElementById("bigbox"), id);
+  const infoBox = document.getElementById("info");
+  infoBox.style.display = "block";
+  document.getElementById("iCn").textContent = info.cn || id;
+  document.getElementById("iId").textContent = id;
+  document.getElementById("iCat").textContent = (FX_CAT_CN[info.cat] || info.cat);
+  const code =
+`// 传入 player 定位到该玩家头像
+game.zgtzFx("${id}", player);
+
+// 不传人 屏幕中央
+game.zgtzFx("${id}");`;
+  document.getElementById("iCode").textContent = code;
+}
+
+// 分类 chips
+const chipsEl = document.getElementById("chips");
+function buildChips() {
+  const all = document.createElement("div");
+  all.className = "chip active";
+  all.textContent = "全部";
+  all.addEventListener("click", () => setFilter("all", all));
+  chipsEl.appendChild(all);
+  for (const cat of CAT_ORDER) {
+    const n = Object.values(FX_REG).filter((v) => v.cat === cat).length;
+    if (!n) continue;
+    const c = document.createElement("div");
+    c.className = "chip";
+    c.textContent = `${FX_CAT_CN[cat] || cat} ${n}`;
+    c.addEventListener("click", () => setFilter(cat, c));
+    chipsEl.appendChild(c);
+  }
+}
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll(".chip").forEach((x) => x.classList.remove("active"));
+  el.classList.add("active");
+  buildGroups();
+}
+
+document.getElementById("search").addEventListener("input", (e) => {
+  currentQuery = e.target.value.trim();
+  buildGroups();
+});
+document.getElementById("copyBtn").addEventListener("click", () => {
+  const t = document.getElementById("iCode").textContent;
+  navigator.clipboard.writeText(t).then(() => {
+    const b = document.getElementById("copyBtn");
+    b.textContent = "已复制 ✓";
+    setTimeout(() => (b.textContent = "复制调用代码"), 1200);
+  });
+});
+
+// 启动
+document.getElementById("total").textContent = Object.keys(FX_REG).length;
+buildChips();
+buildGroups();
+</script>
+</body>
+</html>
