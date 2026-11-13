@@ -1,94 +1,95 @@
 import {lib,game,ui,get,ai,_status} from '../../../noname.js'
 import {character} from '../character/index.js';
 import {skill} from '../character/skill.js';
+import {installZgtzHook, installAvatarHook, preloadDecadeAvatar, isZgtzSpineEnabled} from '../extension/SpinePlayer/gugeSpine.js';
 import {translate} from '../character/translate.js';
 import {} from '../extension/CreateCharacterSkill/createCharacterSkill.js';
 import {} from '../extension/Plot/plot.js';
 import {} from '../extension/Bgm/bgm.js';
 import {} from '../extension/Leaderboard/Leaderboard.js';
 import {} from '../extension/Wish/Wish.js';
+lib.gfPrefix = (text, c1, c2, c3, c4) => `<span style="font-weight:400;text-shadow:none;color:${c3};background:linear-gradient(180deg,${c1} 0%,${c2} 18%,${c3} 40%,${c4} 58%,#000000 80%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;-webkit-text-stroke:0.4px ${c1}8C">${text}</span>`;
 export async function precontent(config,pack){
+	if(isZgtzSpineEnabled()){
+		installZgtzHook();
+		installAvatarHook();
+		preloadDecadeAvatar();
+	}
 	lib.namePrefix.set('A级', {
 		showName: 'A',
-		color: '#FFFFFF',
-		nature: 'icemm',
+		getSpan: () => lib.gfPrefix('A', '#FFFFFF', '#E9ECF0', '#B9BFC7', '#5A6068'),
 	});
 	lib.namePrefix.set('S级', {
 		showName: 'S',
-		color: '#1E90FF',
-		nature: 'icemm',
+		getSpan: () => lib.gfPrefix('S', '#9CD0FF', '#3AA0FF', '#1E90FF', '#0B3D78'),
 	});
 	lib.namePrefix.set('SS级', {
 		showName: 'SS',
-		color: '#BA55D3',
-		nature: 'firemm',
+		getSpan: () => lib.gfPrefix('SS', '#E7B6F5', '#C86EE0', '#A03FC0', '#4A0F63'),
 	});
 	lib.namePrefix.set('SSS级', {
 		showName: 'SSS',
-		color: '#FF0000',
-		textGradient: true,
-		nature: 'firemm',
+		getSpan: () => lib.gfPrefix('SSS', '#FF8A8A', '#FF2626', '#D40000', '#5E0000'),
 	});
 	lib.namePrefix.set('荼家将', {
 		showName: '荼',
-		color: '#CD5C5C',
-		nature: 'firemm',
+		getSpan: () => lib.gfPrefix('荼', '#F0A8A8', '#D97070', '#B84A4A', '#4E1414'),
 	});
 	lib.namePrefix.set('鸽府', {
-		showName: '鸽',
-		color: '#FFD700',
-		nature: 'icemm',
+		showName: '鴿',
+		getSpan: () => lib.gfPrefix('鴿', '#FFF3B0', '#FFD700', '#D9A400', '#6B4E00'),
 	});
 	lib.namePrefix.set('无职转生', {
-		showName: '无',
-		color: '#C19A6B',
-		nature: 'icemm',
+		showName: '無',
+		getSpan: () => lib.gfPrefix('無', '#EBD3B6', '#C19A6B', '#8F6B3D', '#3A2410'),
 	});
 	lib.namePrefix.set('大明王朝', {
 		showName: '明',
-		color: '#910000',
-		textGradient: true,
-		nature: 'icemm'
+		getSpan: () => lib.gfPrefix('明', '#E06A6A', '#C02020', '#910000', '#3A0000'),
 	});
 	lib.namePrefix.set('朋家将', {
 		showName: '朋',
-		color: '#00FF00',
-		nature: 'icemm',
+		getSpan: () => lib.gfPrefix('朋', '#7CFF7C', '#17E017', '#00A300', '#004A00'),
 	});
 	lib.namePrefix.set('欢乐鸽', {
-		showName: '乐',
-		color: '#1E90FF',
-		nature: 'firemm',
+		showName: '樂',
+		getSpan: () => lib.gfPrefix('樂', '#8FE9FF', '#00C8FF', '#0090C8', '#00384F'),
 	});
 	lib.namePrefix.set('鸽杂谈', {
-		showName: '杂',
-		color: '#A52A2A',
-		nature: 'firemm',
+		showName: '雜',
+		getSpan: () => lib.gfPrefix('雜', '#FF7A7A', '#FF1F1F', '#C00000', '#5A0000'),
 	});
 	lib.namePrefix.set('赛尔号', {
-		showName: '赛',
-		color: '#BA55D3',
-		nature: 'firemm',
+		showName: '賽',
+		getSpan: () => lib.gfPrefix('賽', '#F0A6E0', '#D24FB0', '#A02880', '#45063A'),
 	});
 	lib.namePrefix.set('奥奇传说', {
-		showName: '奥',
-		color: '#BA55D3',
-		nature: 'firemm',
+		showName: '奧',
+		getSpan: () => lib.gfPrefix('奧', '#C4BAFF', '#7B68EE', '#4A38C0', '#1A0F5C'),
 	});
 	lib.namePrefix.set('公主连结', {
 		showName: '公',
-		color: '#BA55D3',
-		nature: 'firemm',
+		getSpan: () => lib.gfPrefix('公', '#FFC2DE', '#FF7BB8', '#D64A8E', '#5E0F38'),
 	});
 	lib.namePrefix.set('实验体', {
-		showName: '验',
-		color: '#F0FFF0',
-		nature: 'firemm',
+		showName: '驗',
+		getSpan: () => lib.gfPrefix('驗', '#FFFFFF', '#DFF5E4', '#A8D8B9', '#476B55'),
+	});
+	lib.namePrefix.set('颠', {
+		showName: '顛',
+		getSpan: () => lib.gfPrefix('顛', '#FFD08A', '#FF8A2B', '#D96000', '#4E2200'),
 	});
 	lib.namePrefix.set('蛊真人', {
-		showName: '蛊',
-		color: '#4B0082',
-		nature: 'firemm',
+		showName: '蠱',
+		getSpan: () => lib.gfPrefix('蠱', '#A96BE0', '#6A1FB0', '#4B0082', '#1E0033'),
+	});
+	lib.namePrefix.set('禛感天祚', {
+		showName: '禛',
+		getSpan: () => lib.gfPrefix('禛', '#FFEFAF', '#FFB800', '#D0481C', '#7A0C12'),
+	});
+	lib.namePrefix.set('祝你长寿', {
+		showName: '祝',
+		getSpan: () => `<span style="font-weight:400;text-shadow:none;color:#D8433C;background:linear-gradient(180deg,#D8F8C0 0%,#49C96A 32%,#E8564A 72%,#8E1D18 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">祝</span>`,
 	});
     //单向联机
     if(skill)character.skill=skill;
@@ -117,64 +118,63 @@ export async function precontent(config,pack){
     if(!_status.postReconnect.gfb_pack_namePrefix) _status.postReconnect.gfb_pack_namePrefix=[function(){
 		lib.namePrefix.set('荼家将', {
 			showName: '荼',
-			color: '#CD5C5C',
-			nature: 'firemm',
+			getSpan: () => lib.gfPrefix('荼', '#F0A8A8', '#D97070', '#B84A4A', '#4E1414'),
 		});
 		lib.namePrefix.set('鸽府', {
-			showName: '鸽',
-			color: '#FFD700',
-			nature: 'icemm',
+			showName: '鴿',
+			getSpan: () => lib.gfPrefix('鴿', '#FFF3B0', '#FFD700', '#D9A400', '#6B4E00'),
 		});
 		lib.namePrefix.set('无职转生', {
-			showName: '无',
-			color: '#C19A6B',
-			nature: 'icemm',
+			showName: '無',
+			getSpan: () => lib.gfPrefix('無', '#EBD3B6', '#C19A6B', '#8F6B3D', '#3A2410'),
 		});
 		lib.namePrefix.set('大明王朝', {
 			showName: '明',
-			color: '#910000',
-			textGradient: true,
-			nature: 'icemm'
+			getSpan: () => lib.gfPrefix('明', '#E06A6A', '#C02020', '#910000', '#3A0000'),
 		});
 		lib.namePrefix.set('朋家将', {
 			showName: '朋',
-			color: '#00FF00',
-			nature: 'icemm',
+			getSpan: () => lib.gfPrefix('朋', '#7CFF7C', '#17E017', '#00A300', '#004A00'),
 		});
 		lib.namePrefix.set('欢乐鸽', {
-			showName: '乐',
-			color: '#1E90FF',
-			nature: 'firemm',
+			showName: '樂',
+			getSpan: () => lib.gfPrefix('樂', '#8FE9FF', '#00C8FF', '#0090C8', '#00384F'),
 		});
-		lib.namePrefix.set('鸽家常', {
-			showName: '常',
-			color: '#A52A2A',
-			nature: 'firemm', 
+		lib.namePrefix.set('鸽杂谈', {
+			showName: '雜',
+			getSpan: () => lib.gfPrefix('雜', '#FF7A7A', '#FF1F1F', '#C00000', '#5A0000'),
 		});
 		lib.namePrefix.set('赛尔号', {
-			showName: '赛',
-			color: '#BA55D3',
-			nature: 'firemm',
+			showName: '賽',
+			getSpan: () => lib.gfPrefix('賽', '#F0A6E0', '#D24FB0', '#A02880', '#45063A'),
 		});
 		lib.namePrefix.set('奥奇传说', {
-			showName: '奥',
-			color: '#BA55D3',
-			nature: 'firemm',
+			showName: '奧',
+			getSpan: () => lib.gfPrefix('奧', '#C4BAFF', '#7B68EE', '#4A38C0', '#1A0F5C'),
 		});
 		lib.namePrefix.set('公主连结', {
 			showName: '公',
-			color: '#BA55D3',
-			nature: 'firemm',
+			getSpan: () => lib.gfPrefix('公', '#FFC2DE', '#FF7BB8', '#D64A8E', '#5E0F38'),
 		});
 		lib.namePrefix.set('实验体', {
-			showName: '验',
-			color: '#F0FFF0',
-			nature: 'firemm',
+			showName: '驗',
+			getSpan: () => lib.gfPrefix('驗', '#FFFFFF', '#DFF5E4', '#A8D8B9', '#476B55'),
+		});
+		lib.namePrefix.set('颠', {
+			showName: '顛',
+			getSpan: () => lib.gfPrefix('顛', '#FFD08A', '#FF8A2B', '#D96000', '#4E2200'),
 		});
 		lib.namePrefix.set('蛊真人', {
-			showName: '蛊',
-			color: '#4B0082',
-			nature: 'firemm',
+			showName: '蠱',
+			getSpan: () => lib.gfPrefix('蠱', '#A96BE0', '#6A1FB0', '#4B0082', '#1E0033'),
+		});
+		lib.namePrefix.set('禛', {
+			showName: '禛',
+			getSpan: () => lib.gfPrefix('禛', '#FFEFAF', '#FFB800', '#D0481C', '#7A0C12'),
+		});
+		lib.namePrefix.set('祝你长寿', {
+			showName: '壽',
+			getSpan: () => `<span style="font-weight:400;text-shadow:none;color:#D8433C;background:linear-gradient(180deg,#D8F8C0 0%,#49C96A 32%,#E8564A 72%,#8E1D18 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">壽</span>`,
 		});
     },[]];
     lib.element.content.waitForPlayer=function(){

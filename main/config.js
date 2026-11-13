@@ -1,5 +1,222 @@
 import {lib,game,ui,get,ai,_status} from '../../../noname.js'
 import update from '../main/update.js';
+import {setZgtzSpineEnabled} from '../extension/SpinePlayer/gugeSpine.js';
+
+//奇妙小功能面板样式
+const gfbQmxgnCss = `
+.gfb_qmxgn {
+	border-radius: 7px;
+	background: rgba(128, 128, 128, 0.2);
+	box-shadow: 0 0 0 1px rgba(150, 150, 150, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+	padding: 3px 3px 5px 3px;
+	animation: gfb_qmxgn_in 0.18s ease;
+}
+@keyframes gfb_qmxgn_in {
+	from { opacity: 0; transform: translateY(-4px); }
+	to { opacity: 1; transform: none; }
+}
+.gfb_qmxgn_cap {
+	font-size: 12px;
+	opacity: 0.45;
+	letter-spacing: 1px;
+	padding: 5px 0 2px 8px;
+}
+.gfb_qmxgn_row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	padding: 3px 8px;
+	border-radius: 4px;
+	transition: background 0.15s;
+}
+.gfb_qmxgn_row:hover {
+	background: rgba(128, 128, 128, 0.28);
+}
+.gfb_qmxgn_label {
+	flex: 1 1 auto;
+	min-width: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.gfb_qmxgn_sw {
+	flex: 0 0 auto;
+	width: 40px;
+	height: 20px;
+	border-radius: 10px;
+	background: rgba(128, 128, 128, 0.45);
+	box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25);
+	transition: background 0.2s;
+	cursor: pointer;
+}
+.gfb_qmxgn_sw > div {
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: #ffffff;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+	transition: left 0.2s;
+}
+.gfb_qmxgn_sw.on {
+	background: #0085ff;
+}
+.gfb_qmxgn_sw.on > div {
+	left: 22px;
+}
+.gfb_qmxgn_act {
+	flex: 0 0 auto;
+	font-size: 12px;
+	line-height: 18px;
+	padding: 0 9px;
+	border-radius: 9px;
+	color: #6cc0ff;
+	background: rgba(0, 133, 255, 0.22);
+	box-shadow: 0 0 0 1px rgba(90, 180, 255, 0.65);
+	cursor: pointer;
+	transition: all 0.15s;
+}
+.gfb_qmxgn_act:hover {
+	color: #ffffff;
+	background: rgba(0, 133, 255, 0.45);
+}
+`;
+
+//面板样式只注入一次
+const gfbQmxgnStyle = function () {
+	if (document.getElementById('gfb_qmxgn_style')) return;
+	const style = document.createElement('style');
+	style.id = 'gfb_qmxgn_style';
+	style.textContent = gfbQmxgnCss;
+	document.head.appendChild(style);
+};
+
+//收纳进奇妙小功能的选项，clear为按钮其余为开关
+const gfbQmxgnOption = {
+	gfb_gghm: {
+		name: `骨骼动画`,
+		intro: `关闭后不再加载骨骼立绘与骨骼特效，恢复原版皮肤立绘，与游戏内按钮同步，点击立即生效`,
+		init: true,
+		defaultOn: true,
+		onclick: function (bool) {
+			setZgtzSpineEnabled(bool);
+		},
+	},
+	gfb_zxgx: {
+		name: `自动检测更新`,
+		intro: `启动游戏时自动检查更新（需联网）`,
+		init: false,
+		onclick: function (bool) {
+			if(bool != lib.config.extension_鸽府包_gfb_zxgx){
+				game.saveConfig('extension_鸽府包_gfb_zxgx', bool);
+			};
+		},
+	},
+	gfb_ltcd: {
+		name: `自动关闭聊天框`,
+		intro: "已修复了电脑联机聊天输入中文关闭聊天框的问题，开启此功能后发送完消息自动关闭聊天框（注：电脑端聊天不要点输入框，想打什么直接打）",
+		init: false,
+		onclick: function (bool) {
+			if(bool != lib.config.extension_鸽府包_gfb_ltcd){
+				game.saveConfig('extension_鸽府包_gfb_ltcd', bool);
+			};
+		},
+	},
+	gfb_hdcd: {
+		name: `自动关闭互动表情`,
+		intro: "开启此功能后砸蛋、送花后会自动关闭页面，和原版一样",
+		init: false,
+		onclick: function (bool) {
+			if(bool != lib.config.extension_鸽府包_gfb_hdcd){
+				game.saveConfig('extension_鸽府包_gfb_hdcd', bool);
+			};
+		},
+	},
+	gfb_fzysq: {
+		name: `房主有神器`,
+		intro: "联机房主专用，开启后菜单栏出现【房主有神器】按钮，点击可强制打断当前流程并使游戏继续运行，用于处理卡死游戏或烧条等情节（房主与白名单昵称 Mimi 会加载此按钮，单机不显示，默认关闭）",
+		init: false,
+		onclick: function (bool) {
+			if(bool != lib.config.extension_鸽府包_gfb_fzysq){
+				game.saveConfig('extension_鸽府包_gfb_fzysq', bool);
+			};
+			if(lib.gf_shenqiRefresh)lib.gf_shenqiRefresh();
+		},
+	},
+	gfb_consoleClear: {
+		name: `清日志`,
+		intro: "开启后游戏开始前将不再清空历史日志（加载扩展时会产出各种乱七八糟的日志）",
+		init: false,
+		onclick: function (bool) {
+			if(bool != lib.config.extension_鸽府包_gfb_consoleClear){
+				game.saveConfig('extension_鸽府包_gfb_consoleClear', bool);
+			};
+		},
+	},
+	gfb_logBan: {
+		name: `禁log日志`,
+		intro: "开启后会禁用console.log形式的日志提示",
+		init: false,
+		onclick: function (bool) {
+			if(bool != lib.config.extension_鸽府包_gfb_logBan){
+				game.saveConfig('extension_鸽府包_gfb_logBan', bool);
+			};
+			if(confirm('您是否要重启游戏以应用禁console.log形式的日志提示设置？')){
+				game.reload();
+			};
+		},
+	},
+};
+
+//面板分组
+const gfbQmxgnGroup = [
+	{
+		cap: `功能开关`,
+		list: ['gfb_gghm','gfb_zxgx','gfb_ltcd','gfb_hdcd','gfb_fzysq','gfb_consoleClear','gfb_logBan'],
+	},
+];
+
+//渲染面板
+const gfbQmxgnPanel = function () {
+	const panel = ui.create.div('.gfb_qmxgn');
+	for (const group of gfbQmxgnGroup) {
+		ui.create.div('.gfb_qmxgn_cap', group.cap, panel);
+		for (const key of group.list) {
+			const option = gfbQmxgnOption[key];
+			if (!option) continue;
+			const row = ui.create.div('.gfb_qmxgn_row', '', panel);
+			ui.create.div('.gfb_qmxgn_label', String(option.name).replace(/<[^>]*>/g, ''), row);
+			if (option.clear) {
+				const act = ui.create.div('.gfb_qmxgn_act', option.act || '执行', row);
+				act.listen(function () {
+					if (option.onclick) option.onclick.call(this);
+				});
+			} else {
+				const name = 'extension_鸽府包_' + key;
+				const sw = ui.create.div('.gfb_qmxgn_sw', '<div></div>', row);
+				const on = lib.config[name] === undefined ? option.defaultOn : lib.config[name];
+				if (on) sw.classList.add('on');
+				sw.listen(function () {
+					const bool = !this.classList.contains('on');
+					this.classList.toggle('on', bool);
+					if (option.onclick) option.onclick.call(this, bool);
+					else game.saveConfig(name, bool);
+				});
+			}
+			if (option.intro) {
+				lib.setIntro(row, function (uiintro) {
+					uiintro.style.width = '170px';
+					uiintro._place_text = uiintro.add('<div class="text" style="display:inline">' + option.intro + '</div>');
+				});
+			}
+		}
+	}
+	return panel;
+};
+
 export const config = {
 	'outcrop':{
 	    name:'露头样式',
@@ -24,7 +241,7 @@ export const config = {
 				var log = [`·本扩展为武将扩展，主要目的是方便鸽子精及其伙伴们联机使用`,
 					`·扩展中的武将并非一人设计，是大家一起努力的结果！！！`,
 				];
-				var more = ui.create.div('.help', '<div style="border:2px solid gray"><P align=left>' + log.join('<br>') + '</P>');
+				var more = ui.create.div('.help', '<div style="border:2px solid gray"><P align=left>' + log.join('<br>') + '</P></div>');
 				this.parentNode.insertBefore(more, this.nextSibling);
 				this.help = more;
 				this.innerHTML = `<span color="black">扩展介绍</span><font color='#ADFF2F'> （点击收起）</font></span>`;
@@ -35,7 +252,7 @@ export const config = {
 			};
 		},
 	},
-	info_update: {
+	/*info_update: {
 		name: `<span>武将分类</span><font color='#ADFF2F'>==>点击展开＜==</font></span>`,
 		clear: true,
 		//frequent: false,
@@ -129,7 +346,7 @@ export const config = {
 					`·<font color='#FFD700'>嘉豪</font>`,
 
 				];
-				var more = ui.create.div('.help', '<div style="border:2px solid gray"><P align=left>' + log.join('<br>') + '</P>');
+				var more = ui.create.div('.help', '<div style="border:2px solid gray"><P align=left>' + log.join('<br>') + '</P></div>');
 				this.parentNode.insertBefore(more, this.nextSibling);
 				this.help = more;
 				this.innerHTML = `<span>武将分类</span><font color='#ADFF2F'> （点击收起）</font></span>`;
@@ -139,16 +356,67 @@ export const config = {
 				this.innerHTML = `<span>武将分类</span><font color='#ADFF2F'> ==>点击展开＜==</font></span>`;
 			};
 		},
+	},*/
+	info_water: {
+		name: `<span>更多属性</span><font color='#ffff00' style='text-decoration:underline;'>展示详情</font></span>`,
+		clear: true,
+		onclick: function () {
+			if (this.help === undefined) {
+				var log = [
+					`<font color='#5398ff'>===水属性===</font>`,
+					`·<font color='#5398ff'>①浸湿</font>：受到水属性伤害时，随机1至其手牌数张手牌被标记为“浸湿”直至本回合结束，“浸湿”牌不可使用或打出`,
+					`·<font color='#5398ff'>②销毁</font>：受到冰属性伤害时，销毁手牌中所有“浸湿”牌`,
+					`<font color='#73d165'>===风属性===</font>`,
+					`·<font color='#73d165'>①吹散</font>：受到风属性伤害时，其随机获得其装备栏的装备并标记为“狂风”直至本回合结束，拥有“狂风”牌的角色受到火焰伤害加1`,
+					`·<font color='#73d165'>②乱流</font>：受到风属性伤害时，清除手牌中所有“浸湿”牌标记`,
+				];
+				var more = ui.create.div('.help', '<div style="border:2px solid gray"><P align=left>' + log.join('<br>') + '</P></div>');
+				this.parentNode.insertBefore(more, this.nextSibling);
+				this.help = more;
+				this.innerHTML = `<span>更多属性</span><font color='#ffff00'>（点击收起）</font></span>`;
+			} else {
+				this.parentNode.removeChild(this.help);
+				delete this.help;
+				this.innerHTML = `<span>更多属性</span><font color='#ffff00' style='text-decoration:underline;'>展示详情</font></span>`;
+			};
+		},
 	},
-    gfb_slb:{
-        name:`<span style='text-decoration:underline;'>胜率排行榜</span>`,
-    	clear:true,
-    	onclick:function(){
-    		game.gfb_slb();
-    	}
-    },
+	gfb_slb: {
+		name: `<span style='text-decoration:underline;'>胜率排行榜</span>`,
+		intro: `查看联机对局的胜率排行榜`,
+		clear: true,
+		onclick: function () {
+			game.gfb_slb();
+		},
+	},
+	gfb_ljqy: {
+		name: `<span style='text-decoration:underline;'>联机祈愿</span>`,
+		intro: `打开联机祈愿面板`,
+		clear: true,
+		onclick: function () {
+			game.gfb_ljqy();
+		},
+	},
+	gfb_qmxgn: {
+		name: `<span>奇妙小功能</span><span style='opacity:0.5;font-size:12px;margin-left:6px'>▸ 展开</span>`,
+		clear: true,
+		onclick: function (bool) {
+			this.innerHTML = bool
+				? `<span>奇妙小功能</span><span style='opacity:0.5;font-size:12px;margin-left:6px'>▾ 收起</span>`
+				: `<span>奇妙小功能</span><span style='opacity:0.5;font-size:12px;margin-left:6px'>▸ 展开</span>`;
+			if (bool) {
+				gfbQmxgnStyle();
+				this.gfb_qmxgn_panel = gfbQmxgnPanel();
+				this.parentNode.insertBefore(this.gfb_qmxgn_panel, this.nextSibling);
+			} else if (this.gfb_qmxgn_panel) {
+				this.gfb_qmxgn_panel.remove();
+				delete this.gfb_qmxgn_panel;
+			};
+		},
+	},
 	check_update: {
 		name: `<button style='padding:5px 10px; font-size:14px;'>检测更新</button>`,
+		intro: `从远程仓库拉取鸽府包最新版本`,
 		clear: true,
 		onclick: async function () {
 			let btn = this;
@@ -162,48 +430,6 @@ export const config = {
 			setTimeout(() => {
 				btn.innerHTML = `<button style='padding:5px 10px; font-size:14px;'>检查更新</button>`;
 			}, 2000);
-		}
-	},
-	gfb_zxgx: {
-          name: `<font color="#ADFF2F">自动检测更新`,
-          init: false,
-          intro: "启动游戏时自动检查更新（需联网）",
-		  onclick: function(bool) {
-			if(bool != lib.config.extension_鸽府包_gfb_zxgx){
-				game.saveConfig('extension_鸽府包_gfb_zxgx', bool);
-			};
-		}
-    },
-	
-	gfb_fzysq: {
-		name: `<font color='#ADFF2F'>房主有神器</font>`,
-		intro: "联机房主专用，开启后菜单栏出现【房主有神器】按钮，点击可强制打断当前流程并使游戏继续运行，用于处理卡死游戏或烧条等情节（房主与白名单昵称 Mimi 会加载此按钮，单机不显示，默认关闭）",
-		init: false,
-		onclick: function(bool) {
-			if(bool != lib.config.extension_鸽府包_gfb_fzysq){
-				game.saveConfig('extension_鸽府包_gfb_fzysq', bool);
-			};
-			if(lib.gf_shenqiRefresh)lib.gf_shenqiRefresh();
-		},
-	},
-	gfb_ltcd: {
-		name: `<font color='#ADFF2F'>自动关闭聊天框</font></span>`,
-		intro: "已修复了电脑联机聊天输入中文关闭聊天框的问题，开启此功能后发送完消息自动关闭聊天框（注：电脑端聊天不要点输入框，想打什么直接打）",
-		init: false,
-		onclick: function(bool) {
-			if(bool != lib.config.extension_鸽府包_gfb_ltcd){
-				game.saveConfig('extension_鸽府包_gfb_ltcd', bool);
-			};
-		},
-	},
-	gfb_hdcd: {
-		name: `<font color='#ADFF2F'>自动关闭互动表情</font></span>`,
-		intro: "开启此功能后砸蛋、送花后会自动关闭页面，和原版一样",
-		init: false,
-		onclick: function(bool) {
-			if(bool != lib.config.extension_鸽府包_gfb_hdcd){
-				game.saveConfig('extension_鸽府包_gfb_hdcd', bool);
-			};
 		},
 	},
 	gfb_yjhj: {
@@ -244,35 +470,5 @@ export const config = {
 				}
 			};
 		},
-	},
-	gfb_consoleClear: {
-		name: `<font color='#ADFF2F'>清日志</font></span>`,
-		intro: "开启后游戏开始前将不再清空历史日志（加载扩展时会产出各种乱七八糟的日志）",
-		init: false,
-		onclick: function(bool) {
-			if(bool != lib.config.extension_鸽府包_gfb_consoleClear){
-				game.saveConfig('extension_鸽府包_gfb_consoleClear', bool);
-			};
-		},
-	},
-	gfb_logBan: {
-		name: `<font color='#ADFF2F'>禁log日志</font></span>`,
-		intro: "开启后会禁用console.log形式的日志提示",
-		init: false,
-		onclick: function(bool) {
-			if(bool != lib.config.extension_鸽府包_gfb_logBan){
-				game.saveConfig('extension_鸽府包_gfb_logBan', bool);
-				if(confirm('您是否要重启游戏以应用禁console.log形式的日志提示设置？')){
-					game.reload();
-				}
-			};
-		},
-	},
-	gfb_ljqy: {
-		name:`<span style='text-decoration:underline;'>联机祈愿</span>`,
-    	clear:true,
-    	onclick:function(){
-    		game.gfb_ljqy();
-    	}
 	},
 }

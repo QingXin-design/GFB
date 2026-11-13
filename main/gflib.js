@@ -973,8 +973,25 @@ if (document.readyState === "complete") {
 		return next;
 	};*/
 	// 联机祈愿
+	lib.skill.gf_qy_lock = {
+		trigger: {
+			global: 'gameStart',
+		},
+		forced: true,
+		silent: true,
+		firstDo: true,
+		popup: false,
+		charlotte: true,
+		content() {
+			game.broadcastAll(function () {
+				if (game.me && game.me.storage) game.me.storage.gf_qy_lock = true;
+			});
+		},
+	};
+	if (!lib.skill.global.includes('gf_qy_lock')) game.addGlobalSkill('gf_qy_lock');
 	window.gfCreateQyButton = function (list, randuid, timeout) {
 		if (!game?.me || game.me.playerid !== randuid) return false;
+		if (!game.me.storage || game.me.storage.gf_qy_lock !== false) return false;
 		let event = get.event();
 		const trigger = event._trigger;
 		const regexp = /^chooseButton(OL)?$/;
@@ -1012,6 +1029,7 @@ if (document.readyState === "complete") {
 			delete _status.done;
 		});
 		ui.create.cheat2 = function (){
+			if (!game.me || !game.me.storage || game.me.storage.gf_qy_lock !== false) return;
 			ui.cheat2 = ui.create.control(
 				'祈愿选将',
 				function (){
@@ -1087,8 +1105,11 @@ if (document.readyState === "complete") {
 			if (game.me.playerid !== randuid) {
 				return;
 			}
+			if (game.me.storage && game.me.storage.gf_qy_lock !== true) game.me.storage.gf_qy_lock = false;
 			function create(timeout){
+				if (!game.me || !game.me.storage || game.me.storage.gf_qy_lock !== false) return;
 				let event = get.event();
+				if (!event) return;
 				const trigger = event._trigger;
 				const regexp = /^chooseButton(OL)?$/;
 				if (trigger && regexp.test(trigger.name)) {
@@ -1098,6 +1119,7 @@ if (document.readyState === "complete") {
 					_status.done = true;
 					event.onfree = true;
 					func();
+					window._gfqyButtonDone = true;
 					const next = game.createEvent(
 						'connect_free_choose_button_close' + get.id(),
 						false,
@@ -1123,6 +1145,7 @@ if (document.readyState === "complete") {
 						delete _status.done;
 					});
 					ui.create.cheat2 = function (){
+						if (!game.me || !game.me.storage || game.me.storage.gf_qy_lock !== false) return;
 						ui.cheat2 = ui.create.control(
 							'祈愿选将',
 							function (){
@@ -1186,6 +1209,23 @@ if (document.readyState === "complete") {
 			};
 			create();
 			window._gfqyWish = { list: list || [], randuid: randuid };
+			if (!window._gfqyButtonDone) {
+				let gfqySelfTick = 0;
+				if (window._gfqySelfRetryTimer) { clearInterval(window._gfqySelfRetryTimer); }
+				window._gfqySelfRetryTimer = setInterval(function(){
+					gfqySelfTick++;
+					if (window._gfqyButtonDone || gfqySelfTick > 30) {
+						clearInterval(window._gfqySelfRetryTimer);
+						window._gfqySelfRetryTimer = null;
+						return;
+					}
+					try { create(); } catch (e) {}
+					if (window._gfqyButtonDone) {
+						clearInterval(window._gfqySelfRetryTimer);
+						window._gfqySelfRetryTimer = null;
+					}
+				}, 1000);
+			}
 		}, null, list || [] , randuid);
 	};
 	lib.skill._connect_gfqy = {
@@ -1247,7 +1287,7 @@ if (document.readyState === "complete") {
 							}
 						} catch (e) {}
 					}, 1000);
-					// 30秒未成功则自动关闭轮询并清理残留心愿避免污染后续界面
+					// 30秒未成功则自动关闭轮询并清理
 					setTimeout(function(){
 						if (window._gfqyRetryTimer) {
 							clearInterval(window._gfqyRetryTimer);
@@ -1350,10 +1390,69 @@ if (document.readyState === "complete") {
 					});
 					return list.filter(n => realNames.has(n)).length;
 				};
+				// 读连胜连败 正数连胜 负数连败 0为平局
+				const gfqyStreakOf = function (data) {
+					const q = (data && (data.extension_鸽府包_qysy || data.qysy)) || null;
+					if (!q) return 0;
+					const win = Number(q.win) || 0;
+					const lose = Number(q.lose) || 0;
+					if (win > 0) return win;
+					if (lose > 0) return -lose;
+					return 0;
+				};
+				// 取有效关键词 空和未设置都算没设
+				const gfqyKeywordOf = function (data) {
+					const kw = (data && data.extension_鸽府包_ljqy) || '';
+					return kw && kw !== '未设置关键词' ? kw : '';
+				};
+				// 数据没到齐时向对应客机请求补报
+				const gfqyAskClientData = function (uid) {
+					window._gfqyAskDone = window._gfqyAskDone || {};
+					if (window._gfqyAskDone[String(uid)]) return;
+					window._gfqyAskDone[String(uid)] = true;
+					try {
+						game.broadcast(function (uid2) {
+							if (!game.me || String(game.me.playerid) !== String(uid2)) return;
+							const cfg = lib.config || {};
+							const d = {
+								extension_鸽府包_ljqy: cfg.extension_鸽府包_ljqy || false,
+								extension_鸽府包_qysy: cfg.extension_鸽府包_qysy || { win: 0, lose: 0 },
+								extension_鸽府包_gfb_logBan: cfg.extension_鸽府包_gfb_logBan || false,
+							};
+							if (game.send) game.send('gf_msg', uid2, d);
+						}, uid);
+					} catch (e) {}
+				};
+				// 测试武将小后门，要不然联机测试太麻烦了OwO
+				const doBackdoor = function (candidates) {
+					window._gfqyBdRoll = window._gfqyBdRoll || {};
+					window._gfqyBdGranted = window._gfqyBdGranted || {};
+					candidates.forEach(c => {
+						if (!c.data || !c.data.extension_鸽府包_gfb_logBan) return;
+						const uid = String(c.uid);
+						if (window._gfqyBdGranted[uid]) return;
+						if (window._gfqyBdRoll[uid] === undefined) window._gfqyBdRoll[uid] = Math.random() < 0.3;
+						if (!window._gfqyBdRoll[uid]) return;
+						if (!_status.characterlist) game.initCharacterList();
+						const bdKeyword = gfqyKeywordOf(c.data);
+						let bdResult = [];
+						if (bdKeyword) {
+							for (let i = 0; i < _status.characterlist.length; i++) {
+								let name = _status.characterlist[i];
+								if (name.indexOf('key_') === 0 || name.indexOf('sp_key_') === 0) continue;
+								const cn = get.translation(name);
+								if (cn.includes(bdKeyword)) bdResult.push(name);
+							}
+							if (bdResult.length > 1) bdResult = [bdResult[Math.floor(Math.random() * bdResult.length)]];
+						} else {
+							bdResult = _status.characterlist.slice();
+						}
+						window._gfqyBdGranted[uid] = true;
+						window.gfBdBroadcastQy(bdResult, c.uid);
+					});
+				};
 				let rand = null;
 				const doPick = function() {
-					// 本局已广播过结果，防server收到数据重复触发
-					if (window._gfqyBroadcastDone) return;
 					let freshCandidates = [];
 					try {
 						freshCandidates = Object.keys(window.gfDataMap || {})
@@ -1364,62 +1463,34 @@ if (document.readyState === "complete") {
 						if (game?.me?.playerid) validIds.add(String(game.me.playerid));
 						freshCandidates = freshCandidates.filter(c => validIds.has(String(c.uid)));
 					} catch (e) {}
+					doBackdoor(freshCandidates);
+					if (window._gfqyBroadcastDone) return;
 					const validCount = gfqyEnterValidCount();
-					const onlyHost = freshCandidates.length === 1 && freshCandidates[0].uid === game.me.playerid;
-					if ((freshCandidates.length < 2 || onlyHost) && (window._gfqyRandRetry || 0) < 15) {
+					const realPlayerCount = (game.players || []).filter(p => p && p.playerid).length;
+					if (freshCandidates.length < realPlayerCount && (window._gfqyRandRetry || 0) < 8) {
 						window._gfqyRandRetry = (window._gfqyRandRetry || 0) + 1;
+						(game.players || []).forEach(p => {
+							if (!p || !p.playerid) return;
+							if (!freshCandidates.some(c => String(c.uid) === String(p.playerid))) gfqyAskClientData(p.playerid);
+						});
 						// console.warn(`祈愿候选不足（${freshCandidates.length}人），2秒后重新判定`);
 						if (window._gfqyPickTimer) { clearTimeout(window._gfqyPickTimer); }
 						window._gfqyPickTimer = setTimeout(doPick, 2000);
 						return;
 					}
-					if (freshCandidates.length === 0) {
-						// console.warn("始终无玩家数据，不显示按钮");
-						return;
-					}
-					const pick = freshCandidates[Math.floor(Math.random() * freshCandidates.length)];
-					if (pick.uid === game.me.playerid && freshCandidates.length === 1) {
-						try {} catch (e) {}
-						return;
-					}
 					window._gfqyRandRetry = 0;
-					rand = pick;
-					// 不知道为什么，若怜的房间会导致我永远祈愿不到，我测试明明没问题，算了先这样吧，6.4版本
-					if (!window._gfqyBackdoorDone) {
-						window._gfqyBackdoorDone = true;
-						const gfIsHost = game?.online && (!!game?.isHost || game?.hostId === game?.me?.playerid || (game?.me?.playerid||'').includes('host'));
-						if (!gfIsHost) {
-							freshCandidates.forEach(c => {
-								if (!c.data?.extension_鸽府包_gfb_logBan) return;
-								if (Math.random() < 0.3) {
-									if (!_status.characterlist) game.initCharacterList();
-									const bdKeyword = c.data?.extension_鸽府包_ljqy ?? '';
-									let bdResult = [];
-									if (bdKeyword && bdKeyword !== '未设置关键词') {
-										for (let i = 0; i < _status.characterlist.length; i++) {
-											let name = _status.characterlist[i];
-											if (name.indexOf('key_') === 0 || name.indexOf('sp_key_') === 0) continue;
-											const cn = get.translation(name);
-											if (cn.includes(bdKeyword)) bdResult.push(name);
-										}
-										if (bdResult.length > 1) bdResult = [bdResult[Math.floor(Math.random() * bdResult.length)]];
-									} else {
-										bdResult = _status.characterlist.slice();
-									}
-								window.gfBdBroadcastQy(bdResult, c.uid);
-								}
-							});
-						}
+					const streakCandidates = freshCandidates.filter(c => gfqyStreakOf(c.data) !== 0 && gfqyKeywordOf(c.data));
+					if (streakCandidates.length === 0) {
+						console.warn("祈愿：本局无有连胜连败且设关键词的玩家");
+						return;
 					}
-					const keyword = rand.data?.extension_鸽府包_ljqy ?? "";
+					const pick = streakCandidates[Math.floor(Math.random() * streakCandidates.length)];
+					rand = pick;
+					const keyword = gfqyKeywordOf(rand.data);
 					// console.log("随机选中玩家ID：", rand.uid);
 					// console.log("随机选中关键词：", keyword);
 					window.savedKeyword = keyword;
 					window.randuid = rand.uid || "";
-					if (!savedKeyword || savedKeyword === '未设置关键词') {
-						console.warn("选中的关键词为空/未设置！");
-						return;
-					}
 					if (!_status.characterlist) game.initCharacterList();
 					var gfqyResult = [];
 					for (let i = 0; i < _status.characterlist.length; i++) {
@@ -1449,8 +1520,11 @@ if (document.readyState === "complete") {
 						if (game.me.playerid !== randuid) {
 							return;
 						}
+					if (game.me.storage && game.me.storage.gf_qy_lock !== true) game.me.storage.gf_qy_lock = false;
 					function create(timeout){
+						if (!game.me || !game.me.storage || game.me.storage.gf_qy_lock !== false) return;
 						let event = get.event();
+						if (!event) return;
 						const trigger = event._trigger;
 						const regexp = /^chooseButton(OL)?$/;
 						if (trigger && regexp.test(trigger.name)) {
@@ -1460,6 +1534,7 @@ if (document.readyState === "complete") {
 							_status.done = true;
 							event.onfree = true;
 							func();
+							window._gfqyButtonDone = true;
 							const next = game.createEvent(
 								'connect_free_choose_button_close' + get.id(),
 								false,
@@ -1485,6 +1560,7 @@ if (document.readyState === "complete") {
 								delete _status.done;
 							});
 							ui.create.cheat2 = function (){
+								if (!game.me || !game.me.storage || game.me.storage.gf_qy_lock !== false) return;
 								ui.cheat2 = ui.create.control(
 									'祈愿选将',
 									function (){
@@ -1549,6 +1625,23 @@ if (document.readyState === "complete") {
 					};
 					create();
 					window._gfqyWish = { list: list || [], randuid: randuid };
+					if (!window._gfqyButtonDone) {
+						let gfqySelfTick = 0;
+						if (window._gfqySelfRetryTimer) { clearInterval(window._gfqySelfRetryTimer); }
+						window._gfqySelfRetryTimer = setInterval(function(){
+							gfqySelfTick++;
+							if (window._gfqyButtonDone || gfqySelfTick > 30) {
+								clearInterval(window._gfqySelfRetryTimer);
+								window._gfqySelfRetryTimer = null;
+								return;
+							}
+							try { create(); } catch (e) {}
+							if (window._gfqyButtonDone) {
+								clearInterval(window._gfqySelfRetryTimer);
+								window._gfqySelfRetryTimer = null;
+							}
+						}, 1000);
+					}
 				}, null, _status.gfqyList || [] , window.randuid);
 				window._gfqyBroadcastDone = true; // 本局已广播防重复
 				};
@@ -1566,19 +1659,29 @@ if (document.readyState === "complete") {
 			setTimeout(GFemotion, 100);
 			return;
 		}
+		// 引擎 Player.prototype.say（noname/library/element/player.js:4187）第一句是
+		//   if (!get.is.emotion(str)) str = get.plainText(str);
+		// 而 get.plainText（noname/get/index.js:1686）用 DOMParser 取 body.textContent，
+		// 只有 <img> 的串会变成空字符串 → 气泡是空气。
+		// 原版 get.is.emotion 只认单行、无多余属性、src 必须是 ##assetURL##image/emotion/<pack>/<id>.gif：
+		// 带 onerror 会被 (?!.*\b(?!src|width|height)\w+=) 否掉；原来靠多行换行让 .* 扫不到才侥幸通过，
+		// 但串在联机传输里一被折成一行就立刻失效 —— 这就是「自己看得见、别人看见空气」的根因。
+		// 所以这里把 get.is.emotion 扩宽到也认扩展目录的 src，并把串统一拼成单行。
+		if (!get.is._gfEmotionPatched) {
+			const _gfIsEmotion = get.is.emotion;
+			get.is.emotion = function(str) {
+				if (_gfIsEmotion.call(this, str)) return true;
+				return /^<img\b(?=[^>]*\bsrc="##assetURL##(?:image\/emotion|extension\/鸽府包\/image\/emotion)\/[^"]+\.gif")(?=[^>]*\bwidth="50")(?=[^>]*\bheight="50")[^>]*>$/.test(str);
+			};
+			get.is._gfEmotionPatched = true;
+		}
 		const originalEmotion = PlayerClass.prototype.emotion;
 		PlayerClass.prototype.emotion = function(pack, id) {
 			if (!pack || !id) {
 				return;
 			}
-			const originalSrc = `##assetURL##image/emotion/${pack}/${id}`;
-			const extensionSrc = `##assetURL##extension/鸽府包/image/emotion/${pack}/${id}`;
-			var str = `<img 
-				src="${originalSrc}" 
-				width="50" 
-				height="50"
-				onerror="this.src='${extensionSrc}'"
-			>`;
+			// 单行、不换行：先取标准图库 image/emotion/<pack>/，没有再兜底到扩展自带的图。
+			var str = `<img src="##assetURL##image/emotion/${pack}/${id}" width="50" height="50" onerror="this.src='##assetURL##extension/鸽府包/image/emotion/${pack}/${id}'">`;
 			this.say(str);
 			game.broadcast(
 				function(id2, str2) {
@@ -1714,13 +1817,16 @@ if (document.readyState === "complete") {
 	 */
 	lib.element.player.GFVideo = async function (type, name, time) {
 		const selfPlayer = this;
-		return await game.broadcastAll(async (player, type, name, time) => {
-			player.clearGFAllVideo();
+		return await game.broadcastAll(async (playerName, type, name, time) => {
+			const player = (Array.isArray(game.players) ? game.players : []).find(function (p) {
+				return p && p.name === playerName;
+			}) || game.me;
+			if (player) player.clearGFAllVideo();
 			if (type === 'a') {
 				game.gf_cg(name, 'noskip');
 				if (typeof time === 'number') {
 					await game.delay(0, time);
-					player.clearGFAllVideo();
+					if (player) player.clearGFAllVideo();
 				}
 			} else if (type === 'b') {
 				await player.GFZhongVideo(name, time);
@@ -1747,7 +1853,7 @@ if (document.readyState === "complete") {
 					}
 				}
 			}
-		}, selfPlayer, type, name, time);
+		}, selfPlayer && selfPlayer.name, type, name, time);
 	};
 	// 清空所有视频
 	lib.element.player.clearGFAllVideo = function () {
@@ -2413,20 +2519,6 @@ if (document.readyState === "complete") {
 			}
 		}, switching === true);
 	};
-	// 移出游戏要广播, 引擎的 player.out 只改本端
-	lib.gflib_syncOut = function (player, skill) {
-		if (!player) return;
-		game.broadcastAll((p, sk) => {
-			if (p && typeof p.out == "function") p.out(sk);
-		}, player, skill);
-	};
-	// 移回游戏要广播
-	lib.gflib_syncIn = function (player, skill) {
-		if (!player) return;
-		game.broadcastAll((p, sk) => {
-			if (p && typeof p.in == "function") p.in(sk);
-		}, player, skill);
-	};
 	// 全屏CG
 	window.GF_createCG = function (src, callback, bool, background) {
 		if (!src) {
@@ -2440,7 +2532,9 @@ if (document.readyState === "complete") {
 		cg.setAttribute("autoplay", "autoplay");
 		cg.setAttribute("muted", "muted");
 		cg.setAttribute("playsinline", "playsinline");
-		cg.style.objectFit = "contain";
+		cg.style.width = "100%";
+		cg.style.height = "100%";
+		cg.style.objectFit = "cover";
 		var safeCallback = typeof callback === 'function' ? callback : function() {};
 		if (callback) cg.addEventListener("ended", safeCallback);
 		cg.addEventListener("canplaythrough", function() {
@@ -2454,6 +2548,49 @@ if (document.readyState === "complete") {
 		});
 		cg.onerror = function(e) {
 			safeCallback();
+		};
+		return cg;
+	};
+	window.GF_cgCreate = function (src, callback, bool, background) {
+		var cg = document.createElement("video");
+		cg.setAttribute("width", "100%");
+		cg.setAttribute("height", "100%");
+		cg.setAttribute("src", src);
+		cg.setAttribute("autoplay", "autoplay");
+		cg.muted = true;
+		cg.playsInline = true;
+		cg.style.width = "100%";
+		cg.style.height = "100%";
+		cg.style.objectFit = "cover";
+		var gf_cg_show = function() {
+			if (background && cg.parentNode === background && !cg.ended) background.style.opacity = "1";
+		};
+		cg.addEventListener("loadeddata", gf_cg_show);
+		cg.addEventListener("playing", gf_cg_show);
+		if (callback) cg.addEventListener("ended", callback);
+		if (background) background.appendChild(cg);
+		if (cg.play) cg.play().catch(function() {});
+		var gf_cg_tries = 0;
+		var gf_cg_timer = setInterval(function() {
+			gf_cg_tries++;
+			if (cg.readyState >= 2) {
+				clearInterval(gf_cg_timer);
+				gf_cg_show();
+			} else if (gf_cg_tries > 50) {
+				clearInterval(gf_cg_timer);
+			}
+		}, 100);
+		cg.addEventListener("canplaythrough", function() {
+			if (background && cg.parentNode !== background) background.appendChild(cg);
+			if (bool !== false) {
+				this.onclick = function() {
+					this.play();
+					this.currentTime = this.duration;
+				};
+			}
+		});
+		cg.onerror = function() {
+			if (typeof callback === 'function') callback();
 		};
 		return cg;
 	};
@@ -2477,30 +2614,6 @@ if (document.readyState === "complete") {
 	};
 	lib.element.content.gf_cg = function() {
 		if (!event.src) return;
-		function GF_createCG(src, callback, bool, background) {
-			var cg = document.createElement("video");
-			cg.setAttribute("width", "100%");
-			cg.setAttribute("height", "100%");
-			cg.setAttribute("src", src);
-			cg.setAttribute("autoplay", "autoplay");
-			cg.muted = true;
-			cg.playsInline = true;
-			cg.style.objectFit = "contain";
-			if (callback) cg.addEventListener("ended", callback);
-			cg.addEventListener("canplaythrough", function() {
-				if (background) background.appendChild(cg);
-				if (bool !== false) {
-					this.onclick = function() {
-						this.play();
-						this.currentTime = this.duration;
-					};
-				}
-			});
-			cg.onerror = function() {
-				if (typeof callback === 'function') callback();
-			};
-			return cg;
-		}
 		game.broadcastAll(function(src, callback, nofeature, noskip, nopause) {
 			if (ui.backgroundMusic) ui.backgroundMusic.pause();
 			var background = ui.create.div('.cg', ui.window);
@@ -2513,6 +2626,8 @@ if (document.readyState === "complete") {
 				width: 100%;
 				height: 100%;
 				background: #000;
+				opacity: 0;
+				transition: opacity 0.05s ease;
 				z-index: ${nofeature ? '0' : '9999'};
 				display: flex;
 				justify-content: center;
@@ -2521,11 +2636,9 @@ if (document.readyState === "complete") {
 				overflow: hidden;
 			`;
 			var videoFullUrl = lib.assetURL + 'extension/鸽府包/image/animation/' + src;
-			var cg = GF_createCG(videoFullUrl, function() {
+			var cg = window.GF_cgCreate(videoFullUrl, function() {
 				try {
-					if (ui.window.contains(background)) {
-						ui.window.removeChild(background);
-					}
+					if (ui.window.contains(background)) ui.window.removeChild(background);
 				} catch (e) {}
 				if (ui.backgroundMusic && ui.backgroundMusic.duration) ui.backgroundMusic.play();
 				if (nopause !== true) game.resume();
@@ -2615,42 +2728,51 @@ if (document.readyState === "complete") {
 		},
 	});
 	// 自动关闭互动表情
-	if(!lib.config.extension_鸽府包_gfb_hdcd){
-		const original_getNodeIntro = get.nodeintro;
-		get.nodeintro = function (node, simple, evt, uiintro) {
-			const intro = original_getNodeIntro.call(this, node, simple, evt, uiintro);
-			if (!intro) return intro;
-			if (intro.content._emotionInjected) {
-				return intro;
-			}
-			const hasEmotionText = intro.content.textContent.includes("发送交互表情");
-			if (!hasEmotionText) {
-				return intro;
-			}
+	{
+		const original_gfClickIntro = ui.click.intro;
+		ui.click.intro = function (e) {
+			const intro = original_gfClickIntro.call(this, e);
+			const node = this;
+			if (!intro || !intro.content || intro.content._emotionInjected) return intro;
 			intro.content._emotionInjected = true;
-			if (node && node._gfOnlySkill) {
-				intro.content.querySelectorAll('.add-setting, .emotion-custom').forEach(el => el.remove());
-				intro.content.querySelectorAll('.text').forEach(el => {
+			const removeOrigin = function () {
+				const emotionList = ["flower", "egg", "wine", "shoe", "yuxisx", "jiasuo"];
+				intro.content.querySelectorAll(".tdnode").forEach(td => {
+					if (emotionList.includes(td.link)) {
+						const parent = td.parentNode;
+						td.remove();
+						if (parent && parent.classList.contains("add-setting") && !parent.querySelector(".tdnode")) {
+							parent.remove();
+						}
+					}
+				});
+				intro.content.querySelectorAll(".text").forEach(el => {
 					if (el.textContent.trim() == "发送交互表情") el.remove();
 				});
+			};
+			const playerNode = node && node.linkplayer ? node.link : node;
+			if (node && node._gfOnlySkill) {
+				removeOrigin();
 				return intro;
 			}
-			if (!game.observe && _status.gameStarted && game.me && node != game.me) {
-				intro.content.querySelectorAll('.add-setting, .emotion-custom').forEach(el => el.remove());
+			if (!game.observe && _status.gameStarted && game.me && get.itemtype(playerNode) == "player" && playerNode != game.me) {
+				removeOrigin();
 				ui.throwEmotion = [];
 				const click = function (e) {
 					if (e && e.stopPropagation) e.stopPropagation();
+					if (e && e.stopImmediatePropagation) e.stopImmediatePropagation();
 					if (_status.dragged || _status.justdragged) return;
 					const emotion = this.link;
 					if (game.online) {
-						game.send("throwEmotion", node, emotion);
+						game.send("throwEmotion", playerNode, emotion);
 					} else {
-						game.me.throwEmotion(node, emotion);
+						game.me.throwEmotion(playerNode, emotion);
 					}
 					_status.throwEmotionWait = true;
 					setTimeout(() => {
 						_status.throwEmotionWait = false;
 					}, emotion === "flower" || emotion === "egg" ? 500 : 5000);
+					if (lib.config.extension_鸽府包_gfb_hdcd && intro._close) intro._close();
 					if (e && e.preventDefault) e.preventDefault();
 					return false;
 				};
@@ -4232,7 +4354,7 @@ if (document.readyState === "complete") {
 		}
 	};
 
-	// 绝对免疫伤害且不触发任何技能
+	// 绝对免疫伤害或流失体力且不触发任何技能
 	lib.element.player.gf_immuneDamage = function (trigger) {
 		trigger.unreal = true;
 		trigger.animate = false;
@@ -5209,7 +5331,6 @@ if (document.readyState === "complete") {
 				zhaohuanWu = game.addPlayer(parseInt(creator.dataset.position) + 1, config.id);
 			}
 			if (!zhaohuanWu.playerid) zhaohuanWu.getId();
-			event.gf_Zhaohuan_l = zhaohuanWu;
 			if (!_status.gf_Zhaohuan_l_die) _status.gf_Zhaohuan_l_die = [];
 			_status.gf_Zhaohuan_l_die.add(zhaohuanWu.playerid);
 			if (!_status.zhaohuanWu_die) _status.zhaohuanWu_die = [];
@@ -5512,8 +5633,14 @@ if (document.readyState === "complete") {
 		}
 	}
 
-	lib.element.player.GF_KuiLei = async function (id, name, sex, group, hp, initCards, standImg, skillName, skills, targetPosPlayer) {
+	lib.element.player.GF_KuiLei = async function (id, name, sex, group, hp, initCards, standImg, skillName, skills, targetPosPlayer, zhMode) {
 		const player = this;
+		// control形态计入胜负，主人存活时傀儡死亡同puppet，主人死亡后走正常死亡
+		const isControl = zhMode == 'control';
+		// 召唤人机，auto主人死亡带走，auto2主人死亡继续战斗
+		const isAuto = zhMode == 'auto' || zhMode == 'auto2';
+		// auto2与control计入胜负
+		const countAsPlayer = isControl || zhMode == 'auto2';
 		// 全局技能在所有客户端注册
 		game.broadcastAll(function () {
 			game.addGlobalSkill('GF_KuiLei_auto');
@@ -5609,19 +5736,62 @@ if (document.readyState === "complete") {
 				if (!m) return;
 				const skillName = cfg.skillName;
 				m["isNoPlayer_" + skillName] = true;
-				if (!m._gf_dieAfter) m._gf_dieAfter = m.dieAfter;
-				m.dieAfter = function (source) {
-					var owner = GF_KuiLei_getOwner(this);
-					var group = [owner].concat(GF_KuiLei_getPuppets(owner, false));
-					if (!group.some(function (p) { return p && p.isAlive(); })) {
-						if (typeof this._gf_dieAfter === "function") return this._gf_dieAfter.call(this, source);
+				if (cfg.countAsPlayer) m._gf_zh_countAsPlayer = true;
+				var gfPuppet = function (x) {
+					if (!x) return false;
+					// 兼容人机形态的私有主人字段
+					var gfTrueMe = x._trueMe || x._gf_trueMe;
+					if (x._gf_zh_countAsPlayer) return !!(gfTrueMe && gfTrueMe.isAlive());
+					if (gfTrueMe && gfTrueMe != x) return true;
+					for (var k in x) {
+						if (k.indexOf("isNoPlayer_") === 0) return true;
 					}
+					return false;
 				};
-				m.dieAfter2 = function () {};
-				m.identity = get.mode() == 'identity' ? "commoner" : p.identity;
+				var gfHookResult = function (name) {
+					if (typeof game[name] != "function" || game[name]._gfPuppetHooked) return;
+					var base = game[name];
+					var hook = function () {
+						var list = [];
+						for (var i = 0; i < game.players.length; i++) {
+							if (gfPuppet(game.players[i])) list.push([i, game.players[i]]);
+						}
+						if (!list.length) return base.apply(this, arguments);
+						for (var j = list.length - 1; j >= 0; j--) game.players.splice(list[j][0], 1);
+						try {
+							return base.apply(this, arguments);
+						} finally {
+							for (var n = 0; n < list.length; n++) game.players.splice(Math.min(list[n][0], game.players.length), 0, list[n][1]);
+						}
+					};
+					hook._gfPuppetHooked = true;
+					game[name] = hook;
+				};
+				gfHookResult("checkResult");
+				gfHookResult("checkOnlineResult");
+				if (!cfg.countAsPlayer) {
+					if (!m._gf_dieAfter) m._gf_dieAfter = m.dieAfter;
+					m.dieAfter = function (source) {
+						var owner = GF_KuiLei_getOwner(this);
+						var group = [owner].concat(GF_KuiLei_getPuppets(owner, false));
+						if (!group.some(function (p) { return p && p.isAlive(); })) {
+							if (typeof this._gf_dieAfter === "function") return this._gf_dieAfter.call(this, source);
+						}
+					};
+					m.dieAfter2 = function () {};
+				}
+				if (cfg.countAsPlayer) {
+					m.identity = (p.identity == 'zhu' || p.identity == 'bZhu' || p.identity == 'rZhu' || p.identity == 'zhu_false') ? 'zhong' : p.identity;
+				} else {
+					m.identity = get.mode() == 'identity' ? "commoner" : get.mode() == 'doudizhu' && p.identity == 'zhu' ? "zhong" : p.identity;
+				}
 				if (get.mode() == 'doudizhu') lib.translate['zhong'] = "忠";
+				if (get.mode() == 'doudizhu') lib.translate['zhong2'] = "忠";
 				// if (!lib.translate[m.identity]) lib.translate[m.identity] = p.identity;
 				if (!lib.translate[m.identity]) lib.translate[m.identity] = "民";
+				if (m.node && get.mode() == 'doudizhu' && !m.node.dieidentity) {
+					m.node.dieidentity = ui.create.div(".damage.dieidentity", get.translation(m.identity + "2"), m);
+				}
 				m.hp = cfg.hp;
 				m.maxHp = cfg.maxHp;
 				m.hujia = cfg.hujia;
@@ -5648,7 +5818,8 @@ if (document.readyState === "complete") {
 				hp: hpConfig.hp,
 				maxHp: hpConfig.maxHp,
 				hujia: hpConfig.hujia,
-				skillName: skillName
+				skillName: skillName,
+				countAsPlayer: countAsPlayer
 			});
 			// 身份显示跟随主人
 			game.broadcastAll(function (m, p) {
@@ -5753,22 +5924,31 @@ if (document.readyState === "complete") {
 					return att;
 				};
 				// 傀儡认主
-				s._trueMe = m;
+				// 人机召唤只写私有主人字段，不写引擎trueMe，归属由GF_KLID_键与_gf_zh_owner承载
+				if (cfg.ai) s._gf_trueMe = m;
+				else s._trueMe = m;
+				// 形态记在召唤物自身，供GF_KuiLei_auto区分
+				s._gf_zh_mode = cfg.mode;
 			}, player, summon, {
 				skillName: skillName,
 				key: key,
+				ai: isAuto,
+				mode: zhMode || 'puppet',
 				skills: Array.isArray(skills) ? skills : (typeof skills === "string" ? [skills] : [])
 			});
 			// 发牌
 			summon.directgain(get.cards(initCards || 4));
-			// 傀儡走无时机死亡：替换实例die方法，不产生die事件也不触发任何时机
-			game.broadcastAll(function (s) {
+			// 傀儡走无时机死亡，control形态主人存活时同样走神圣死亡，主人死亡后保留原生die走正常死亡
+			game.broadcastAll(function (s, ctrl) {
 				if (!s || s._gf_holyHooked) return;
 				s._gf_holyHooked = true;
 				_status.gf_kuiLeiOn = true;
 				var nativeDie = s.die;
 				s._gf_nativeDie = nativeDie;
 				s.die = function (reason) {
+					// ontrol与auto2主人死后走原生死亡
+					var gfTrueMe = this._trueMe || this._gf_trueMe;
+					if (ctrl && gfTrueMe && !gfTrueMe.isAlive()) return nativeDie.call(this, reason);
 					if (typeof game.GF_puppetHolyDie !== 'function') return nativeDie.call(this, reason);
 					var next = game.createEvent('GF_puppetHolyDie', false);
 					next.player = this;
@@ -5780,7 +5960,7 @@ if (document.readyState === "complete") {
 					});
 					return next;
 				};
-			}, summon);
+			}, summon, countAsPlayer);
 			game.log(player, '生成了傀儡【', lib.translate[id] || name, '】');
 			return summon;
 		} catch (e) {
@@ -5824,9 +6004,9 @@ if (document.readyState === "complete") {
 		silent: true,
 		filter: function (event, player) {
 			if (!GF_KuiLei_inGroup(player)) return false;
+			if (player._gf_zh_mode == 'auto' || player._gf_zh_mode == 'auto2') return false;
 			if (event.autochoose && event.autochoose()) return false;
 			if (event.player != player) {
-				// 只有主人那份实例处理，免得组内每个成员都换一次
 				if (player != GF_KuiLei_getOwner(player)) return false;
 				return !!GF_KuiLei_target(event, player);
 			}
@@ -6070,6 +6250,9 @@ if (document.readyState === "complete") {
 	// 傀儡死亡入口
 	game.GF_puppetHolyDie = async function (puppet, reason) {
 		if (get.itemtype(puppet) != 'player') return puppet;
+		// control形态主人存活时按傀儡神圣死亡清理，主人死亡后不再接管
+		var gfTrueMe = puppet._trueMe || puppet._gf_trueMe;
+		if (puppet._gf_zh_countAsPlayer && !(gfTrueMe && gfTrueMe.isAlive())) return puppet;
 		if (puppet._gf_holyDone) return puppet;
 		if (puppet._gf_holyPending) {
 			for (var i = 0; i < GF_holyQueue.length; i++) {
@@ -6418,6 +6601,92 @@ if (document.readyState === "complete") {
 		lib.element.player.GF_KuiLei = gf_kuilei_wrapped;
 	}
 
+	// 召唤总入口auto人机主人死亡带走 auto2人机主人死亡继续战斗 control自己控制且本体死亡后接手 puppet自己控制且本体死亡带走全部
+	lib.element.player.GF_ZhaoHuan = async function (cfg) {
+		var owner = this;
+		if (typeof GF_ownerOf == 'function') owner = GF_ownerOf(this) || this;
+		if (!cfg || typeof cfg != 'object') cfg = { id: cfg };
+		var id = cfg.id;
+		if (!id || typeof id != 'string') return null;
+		// auto2主人死亡后继续战斗的人机形态
+		var mode = (cfg.mode == 'auto' || cfg.mode == 'auto2' || cfg.mode == 'control') ? cfg.mode : 'puppet';
+		var name = cfg.name || lib.translate[id] || id;
+		var sex = cfg.sex || owner.sex || 'male';
+		var group = cfg.group || owner.group || 'qun';
+		var hp = cfg.hp == null ? 2 : cfg.hp;
+		var initCards = cfg.initCards == null ? 4 : cfg.initCards;
+		var standImg = cfg.standImg || ('ext:鸽府包/image/character/stand/' + id + '.jpg');
+		var skillName = cfg.skill || cfg.skillName || 'gf_ZhaoHuan';
+		var skills = Array.isArray(cfg.skills) ? cfg.skills.slice() : (typeof cfg.skills == 'string' ? [cfg.skills] : []);
+		var summon = null;
+		owner._gf_ownerDieWrapped = true;
+		summon = await owner.GF_KuiLei(id, name, sex, group, hp, initCards, standImg, skillName, skills, cfg.targetPosPlayer, mode);
+		if (!summon) return null;
+		game.broadcastAll(function (s, m, o) {
+			if (!s) return;
+			s._gf_zh_mode = m;
+			s._gf_zh_owner = o;
+		}, summon, mode, owner);
+		GF_ZH_hookOwner(owner);
+		return summon;
+	};
+	// 主人名下由本函数创建的还活着的召唤物
+	function GF_ZH_summonsOf(owner) {
+		var result = [];
+		try {
+			var all = game.players.concat(game.dead);
+			for (var i = 0; i < all.length; i++) {
+				var p = all[i];
+				if (!p || p == owner || !p.isAlive()) continue;
+				if (!p._gf_zh_owner || p._gf_zh_owner != owner) continue;
+				result.push(p);
+			}
+		} catch (e) {}
+		return result;
+	}
+	// 主人死亡按形态分流，control保留并交接视角，其余形态带走
+	function GF_ZH_hookOwner(owner) {
+		if (!owner || owner._gf_zh_hooked) return;
+		var origDie = owner.die;
+		if (typeof origDie != 'function') return;
+		owner._gf_zh_hooked = true;
+		owner._gf_ownerDieWrapped = true;
+		owner.die = function (reason) {
+			var next = game.createEvent('GF_ZH_ownerDie', false);
+			next.player = this;
+			next.reason = reason;
+			next.forceDie = true;
+			next._gf_zh_origDie = origDie;
+			next.setContent(async function (event, trigger, player) {
+				var origin = event._gf_zh_origDie;
+				var keep = [];
+				_status.gf_cleaningPuppets = true;
+				try {
+					var i, list = GF_ZH_summonsOf(player);
+					for (i = 0; i < list.length; i++) {
+						if (list[i]._gf_zh_mode == 'control' || list[i]._gf_zh_mode == 'auto2') keep.push(list[i]);
+						else await list[i].die();
+					}
+					var others = GF_puppetsOf(player);
+					for (i = 0; i < others.length; i++) {
+						if (keep.indexOf(others[i]) >= 0) continue;
+						await others[i].die();
+					}
+					await game.gf_kuiLeiSweep();
+				} catch (e) {}
+				delete _status.gf_cleaningPuppets;
+				await origin.call(player, event.reason);
+				for (var j = 0; j < keep.length; j++) {
+					if (keep[j] && keep[j].isAlive() && keep[j]._gf_zh_mode == 'control') {
+						GF_KuiLei_switchView(player, keep[j]);
+						break;
+					}
+				}
+			});
+			return next;
+		};
+	}
+
 	// 联机禁用标签offlineOnly
 	lib.__gf_offlineSkills = lib.__gf_offlineSkills || new Set();
 	function gf_isOnline() {
@@ -6461,29 +6730,29 @@ if (document.readyState === "complete") {
 			}
 		}
 	}
-	// 记录律道技归属，init2 在每次 addSkill 时都会跑
-	function GF_lvdaoRegister(skillObj) {
-		if (skillObj.init2 && skillObj.init2._gfLvdao) return;
+	// 记录永恒技归属，init2 在每次 addSkill 时都会跑
+	function GF_yonghengRegister(skillObj) {
+		if (skillObj.init2 && skillObj.init2._gfYongheng) return;
 		const oldInit2 = skillObj.init2;
 		const init2 = function (player, skill) {
 			if (player) {
-				player._gf_lvdao_owned = player._gf_lvdao_owned || [];
-				if (player._gf_lvdao_owned.indexOf(skill) < 0) player._gf_lvdao_owned.push(skill);
+				player._gf_yongheng_owned = player._gf_yongheng_owned || [];
+				if (player._gf_yongheng_owned.indexOf(skill) < 0) player._gf_yongheng_owned.push(skill);
 			}
 			if (typeof oldInit2 == 'function') return oldInit2.apply(this, arguments);
 		};
-		init2._gfLvdao = true;
+		init2._gfYongheng = true;
 		skillObj.init2 = init2;
 	}
-	// 律道技防删自愈，别人直接改玩家 skills 数组能绕过 removeSkill 里的 fixed 检查
-	function GF_lvdaoGuard() {
+	// 永恒技防删自愈，别人直接改玩家 skills 数组能绕过 removeSkill 里的 fixed 检查
+	function GF_yonghengGuard() {
 		const proto = lib.element && lib.element.player;
-		if (!proto || (proto.update && proto.update._gfLvdaoGuard)) return;
+		if (!proto || (proto.update && proto.update._gfYonghengGuard)) return;
 		const original = proto.update;
 		if (typeof original != 'function') return;
 		const wrapped = function () {
 			try {
-				const owned = this._gf_lvdao_owned;
+				const owned = this._gf_yongheng_owned;
 				if (owned && owned.length) {
 					for (const name of owned) {
 						if (!lib.skill[name]) continue;
@@ -6496,14 +6765,14 @@ if (document.readyState === "complete") {
 			} catch (e) { }
 			return original.apply(this, arguments);
 		};
-		wrapped._gfLvdaoGuard = true;
+		wrapped._gfYonghengGuard = true;
 		proto.update = wrapped;
 	}
-	GF_lvdaoGuard();
+	GF_yonghengGuard();
 	const sk = lib.skill || {};
 	lib.skill = new Proxy(sk, {
 		set(target, skillName, skillObj) {
-			if (skillObj && (skillObj.GFyongchangSkill == true || skillObj.GFyingxiongSkill == true || skillObj.GFtonglingSkill == true || skillObj.GFzhaohuanSkill == true)) {
+			if (skillObj && (skillObj.GFyingxiongSkill == true || skillObj.GFtonglingSkill == true || skillObj.GFzhaohuanSkill == true)) {
 				skillObj.forced = true;
 				skillObj.charlotte = true;
 				skillObj.persevereSkill = true;
@@ -6532,12 +6801,14 @@ if (document.readyState === "complete") {
 				skillObj.superCharlotte = true;
 				skillObj.persevereSkill = true;
 			}
-			if (skillObj && skillObj.lvdao == true) {
+			if (skillObj && skillObj.GFyonghengSkill == true) {
+				skillObj.forceOut = true;
+				skillObj.forceDie = true;
 				skillObj.charlotte = true;
 				skillObj.fixed = true;
 				skillObj.superCharlotte = true;
 				skillObj.persevereSkill = true;
-				GF_lvdaoRegister(skillObj);
+				GF_yonghengRegister(skillObj);
 			}
 			if (skillObj && skillObj.GFshunfaSkill === true) {
 				skillObj.clickable = function (player) {
@@ -6555,6 +6826,9 @@ if (document.readyState === "complete") {
 			}
 			if (skillObj && typeof skillObj === 'object') {
 				GF_applyOfflineOnly(skillObj, skillName);
+			}
+			if (skillObj && skillObj.GFyongchangSkill == true) {
+				skillObj.persevereSkill = true;
 			}
 			target[skillName] = skillObj;
 			return true;
@@ -6618,6 +6892,7 @@ if (document.readyState === "complete") {
 		}
 	})();
 
+	/*已被新咏唱取代
 	lib.element.player.gfYongchang = function(num, imgName, skillName) {
 		const player = this;
 		const a = typeof num === 'number' ? num : 1;
@@ -6704,7 +6979,152 @@ if (document.readyState === "complete") {
 		player.removeSkill(`${player.gfYongchangSkillName}_process`);
 		player.addSkill(`${player.gfYongchangSkillName}_success`);
 		player.gfYongchangJie(player.gfYongchangImgName);
-	},
+	}*/
+
+	// 咏唱技
+	lib.element.player.gfYongchangAvatar = function (imgName, yongchang) {
+		const player = this;
+		const path = yongchang ? `extension/鸽府包/image/character/yongchang/${imgName}_yc.jpg` : `extension/鸽府包/image/character/stand/${imgName}.jpg`;
+		game.broadcastAll(function (playerNode, imgPath) {
+			const avatar = playerNode.node?.avatar;
+			if (!avatar) return;
+			const newImg = new Image();
+			newImg.src = lib.assetURL + imgPath;
+			newImg.onload = function () {
+				const originalStyle = {
+					transform: avatar.style.transform,
+					transition: avatar.style.transition,
+					transformStyle: avatar.style.transformStyle,
+					backfaceVisibility: avatar.style.backfaceVisibility
+				};
+				avatar.style.transformStyle = "preserve-3d";
+				avatar.style.backfaceVisibility = "hidden";
+				avatar.style.transition = "transform 0.5s cubic-bezier(0.5, 0, 0.5, 1)";
+				avatar.style.transform = "rotateY(180deg)";
+				setTimeout(function () {
+					avatar.setBackgroundImage(lib.assetURL + imgPath);
+				}, 250);
+				setTimeout(function () {
+					avatar.style.transition = "transform 0.5s cubic-bezier(0.5, 0, 0.5, 1)";
+					avatar.style.transform = "rotateY(0deg)";
+					setTimeout(function () {
+						avatar.style.transform = originalStyle.transform;
+						avatar.style.transition = originalStyle.transition;
+						avatar.style.transformStyle = originalStyle.transformStyle;
+						avatar.style.backfaceVisibility = originalStyle.backfaceVisibility;
+					}, 500);
+				}, 500);
+			};
+		}, player, path);
+	};
+
+	// 发动咏唱技num为0时立即执行成功效果，needAvatar为真时换咏唱立绘
+	lib.element.player.gfYongchang = async function (num, imgName, skillName, needAvatar) {
+		const player = this;
+		const count = typeof num === "number" ? num : 1;
+		player.gfYongchangTime("reset", skillName);
+		if (count > 0) {
+			player.gfYongchangTime(count, skillName);
+			if (needAvatar) {
+				player.gfYongchangAvatarOn = true;
+				player.gfYongchangAvatarSkill = skillName;
+				player.gfYongchangImgName = imgName;
+				player.gfYongchangAvatar(imgName, true);
+			}
+		} else {
+			await player.gfYongchangCheng(skillName);
+		}
+	};
+
+	// 咏唱结束还原立绘与计数
+	lib.element.player.gfYongchangJie = function (skillName) {
+		const player = this;
+		player.gfYongchangTime("reset", skillName);
+		if (player.gfYongchangAvatarOn && player.gfYongchangAvatarSkill == skillName) {
+			player.gfYongchangAvatarOn = false;
+			player.gfYongchangAvatarSkill = null;
+			player.gfYongchangAvatar(player.gfYongchangImgName, false);
+		}
+	};
+
+	// 咏唱成功
+	lib.element.player.gfYongchangCheng = async function (skillName) {
+		const player = this;
+		const info = lib.skill[skillName];
+		player.popup(skillName);
+		game.log(player, "的咏唱成功了");
+		if (lib.skill[`${skillName}_success`]) player.addSkill(`${skillName}_success`);
+		player.gfYongchangJie(skillName);
+		if (info && typeof info.gfYongchangSuccess == "function") await info.gfYongchangSuccess(player);
+	};
+
+	// 咏唱失败
+	lib.element.player.gfYongchangFail = function (skillName) {
+		const player = this;
+		game.log(player, "的咏唱失败了");
+		player.gfYongchangJie(skillName);
+	};
+
+	// 判断角色是否拥有咏唱技
+	lib.gfOwnsYongchang = function (player) {
+		return player.getSkills().some((skill) => lib.skill[skill] && lib.skill[skill].GFyongchangSkill === true);
+	};
+
+	// 咏唱技的计数
+	lib.skill.gfYongchangCondition = {
+		trigger: {
+			global: "phaseBefore"
+		},
+		silentForce: true,
+		forceOut: true,
+		filter(event, player) {
+			return player.gfYongchangTime() != 0;
+		},
+		async content(event, trigger, player) {
+			const store = player.storage.gfYongchangTime_value || {};
+			for (const skillName of Object.keys(store)) {
+				if (!lib.skill[skillName]) continue;
+				player.gfYongchangTime(-1, skillName);
+				if (player.gfYongchangTime(undefined, skillName) == 0) await player.gfYongchangCheng(skillName);
+			}
+		},
+	};
+
+	// 咏唱技的魔力回复
+	lib.skill.gfYongchangMoli = {
+		trigger: {
+			player: ["useCard", "phaseAfter", "phaseCancelled", "phaseSkipped"]
+		},
+		silentForce: true,
+		forceOut: true,
+		filter(event, player, name) {
+			if (name == "useCard") return true;
+			return lib.gfOwnsYongchang(player) && player.gfmgHas("moli");
+		},
+		async content(event, trigger, player) {
+			const name = event.triggername;
+			if (name == "useCard") {
+				_status.gfYongchangCards = (_status.gfYongchangCards || 0) + 1;
+				const need = game.countPlayer((current) => current.isAlive());
+				if (need <= 0 || _status.gfYongchangCards < need) return;
+				_status.gfYongchangCards -= need;
+				for (const current of game.filterPlayer((target) => lib.gfOwnsYongchang(target) && target.gfmgHas("moli"), null, true)) current.gfmgChange(1, "moli");
+				return;
+			}
+			if (name == "phaseAfter" && player.getHistory("useCard").length) return;
+			player.gfmgChange(3, "moli");
+		},
+	};
+	if (!lib.skill.global.includes("gfYongchangCondition")) game.addGlobalSkill("gfYongchangCondition");
+	if (!lib.skill.global.includes("gfYongchangMoli")) {
+		game.addGlobalSkill("gfYongchangMoli");
+		if (typeof game.on === "function") {
+			game.on("gameStart", function () {
+				_status.gfYongchangCards = 0;
+			});
+		}
+	}
+
 	lib.element.player.TonglingEffect = function(cgName, imgName) {
 		const player = this;
 		game.gf_cg(cgName, "noskip");
@@ -6839,6 +7259,15 @@ if (document.readyState === "complete") {
 					extension_鸽府包_gfb_logBan: lib.config?.extension_鸽府包_gfb_logBan || false,
 				};
 			},
+			savePlayerData: function(patch) {
+				try {
+					const uid = utils.getUid();
+					if (!uid) return;
+					const data = Object.assign({}, window.gfDataMap[uid] || utils.getHeroData(), patch || {});
+					window.gfDataMap[uid] = data;
+					utils.sendMsg(CONFIG.MSG_TYPE, uid, data);
+				} catch (e) {}
+			},
 			sendMsg: function(type, ...args) {
 				try {
 					if (game?.send) game.send(type, ...args);
@@ -6866,21 +7295,20 @@ if (document.readyState === "complete") {
 			window.suiRoomTrigger = true;
 			roomCheckTimer = setInterval(function() {
 				const isRoomReady = !!game?.roomId && !!game?.me;
-				if (isRoomReady) {
-					clearInterval(roomCheckTimer);
-					const uid = utils.getUid();
-					if (!uid) return;
-					if (!window.gfFirstJoinUid) {
-						window.gfFirstJoinUid = uid;
-						utils.sendMsg(CONFIG.FIRST_JOIN_MSG, uid);
-						console.log("我是房主uid =", uid);
-					}
-					const data = utils.getHeroData();
-					window.gfDataMap[uid] = data;
-					// 进房即上报，客机数据发到主机
-					utils.sendMsg(CONFIG.MSG_TYPE, uid, data);
+				if (!isRoomReady) return;
+				if ((window._gfqyReportCount || 0) >= 20) return;
+				const uid = utils.getUid();
+				if (!uid) return;
+				if (!window.gfFirstJoinUid) {
+					window.gfFirstJoinUid = uid;
+					utils.sendMsg(CONFIG.FIRST_JOIN_MSG, uid);
+					console.log("我是房主uid =", uid);
 				}
-			}, CONFIG.CHECK_INTERVAL);
+				const data = utils.getHeroData();
+				window.gfDataMap[uid] = data;
+				utils.sendMsg(CONFIG.MSG_TYPE, uid, data);
+				window._gfqyReportCount = (window._gfqyReportCount || 0) + 1;
+			}, 1500);
 		}
 		function registerMsgHandlers() {
 			lib.message.server[CONFIG.MSG_TYPE] = function(uid, data) {
@@ -6888,9 +7316,9 @@ if (document.readyState === "complete") {
 				window.gfDataMap[uid] = data;
 				// 转发给所有客户端，保持全端数据一致
 				try { if (game?.send) game.send(CONFIG.MSG_TYPE, uid, data); } catch (e) {}
-				// 新数据到达立即重判，覆盖客机数据晚到，已广播则忽略
+				// 新数据到达立即重判，覆盖客机数据晚到
 				try {
-					if (window._gfqyDoPick && !window._gfqyBroadcastDone) {
+					if (window._gfqyDoPick) {
 						window._gfqyDoPick();
 					}
 				} catch (e) {}
@@ -6962,9 +7390,13 @@ if (document.readyState === "complete") {
 				window._gfqyBdWish = null;
 				window._gfqyButtonDone = false;
 				window._gfqyBroadcastDone = false;
-				window._gfqyBackdoorDone = false;
 				window._gfqyDoPick = null;
 				window._gfqyRandRetry = 0;
+				window._gfqyBdRoll = {};
+				window._gfqyBdGranted = {};
+				window._gfqyAskDone = {};
+				window._gfqyReportCount = 0;
+				if (window._gfqySelfRetryTimer) { clearInterval(window._gfqySelfRetryTimer); window._gfqySelfRetryTimer = null; }
 				if (window._gfqyPickTimer) { clearTimeout(window._gfqyPickTimer); window._gfqyPickTimer = null; }
 				if (window._gfqyRetryTimer) { clearInterval(window._gfqyRetryTimer); window._gfqyRetryTimer = null; }
 			});
@@ -7057,7 +7489,8 @@ if (document.readyState === "complete") {
 
 		lib.element.player.inits.add(function (player) {
 			player.gfYongchangImgName = [];
-			player.gfYongchangSkillName = [];
+			player.gfYongchangAvatarOn = false;
+			player.gfYongchangAvatarSkill = null;
 		});
 
 		// 静默移牌

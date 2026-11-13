@@ -1,40 +1,42 @@
 import { lib, game, ui, get, ai, _status } from '../../../noname.js';
 
 export function initShipei(lib, game, ui, get, ai, _status, datasrc) {
-    lib.element.player.gfYongchangTime = function (num) {
+    lib.element.player.gfYongchangTime = function (num, skillName) {
         var player = this;
         const storageKey = 'gfYongchangTime_value';
-        let current = 0;
-        if (player.storage[storageKey]) {
-            if (typeof player.storage[storageKey] === 'number') {
-                current = player.storage[storageKey];
-            } else {
-                current = player.storage[storageKey].gflib_tongling || 0;
-            }
+        let store = player.storage[storageKey];
+        if (!store || typeof store !== 'object' || Array.isArray(store)) {
+            store = {};
         }
+        const hasKey = skillName !== undefined && skillName !== null;
+        if (num === undefined && !hasKey) {
+            return Object.values(store).reduce(function (sum, value) { return sum + (typeof value === 'number' ? value : 0); }, 0);
+        }
+        const key = hasKey ? skillName : '_';
+        let current = typeof store[key] === 'number' ? store[key] : 0;
         if (num === 'reset') { num = -current; }
         if (num === undefined) { return current; }
         let newVal = Math.max(current + num, 0);
-        if (typeof player.storage[storageKey] === 'number') {
-            player.storage[storageKey] = newVal;
+        if (newVal > 0) {
+            store[key] = newVal;
         } else {
-            if (!player.storage[storageKey]) {
-                player.storage[storageKey] = {};
-            }
-            player.storage[storageKey].gflib_tongling = newVal;
+            delete store[key];
         }
+        player.storage[storageKey] = store;
         player.syncStorage(storageKey);
-        game.broadcast(function (targetPlayer, sourcePlayer, newVal, max, storageKey) {
+        game.broadcast(function (targetPlayer, sourcePlayer, key, newVal, storageKey) {
             if (targetPlayer.id !== sourcePlayer.id) return;
-            if (typeof targetPlayer.storage[storageKey] === 'number') {
-                targetPlayer.storage[storageKey] = newVal;
-            } else {
-                if (!targetPlayer.storage[storageKey]) {
-                    targetPlayer.storage[storageKey] = {};
-                }
-                targetPlayer.storage[storageKey].gflib_tongling = newVal;
+            let target = targetPlayer.storage[storageKey];
+            if (!target || typeof target !== 'object' || Array.isArray(target)) {
+                target = {};
             }
-        }, this, this, newVal, Infinity);
+            if (newVal > 0) {
+                target[key] = newVal;
+            } else {
+                delete target[key];
+            }
+            targetPlayer.storage[storageKey] = target;
+        }, this, this, key, newVal, storageKey);
         return { oldTongling: current, newTongling: newVal, changed: current !== newVal };
     };
     //非常非常非常非常感谢源·天将士允许我搬运，致敬，我在此基础上做了一些修改。
@@ -2367,20 +2369,20 @@ export function initShipei(lib, game, ui, get, ai, _status, datasrc) {
         }
     };
 
-    // 律道技
+    // 永恒技
     (function () {
         const PlayerProto = lib.element.Player.prototype;
         const _removeSkill = PlayerProto.removeSkill;
         PlayerProto.removeSkill = function (skill) {
-            if (typeof skill === "string" && lib.skill[skill] && lib.skill[skill].lvdao) return skill;
+            if (typeof skill === "string" && lib.skill[skill] && lib.skill[skill].GFyonghengSkill) return skill;
             return _removeSkill.apply(this, arguments);
         };
         const _removeSkillTrigger = PlayerProto.removeSkillTrigger;
         PlayerProto.removeSkillTrigger = function (skills, triggeronly) {
             if (typeof skills === "string") {
-                if (lib.skill[skills] && lib.skill[skills].lvdao) return this;
+                if (lib.skill[skills] && lib.skill[skills].GFyonghengSkill) return this;
             } else if (Array.isArray(skills)) {
-                const keep = skills.filter(function (s) { return !(lib.skill[s] && lib.skill[s].lvdao); });
+                const keep = skills.filter(function (s) { return !(lib.skill[s] && lib.skill[s].GFyonghengSkill); });
                 if (!keep.length) return this;
                 skills = keep;
             }
@@ -2389,11 +2391,11 @@ export function initShipei(lib, game, ui, get, ai, _status, datasrc) {
         const _disableSkill = PlayerProto.disableSkill;
         PlayerProto.disableSkill = function (skill, skills) {
             if (Array.isArray(skill)) {
-                const keep = skill.filter(function (s) { return !(lib.skill[s] && lib.skill[s].lvdao); });
+                const keep = skill.filter(function (s) { return !(lib.skill[s] && lib.skill[s].GFyonghengSkill); });
                 if (!keep.length) return this;
                 return _disableSkill.call(this, keep, skills);
             }
-            if (typeof skill === "string" && lib.skill[skill] && lib.skill[skill].lvdao) return this;
+            if (typeof skill === "string" && lib.skill[skill] && lib.skill[skill].GFyonghengSkill) return this;
             return _disableSkill.apply(this, arguments);
         };
         const _filterSkills = game.filterSkills;
@@ -2411,7 +2413,7 @@ export function initShipei(lib, game, ui, get, ai, _status, datasrc) {
                 }
                 for (let i = 0; i < pool.length; i++) {
                     const s = pool[i];
-                    if (lib.skill[s] && lib.skill[s].lvdao && out.indexOf(s) < 0) out.push(s);
+                    if (lib.skill[s] && lib.skill[s].GFyonghengSkill && out.indexOf(s) < 0) out.push(s);
                 }
             }
             return out;
@@ -2420,12 +2422,12 @@ export function initShipei(lib, game, ui, get, ai, _status, datasrc) {
         game.checkMod = function () {
             const args = Array.prototype.slice.call(arguments);
             const result = _checkMod.apply(this, args);
-            if (result === true && typeof args[1] === "string" && lib.skill[args[1]] && lib.skill[args[1]].lvdao) return "unchanged";
+            if (result === true && typeof args[1] === "string" && lib.skill[args[1]] && lib.skill[args[1]].GFyonghengSkill) return "unchanged";
             return result;
         };
         const _filterTrigger = lib.filter.filterTrigger;
         lib.filter.filterTrigger = function (event, player, triggerName, skill, indexedData) {
-            if (lib.skill[skill] && lib.skill[skill].lvdao && player && player._hookTrigger) {
+            if (lib.skill[skill] && lib.skill[skill].GFyonghengSkill && player && player._hookTrigger) {
                 const saved = player._hookTrigger;
                 player._hookTrigger = saved.filter(function (i) {
                     return !(lib.skill[i] && lib.skill[i].hookTrigger && lib.skill[i].hookTrigger.block);
@@ -2441,9 +2443,9 @@ export function initShipei(lib, game, ui, get, ai, _status, datasrc) {
         const _tempBanSkill = PlayerProto.tempBanSkill;
         PlayerProto.tempBanSkill = function (skill, expire, log) {
             if (typeof skill === "string") {
-                if (lib.skill[skill] && lib.skill[skill].lvdao) return skill;
+                if (lib.skill[skill] && lib.skill[skill].GFyonghengSkill) return skill;
             } else if (Array.isArray(skill)) {
-                const keep = skill.filter(function (s) { return !(lib.skill[s] && lib.skill[s].lvdao); });
+                const keep = skill.filter(function (s) { return !(lib.skill[s] && lib.skill[s].GFyonghengSkill); });
                 if (!keep.length) return skill;
                 return _tempBanSkill.call(this, keep, expire, log);
             }
@@ -2949,4 +2951,528 @@ export function initShipei(lib, game, ui, get, ai, _status, datasrc) {
             if (player.node.hptext) player.node.hptext.style.display = '';
         }
     };
+
+    // 无职转生魔力值
+    if (!lib.GF_ManaGauge || !lib.GF_ManaGauge.version) {
+        const MG = {
+            version: 1,
+            defs: {},
+            bars: {},
+            stage: null,
+            timer: null,
+        };
+        lib.GF_ManaGauge = MG;
+        window.GF_ManaGauge = MG;
+
+        // 注册
+        MG.register = function (def) {
+            if (!def || !def.key) return null;
+            if (!def.list) def.list = [];
+            if (typeof def.width !== 'number' || def.width <= 0) def.width = 110;
+            if (typeof def.pos !== 'string') def.pos = 'player';
+            if (typeof def.bottom !== 'number') def.bottom = 15;
+            if (!def.inner) def.inner = { l: 0.155, r: 0.83, t: 0.49, b: 0.6 };
+            if (typeof def.init !== 'number' || !isFinite(def.init)) def.init = 0;
+            if (typeof def.max !== 'number' || !isFinite(def.max) || def.max <= 0) def.max = 100;
+            const old = MG.defs[def.key];
+            if (old) Object.assign(old, def);
+            else MG.defs[def.key] = def;
+            return MG.defs[def.key];
+        };
+        MG.def = function (key) { return MG.defs[key] || null; };
+        MG.defaultKey = function () {
+            for (const k in MG.defs) return k;
+            return null;
+        };
+        MG.box = function (player) {
+            if (!player || !player.storage) return null;
+            if (!player.storage.GF_ManaGauge) player.storage.GF_ManaGauge = {};
+            return player.storage.GF_ManaGauge;
+        };
+        MG.entry = function (player, key) {
+            const box = player && player.storage && player.storage.GF_ManaGauge;
+            return box ? box[key] : null;
+        };
+        MG.store = function (player, key) {
+            const box = MG.box(player);
+            if (!box) return null;
+            if (!box[key]) {
+                const def = MG.defs[key] || {};
+                const c = MG.match(def, player) || {};
+                const mx = (typeof c.max === 'number' && isFinite(c.max) && c.max > 0) ? c.max : def.max;
+                const ini = (typeof c.init === 'number' && isFinite(c.init)) ? c.init : def.init;
+                box[key] = { value: ini, max: mx };
+            }
+            return box[key];
+        };
+        MG.has = function (player, key) {
+            const e = MG.entry(player, key);
+            return !!(e && !e.cleared && isFinite(e.max) && e.max > 0);
+        };
+        MG.get = function (player, key) {
+            const e = MG.entry(player, key);
+            return (e && isFinite(e.value)) ? e.value : 0;
+        };
+        MG.getMax = function (player, key) {
+            const e = MG.entry(player, key);
+            return (e && isFinite(e.max) && e.max > 0) ? e.max : 1;
+        };
+        MG.match = function (def, player) {
+            const list = def && def.list;
+            if (!list || !player) return null;
+            const names = [player.name1, player.name2, player.name];
+            if (Array.isArray(list)) {
+                for (let i = 0; i < names.length; i++) {
+                    if (names[i] && list.indexOf(names[i]) >= 0) return { init: def.init, max: def.max };
+                }
+                return null;
+            }
+            for (let i = 0; i < names.length; i++) {
+                const n = names[i];
+                if (!n || !Object.prototype.hasOwnProperty.call(list, n)) continue;
+                const v = list[n];
+                if (typeof v === 'number' && isFinite(v) && v > 0) return { init: v, max: v };
+                if (Array.isArray(v)) {
+                    const mx = (typeof v[1] === 'number' && isFinite(v[1]) && v[1] > 0) ? v[1] : def.max;
+                    const ini = (typeof v[0] === 'number' && isFinite(v[0])) ? v[0] : mx;
+                    return { init: ini, max: mx };
+                }
+                if (v && typeof v === 'object') {
+                    const mx = (typeof v.max === 'number' && isFinite(v.max) && v.max > 0) ? v.max : def.max;
+                    const ini = (typeof v.init === 'number' && isFinite(v.init)) ? v.init : mx;
+                    return { init: ini, max: mx };
+                }
+            }
+            return null;
+        };
+        MG.keysFor = function (player) {
+            const out = [];
+            for (const key in MG.defs) {
+                const c = MG.match(MG.defs[key], player);
+                if (c) out.push({ key: key, init: c.init, max: c.max });
+            }
+            return out;
+        };
+        // 联机
+        MG.sync = function (player, key) {
+            if (!player || !player.storage) return;
+            if (game.online) return;
+            const e = MG.entry(player, key) || {};
+            const v = isFinite(e.value) ? e.value : 0;
+            const m = isFinite(e.max) ? e.max : 1;
+            const cl = e.cleared === true;
+            if (game.broadcast) {
+                game.broadcast(function (pid, key, v, m, cl) {
+                    const pool = (game.players || []).concat(game.dead || []);
+                    const p = pool.filter(function (x) { return x && x.playerid === pid; })[0];
+                    if (!p || !p.storage) return;
+                    if (!p.storage.GF_ManaGauge) p.storage.GF_ManaGauge = {};
+                    const d = p.storage.GF_ManaGauge[key] || (p.storage.GF_ManaGauge[key] = {});
+                    if (cl) { d.cleared = true; delete d.value; delete d.max; }
+                    else { d.value = v; d.max = m; d.cleared = false; }
+                }, player.playerid, key, v, m, cl);
+            }
+        };
+        // UI
+        MG.ensureStage = function () {
+            const win = ui.window || document.body;
+            if (MG.stage && MG.stage.parentNode === win) return MG.stage;
+            const outer = document.createElement('div');
+            outer.id = 'gfmg_stage';
+            Object.assign(outer.style, {
+                position: 'absolute', top: '12px', left: '0', width: '100%', height: '44px',
+                zIndex: '9998', pointerEvents: 'none', textAlign: 'center'
+            });
+            win.appendChild(outer);
+            MG.stage = outer;
+            return outer;
+        };
+        MG.container = function (player, def) {
+            if (def.pos === 'screen') return MG.ensureStage();
+            return player || null;
+        };
+        MG.destroy = function (player, key) {
+            const pid = player && player.playerid;
+            const bar = MG.bars[pid] && MG.bars[pid][key];
+            if (bar) {
+                try { if (bar.wrap.parentNode) bar.wrap.parentNode.removeChild(bar.wrap); } catch (e) {}
+                delete MG.bars[pid][key];
+            }
+        };
+        MG.ensureBar = function (player, key) {
+            if (!player) return null;
+            const def = MG.defs[key] || {};
+            const holder = MG.container(player, def);
+            if (!holder) return null;
+            const pid = player.playerid;
+            if (!MG.bars[pid]) MG.bars[pid] = {};
+            const exist = MG.bars[pid][key];
+            if (exist && exist.wrap.parentNode === holder && exist.frameW === def.width) return exist;
+            if (exist) MG.destroy(player, key);
+            const frameW = def.width;
+            const frameH = Math.max(14, Math.round(frameW * 57 / 284));
+            const inner = def.inner;
+            const innerW = Math.max(1, Math.round(frameW * (inner.r - inner.l)));
+            const wrap = ui.create.div('.gfmg_wrap', holder);
+            if (def.pos === 'screen') {
+                Object.assign(wrap.style, {
+                    position: 'relative', display: 'inline-block', margin: '0 6px 4px',
+                    verticalAlign: 'top', pointerEvents: 'none'
+                });
+            } else {
+                Object.assign(wrap.style, {
+                    position: 'absolute', left: '0', top: 'auto', bottom: def.bottom + 'px',
+                    width: '100%', height: frameH + 'px', zIndex: '88', pointerEvents: 'none', display: 'none'
+                });
+            }
+            const base = ui.create.div('.gfmg_base', wrap);
+            if (def.pos === 'screen') {
+                Object.assign(base.style, { position: 'relative', width: frameW + 'px', height: frameH + 'px', margin: '0 auto' });
+            } else {
+                // 绝对定位
+                Object.assign(base.style, { position: 'absolute', left: 'calc(50% - ' + (frameW / 2) + 'px)', top: '0', width: frameW + 'px', height: frameH + 'px' });
+            }
+            const fill = ui.create.div('.gfmg_fill', base);
+            Object.assign(fill.style, {
+                position: 'absolute', left: (inner.l * 100) + '%', top: (inner.t * 100) + '%',
+                height: ((inner.b - inner.t) * 100) + '%', width: '0%',
+                background: def.gradient || 'linear-gradient(90deg,#4CAF50,#8BC34A)',
+                backgroundSize: innerW + 'px 100%', backgroundRepeat: 'no-repeat',
+                borderRadius: '6px', transition: 'width 0.35s ease-out', zIndex: '1'
+            });
+            const frame = ui.create.div('.gfmg_frame', base);
+            Object.assign(frame.style, {
+                position: 'absolute', left: '0', top: '0', width: '100%', height: '100%',
+                backgroundImage: def.frame ? 'url("' + lib.assetURL + def.frame + '")' : 'none',
+                backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat', pointerEvents: 'none', zIndex: '2'
+            });
+            const text = document.createElement('span');
+            Object.assign(text.style, {
+                position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)',
+                fontSize: Math.max(9, Math.round(frameH * 0.4)) + 'px', color: '#FFF6D8', fontWeight: 'bold',
+                textShadow: '0 0 3px #000,0 0 5px rgba(0,0,0,0.9)', whiteSpace: 'nowrap', zIndex: '3', pointerEvents: 'none'
+            });
+            base.appendChild(frame);
+            base.appendChild(text);
+            MG.bars[pid][key] = { wrap: wrap, base: base, fill: fill, frame: frame, text: text, inner: inner, frameW: frameW, def: def };
+            return MG.bars[pid][key];
+        };
+        MG.update = function (player, key) {
+            if (!player) return;
+            const pid = player.playerid;
+            const bar = MG.bars[pid] && MG.bars[pid][key];
+            if (!bar) return;
+            const e = MG.entry(player, key);
+            const def = MG.defs[key] || {};
+            if (!e || e.cleared || !(isFinite(e.max) && e.max > 0)) { MG.destroy(player, key); return; }
+            const v = isFinite(e.value) ? e.value : 0;
+            const m = e.max;
+            const pct = Math.max(Math.min(v / m, 1), 0);
+            bar.fill.style.width = ((bar.inner.r - bar.inner.l) * 100 * pct) + '%';
+            bar.text.textContent = v + '/' + m;
+            bar.wrap.style.display = (def.pos === 'screen') ? 'inline-block' : 'block';
+        };
+        MG.render = function (player, key) {
+            if (!player) return;
+            if (!MG.has(player, key)) { MG.destroy(player, key); return; }
+            MG.ensureBar(player, key);
+            MG.update(player, key);
+        };
+        // 增减调整
+        const clamp = function (v, m) { return Math.max(Math.min(v, m), 0); };
+        MG.init = function (player, key, cur, max) {
+            if (!key) key = MG.defaultKey();
+            const def = MG.defs[key] || {};
+            const s = MG.store(player, key);
+            if (!s) return null;
+            if (typeof max === 'number' && isFinite(max) && max > 0) s.max = max;
+            else if (!(isFinite(s.max) && s.max > 0)) s.max = def.max;
+            if (typeof cur === 'number' && isFinite(cur)) s.value = cur;
+            else if (!isFinite(s.value)) s.value = def.init;
+            s.value = clamp(s.value, s.max);
+            delete s.cleared;
+            MG.sync(player, key);
+            MG.render(player, key);
+            return s;
+        };
+        MG.set = function (player, key, val) {
+            if (!key) key = MG.defaultKey();
+            const s = MG.store(player, key);
+            if (!s) return { old: 0, value: 0, changed: false };
+            const old = s.value;
+            if (typeof val !== 'number' || !isFinite(val)) val = 0;
+            s.value = clamp(val, s.max);
+            MG.sync(player, key);
+            MG.render(player, key);
+            return { old: old, value: s.value, changed: old !== s.value };
+        };
+        MG.change = function (player, key, delta) {
+            if (!key) key = MG.defaultKey();
+            const s = MG.store(player, key);
+            if (!s) return { old: 0, value: 0, changed: false };
+            const old = s.value;
+            if (typeof delta !== 'number' || !isFinite(delta)) delta = 0;
+            s.value = clamp(old + delta, s.max);
+            MG.sync(player, key);
+            MG.render(player, key);
+            return { old: old, value: s.value, changed: old !== s.value };
+        };
+        MG.setMax = function (player, key, max) {
+            if (!key) key = MG.defaultKey();
+            const s = MG.store(player, key);
+            if (!s) return 0;
+            if (typeof max === 'number' && isFinite(max) && max > 0) s.max = max;
+            s.value = clamp(s.value, s.max);
+            MG.sync(player, key);
+            MG.render(player, key);
+            return s.max;
+        };
+        MG.remove = function (player, key) {
+            if (!player) return false;
+            if (!key) key = MG.defaultKey();
+            MG.destroy(player, key);
+            const box = MG.box(player);
+            if (box && box[key]) box[key] = { cleared: true };
+            MG.sync(player, key);
+            return true;
+        };
+        MG.clear = function (player) {
+            if (!player) return;
+            const keys = Object.keys(MG.bars[player.playerid] || {});
+            for (let i = 0; i < keys.length; i++) MG.destroy(player, keys[i]);
+            const box = MG.box(player);
+            if (box) for (const key in box) box[key] = { cleared: true };
+            for (let i = 0; i < keys.length; i++) MG.sync(player, keys[i]);
+        };
+        // 开局给名册武将装载
+        MG.applyStart = function () {
+            (game.players || []).forEach(function (p) {
+                if (!p) return;
+                const list = MG.keysFor(p);
+                for (let i = 0; i < list.length; i++) {
+                    MG.init(p, list[i].key, list[i].init, list[i].max);
+                }
+            });
+        };
+        // 兜底轮询
+        MG.tick = function () {
+            try {
+                if (!game || !game.players) return;
+                const all = (game.players || []).concat(game.dead || []);
+                for (let i = 0; i < all.length; i++) {
+                    const p = all[i];
+                    if (!p) continue;
+                    const box = p.storage && p.storage.GF_ManaGauge;
+                    const known = Object.keys(MG.bars[p.playerid] || {});
+                    for (let j = 0; j < known.length; j++) {
+                        const e = box ? box[known[j]] : null;
+                        if (!box) { MG.destroy(p, known[j]); continue; }
+                        if (p.isDead && p.isDead()) { MG.destroy(p, known[j]); continue; }
+                        if (!e || e.cleared || !(isFinite(e.max) && e.max > 0)) MG.destroy(p, known[j]);
+                    }
+                    if (!box) continue;
+                    for (const key in box) {
+                        const e = box[key];
+                        if (!e || e.cleared || !(isFinite(e.max) && e.max > 0)) continue;
+                        MG.render(p, key);
+                    }
+                }
+            } catch (e) {}
+        };
+
+        // 值挂到角色上的简写
+        lib.element.player.gfmgGet = function (key) { return MG.get(this, key || MG.defaultKey()); };
+        lib.element.player.gfmgGetMax = function (key) { return MG.getMax(this, key || MG.defaultKey()); };
+        lib.element.player.gfmgHas = function (key) { return MG.has(this, key || MG.defaultKey()); };
+        lib.element.player.gfmgChange = function (num, key) { return MG.change(this, key || MG.defaultKey(), num); };
+        lib.element.player.gfmgSet = function (val, key) { return MG.set(this, key || MG.defaultKey(), val); };
+        lib.element.player.gfmgSetMax = function (max, key) { return MG.setMax(this, key || MG.defaultKey(), max); };
+        lib.element.player.gfmgInit = function (cur, max, key) { return MG.init(this, key || MG.defaultKey(), cur, max); };
+        lib.element.player.gfmgRemove = function (key) { return MG.remove(this, key || MG.defaultKey()); };
+        lib.element.player.gfmgClear = function () { return MG.clear(this); };
+
+        // 装载钩子
+        if (!lib.skill.gfmg_start) {
+            lib.skill.gfmg_start = {
+                trigger: {
+                    global: 'gameStart'
+                },
+                silentForce: true,
+                content: function () {
+                    if (game.online) return;
+                    lib.GF_ManaGauge.applyStart();
+                }
+            };
+        }
+        if (!lib.skill.global.includes('gfmg_start')) game.addGlobalSkill('gfmg_start');
+        if (!lib.skill.gfmg_dieCheck) {
+            lib.skill.gfmg_dieCheck = {
+                trigger: {
+                    player: ['dieBegin', 'dieFrozenBegin']
+                },
+                priority: 80,
+                firstDo: true,
+                silentForce: true,
+                filter: function (event, player) {
+                    return !!(player && player.storage && player.storage.GF_ManaGauge);
+                },
+                content: function (event, trigger, player) {
+                    const MG2 = lib.GF_ManaGauge;
+                    if (!MG2) return;
+                    const box = player.storage && player.storage.GF_ManaGauge;
+                    for (const key in (box || {})) MG2.destroy(player, key);
+                }
+            };
+        }
+        if (!lib.skill.global.includes('gfmg_dieCheck')) game.addGlobalSkill('gfmg_dieCheck');
+        if (!MG.timer) MG.timer = setInterval(MG.tick, 200);
+
+        // 无职转生专属魔力值（专属待定，可能也没那么专awa）
+        MG.register({
+            key: 'moli',
+            name: '魔力值',
+            list: {
+                wzzs_aesdd: [100, 100],
+                wzzs_lqx: [10, 20],
+                wzzs_klf: [12, 25],
+                wzzs_alnlj: [6, 12],
+                wzzs_xlf: [5, 40],
+            },
+            pos: 'player',
+            bottom: 2,
+            width: 112,
+            frame: 'extension/鸽府包/image/hp/moli_frame.png',
+            inner: { l: 0.155, r: 0.83, t: 0.46, b: 0.63 },
+            gradient: 'linear-gradient(90deg, #0b2a6b, #2f7fe0, #8fd4ff, #f8eaff, #8fd4ff, #2f7fe0, #0b2a6b)',
+        });
+    }
+
+    // 水属性伤害令目标随机手牌浸湿，本回合不可使用或打出
+    if (!lib.skill.wzzs_jinshi) {
+        lib.skill.wzzs_jinshi = {
+            mod: {
+                cardEnabled2(card, player) {
+                    if (get.itemtype(card) !== "card" || !card.hasGaintag || !card.hasGaintag("wzzs_jinshi")) return;
+                    return false;
+                },
+            },
+            onremove(player) {
+                player.removeGaintag("wzzs_jinshi");
+            },
+        };
+    }
+    if (!lib.skill.wzzs_jinshi_water) {
+        lib.skill.wzzs_jinshi_water = {
+            trigger: {
+                player: "damageEnd"
+            },
+            silentForce: true,
+            filter: function (event, player) {
+                return !!event.hasNature && event.hasNature("GF_water");
+            },
+            content: function (event, trigger, player) {
+                const pool = player.getCards("h").filter(function (c) {
+                    return !c.hasGaintag("wzzs_jinshi");
+                });
+                if (!pool.length) return;
+                const num = Math.floor(Math.random() * pool.length) + 1;
+                const picked = [];
+                for (let i = 0; i < num && pool.length; i++) picked.push(pool.randomRemove());
+                player.addGaintag(picked, "wzzs_jinshi");
+                player.addTempSkill("wzzs_jinshi");
+            },
+        };
+    }
+    if (!lib.skill.global.includes("wzzs_jinshi_water")) game.addGlobalSkill("wzzs_jinshi_water");
+
+    // 冰属性伤害销毁手牌中的浸湿牌
+    if (!lib.skill.wzzs_jinshi_ice) {
+        lib.skill.wzzs_jinshi_ice = {
+            trigger: {
+                player: "damageAfter"
+            },
+            silentForce: true,
+            filter: function (event, player) {
+                return !!event.hasNature && event.hasNature("ice");
+            },
+            content: function (event, trigger, player) {
+                const cards = player.getCards("h").filter(function (c) {
+                    return c.hasGaintag("wzzs_jinshi");
+                });
+                if (!cards.length) return;
+                const ids = cards.map(function (c) { return c.cardid; });
+                game.broadcastAll(function (list, pid) {
+                    for (let i = 0; i < list.length; i++) {
+                        const c = lib.cardOL && lib.cardOL[list[i]];
+                        if (c && !c._selfDestroyed) c.selfDestroy();
+                    }
+                    const p = (game.players || []).concat(game.dead || []).filter(function (x) { return x && pid && x.playerid === pid; })[0];
+                    if (p && p.update) p.update();
+                }, ids, player.playerid);
+                for (const c of cards) {
+                    if (!c._selfDestroyed) c.selfDestroy();
+                }
+                if (player.update) player.update();
+            },
+        };
+    }
+    if (!lib.skill.global.includes("wzzs_jinshi_ice")) game.addGlobalSkill("wzzs_jinshi_ice");
+
+    // 狂风标记持有状态
+    if (!lib.skill.wzzs_kuangfeng) {
+        lib.skill.wzzs_kuangfeng = {
+            onremove(player) {
+                player.removeGaintag("wzzs_kuangfeng");
+            },
+        };
+    }
+
+    // 风属性伤害
+    if (!lib.skill.wzzs_fengshang) {
+        lib.skill.wzzs_fengshang = {
+            trigger: {
+                player: "damageEnd"
+            },
+            silentForce: true,
+            filter: function (event, player) {
+                return !!event.hasNature && event.hasNature("GF_wind");
+            },
+            async content(event, trigger, player) {
+                const soaked = player.getCards("h").filter(function (c) {
+                    return c.hasGaintag("wzzs_jinshi");
+                });
+                if (soaked.length) player.removeGaintag("wzzs_jinshi");
+                const equips = player.getCards("e");
+                if (!equips.length) return;
+                const num = Math.floor(Math.random() * equips.length) + 1;
+                const picked = [];
+                for (let i = 0; i < num && equips.length; i++) picked.push(equips.randomRemove());
+                if (!picked.length) return;
+                await player.gain(picked, "give");
+                player.addGaintag(picked, "wzzs_kuangfeng");
+                player.addTempSkill("wzzs_kuangfeng");
+            },
+        };
+    }
+    if (!lib.skill.global.includes("wzzs_fengshang")) game.addGlobalSkill("wzzs_fengshang");
+
+    // 拥有狂风牌的角色受到火焰伤害加1
+    if (!lib.skill.wzzs_kuangfeng_fire) {
+        lib.skill.wzzs_kuangfeng_fire = {
+            trigger: {
+                player: "damageBegin1"
+            },
+            silentForce: true,
+            filter: function (event, player) {
+                if (!event.hasNature || !event.hasNature("fire")) return false;
+                return player.getCards("he").some(function (c) {
+                    return c.hasGaintag && c.hasGaintag("wzzs_kuangfeng");
+                });
+            },
+            content: function (event, trigger, player) {
+                trigger.num++;
+            },
+        };
+    }
+    if (!lib.skill.global.includes("wzzs_kuangfeng_fire")) game.addGlobalSkill("wzzs_kuangfeng_fire");
 }
