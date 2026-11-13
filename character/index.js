@@ -24,6 +24,8 @@ const prefixToGroupName = {
 	'a': '实验体',
 	'Mimi': '颠',
 	'gzr': '蛊真人',
+	'zgtz': '禛感天祚',
+	'zncs': '祝你长寿',
 };
 
 // 自定义势力注册
@@ -33,6 +35,8 @@ if (game && game.addGroup) {
 	game.addGroup('zhi', 'zhi', '智势力', {});
 	game.addGroup('M', '颠', '颠势力', {});
 	game.addGroup('gzr', '蛊', '蛊势力', {});
+	game.addGroup('zhen', '禛', '禛势力', {});
+    game.addGroup('zhuni', '祝', '祝势力', {});
 }
 if (lib.translate) {
 	lib.translate['group_ge_bg'] = 'ge';
@@ -40,6 +44,7 @@ if (lib.translate) {
 	lib.translate['group_zhi_bg'] = 'zhi';
 	lib.translate['group_M_bg'] = '颠';
 	lib.translate['group_gzr_bg'] = '蛊';
+	lib.translate['group_zhen_bg'] = 'zhen';
 }
 if (lib.groupnature) {
 	lib.groupnature.ge = 'ge';
@@ -47,6 +52,7 @@ if (lib.groupnature) {
 	lib.groupnature.zhi = 'zhi';
 	lib.groupnature.M = 'M';
 	lib.groupnature.gzr = 'gzr';
+	lib.groupnature.zhen = 'zgtz';
 }
 
 const allCharacterNames = new Set(Object.keys(characterData));
@@ -92,16 +98,26 @@ style.textContent = `
 .player .name[data-nature^="ming"],
 .player .name[data-nature^="zhi"],
 .player .name[data-nature^="M"],
+.player .name[data-nature^="zgtz"],
 .player .name.name_seat[data-nature^="ge"],
 .player .name.name_seat[data-nature^="ming"],
 .player .name.name_seat[data-nature^="zhi"],
 .player .name.name_seat[data-nature^="M"],
+.player .name.name_seat[data-nature^="zgtz"],
 .button.character .name[data-nature^="ge"],
 .button.character .name[data-nature^="ming"],
 .button.character .name[data-nature^="zhi"],
-.button.character .name[data-nature^="M"] {
+.button.character .name[data-nature^="M"],
+.button.character .name[data-nature^="zgtz"] {
   color: #fff !important;
   text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000 !important;
+}
+/* 禛势力青碧色 */
+.player .name[data-nature^="zgtz"],
+.player .name.name_seat[data-nature^="zgtz"],
+.button.character .name[data-nature^="zgtz"] {
+  color: #eafffb !important;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, rgba(56, 232, 208, 1) 0 0 6px, rgba(56, 232, 208, 0.65) 0 0 16px !important;
 }
 `;
 document.head.appendChild(style);
@@ -183,7 +199,7 @@ if (lib.device || lib.node) {
             const imagePath = `extension/鸽府包/image/character/${outcropConfig === true ? "stand" : outcropConfig}/`;
             const suffix = ".jpg";
             for (const id in characterData) {
-                const validPrefixes = ["gf_", "wzzs_", "cxm_","dmwc_" , "tj_", "gzhlb_", "gzt_", "seh_", "aqcs_", "gzlj_", "a_", "Mimi_", "gzr_"];
+                const validPrefixes = ["gf_", "wzzs_", "cxm_","dmwc_" , "tj_", "gzhlb_", "gzt_", "seh_", "aqcs_", "gzlj_", "a_", "Mimi_", "gzr_", "zgtz_", "zncs_"];
                 if (validPrefixes.some(prefix => id.startsWith(prefix))) {
                     const imgPath = imagePath + id + suffix;
                     const config = characterData[id];

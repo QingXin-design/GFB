@@ -42,11 +42,20 @@ const block = (() => {
 			wzzs_bl: { sex: "male", group: "zhi", hp: 4, maxHp: 4, skills: ["wzzs_jianliu"] },
 			wzzs_znb: { sex: "male", group: "zhi", hp: 5, maxHp: 5, skills: ["wzzs_guaili", "wzzs_jiangxin"], noYjhj: true, },
 			wzzs_aesdd: { sex: "male", group: "zhi", hp: 4, maxHp: 4, skills: ["wzzs_longmen", "wzzs_jianzhen", "wzzs_douqi", "wzzs_dudang", "wzzs_shendao"], noYjhj: true, },
-			wzzs_lqx: { sex: "female", group: "zhi", hp: 3, maxHp: 3, skills: ["wzzs_shuidan", "wzzs_jiyun"] },
-			wzzs_klf: { sex: "male", group: "zhi", hp: 3, maxHp: 3, skills: ["wzzs_yiju", "wzzs_shenji"] },
-			wzzs_alnlj: { sex: "female", group: "zhi", hp: 4, maxHp: 4, skills: ["wzzs_minren", "wzzs_benneng", "wzzs_mozhou"] },
+			wzzs_lqx: { sex: "female", group: "zhi", hp: 4, maxHp: 4, skills: ["wzzs_shuidan", "wzzs_bingci", "wzzs_jiyun"] },
+			wzzs_klf: { sex: "male", group: "zhi", hp: 4, maxHp: 4, skills: ["wzzs_shenxi", "wzzs_yuyan", "wzzs_yiju"] },
+			wzzs_alnlj: { sex: "female", group: "zhi", hp: 4, maxHp: 4, skills: ["wzzs_zuzhou", "wzzs_minjie", "wzzs_minren"] },
+			wzzs_pks: { sex: "male", group: "zhi", hp: 4, maxHp: 4, skills: ["wzzs_zeji", "wzzs_liguo"] },
+			wzzs_xlf: { sex: "female", group: "zhi", hp: 4, maxHp: 4, skills: ["wzzs_zhuanyi", "wzzs_fengyu", "wzzs_xiangyi"] },
 			// wzzs_dx: { sex: "male", group: "ge", hp: 4, maxHp: 4, skills: ["gzhlb_duxin", "xinliegong"] },
 			
+			// 禛感天祚
+			//zgtz_toka: { sex: "female", group: "zhen", hp: 4, maxHp: 4, skills: ["sbzhiheng"] },
+			zgtz_sunce: { sex: "male", group: "zhen", hp: 4, maxHp: 4, skills: ["zgtz_jiang", "zgtz_dingji", "zgtz_hunzi"] },
+			//zgtz_huangpusong: { sex: "male", group: "zhen", hp: 4, maxHp: 4, skills: ["sbzhiheng"] },
+			zgtz_huaman: { sex: "female", group: "zhen", hp: 4, maxHp: 4, skills: ["zgtz_xiangyu", "zgtz_fangzong", "zgtz_mansi"] },
+			zgtz_wenyang: { sex: "male", group: "zhen", hp: 4, maxHp: 4, skills: ["zgtz_cuiying", "zgtz_tufan", "zgtz_zhendi"] },
+
 			// 荼家
 			//"cxm_zy": { sex: "male", group: "shu", hp: 2, maxHp: 3, skills: ["cxm_longdan", "cxm_jiuzhu", "cxm_chongzhen"] },
 			cxm_lb: { sex: "male", group: "shu", hp: 4, maxHp: 4, skills: ["cxm_rende", "cxm_shenyi", "cxm_guying"], noYjhj: true, },
@@ -64,6 +73,7 @@ const block = (() => {
 			cxm_tj: { sex: "male", group: "qun", hp: 4, maxHp: 4, hujia: 0, skills: ["cxm_nishi", "cxm_anluan"] },
 			//cxm_la: { sex: "male", group: "qun", hp: 4, maxHp: 5, hujia: 1, skills: ["gzb_kuangcai"], noYjhj: true, },
 			cxm_yz: { sex: "male", group: "qun", hp: 4, maxHp: 4, hujia: 0, skills: ["cxm_daji", "cxm_lianxie"], noYjhj: true, },
+			cxm_tyuan: { sex: "female", group: "qun", hp: 4, maxHp: 4, hujia: 0, skills: ["cxm_shixu"] },
 
 			// 汝家
 			tj_zzh: { sex: "female", group: "wei", hp: 3, maxHp: 4, skills: ["tj_jueqing", "tj_shangshi", "tj_xuanmu"], noYjhj: true, },
@@ -97,6 +107,7 @@ const block = (() => {
 			gzt_rl: { sex: "male", group: "qun", hp: 3, maxHp: 3, skills: ["gzt_xiri", "gzt_rudong", "gzt_cos"] },
 			gzt_whsd: { sex: "male", group: "qun", hp: 4, maxHp: 4, skills: ["gzt_meimei"], isUnseen: true },
 			gzt_sx: { sex: "female", group: "qun", hp: 4, maxHp: 4, skills: ["gzt_chushi", "gzt_weiwang"], isUnseen: true },
+			gzt_sy: { sex: "none", group: "qun", hp: 6, maxHp: 6, skills: ["gzt_shanyu", "gzt_zhikao"] },
 			gzt_cy: { sex: "male", group: "qun", hp: 4, maxHp: 4, skills: ["gzt_jiezheng", "gzt_laosou", "gzt_szys"] },
 			gzt_lx: { sex: "male", group: "wu", hp: 4, maxHp: 4, skills: ["gzt_liaoying", "gzt_lianfeng", "gzt_shulve"] },
 			gzt_nlj: { sex: "male", group: "qun", hp: 3, maxHp: 3, skills: ["gzt_bwzl", "gzt_kbkym", "gzt_zldx"] },
@@ -105,6 +116,11 @@ const block = (() => {
 			gzt_hs: { sex: "female", group: "qun", hp: 4, maxHp: 4, skills: ["gzt_sizhen", "gzt_aimu"] },
 			gzt_qn: { sex: "female", group: "qun", hp: 4, maxHp: 4, skills: ["gzt_jumin", "gzt_honghuo"] },
 			gzt_fj: { sex: "female", group: "qun", hp: 4, maxHp: 4, skills: ["gzt_shihua", "gzt_feixi"] },
+			gzt_xx: { sex: "female", group: "qun", hp: 4, maxHp: 4, skills: ["gzt_xingzou", "gzt_huansi"] },
+			gzt_xjy: { sex: "male", group: "qun", hp: 4, maxHp: 4, skills: ["gzt_zijin", "gzt_chengkong", "gzt_cheli"] },
+			gzt_kokoro: { sex: "female", group: "qun", hp: 4, maxHp: 4, skills: ["gzt_zijin2", "gzt_huanyao", "gzt_haozhi"] },
+			gzt_wty: { sex: "male", group: "qun", hp: 3, maxHp: 3, skills: ["gzt_gouxi", "gzt_yangwo", "gzt_xinggu", "gzt_yilv"] },
+			gzt_wty2: { sex: "male", group: "qun", hp: 4, maxHp: 4, skills: ["gzt_duanjie", "gzt_niuqu", "gzt_heidong"] },
 
 			// Mimi
 			Mimi_nlMimi: { sex: "female", group: "M", hp: 4, maxHp: 4, skills: ["Mimi_nailao", "Mimi_jixing"] },
@@ -122,9 +138,15 @@ const block = (() => {
 			Mimi_dpMimi: { sex: "female", group: "M", hp: 2, maxHp: 2, skills: ["Mimi_fadian", "Mimi_tongkuang"] },
 			// Mimi_lzMimi: { sex: "female", group: "M", hp: 4, maxHp: 4, skills: ["Mimi_cailan", "Mimi_danda"] },
 
+			// 祝你长寿
+			zncs_yyxl: { sex: "female", group: "zhuni", hp: 4, maxHp: 4, skills: ["zncs_duanwen", "zncs_jingtu", "zncs_shiren"] },
+			zncs_chxl: { sex: "female", group: "zhuni", hp: 4, maxHp: 4, skills: ["zncs_lingzhi", "zncs_chusui"] },
+			zncs_xsxl: { sex: "female", group: "zhuni", hp: 4, maxHp: 4, skills: ["zncs_suixuan", "zncs_zhenling"] },
+
 			// 蛊真人
 			gzr_lg: { sex: "male", group: "gzr", hp: 3, maxHp: 3, skills: ["gzr_hxly", "gzr_lxbs", "gzr_llq", "gzr_jlw", "gzr_sanqi", "gzr_longyu"], noYjhj: true, },
 			gzr_wjmz: { sex: "male", group: "gzr", hp: 4, maxHp: 4, skills: ["gzr_fubing", "gzr_wjzs", "gzr_tianyi", "gzr_jzym", "gzr_shijian"], noYjhj: true, },
+			seh_lingshen: { sex: "male", group: "qun", hp: 4, maxHp: 4, skills: ["seh_shennian", "seh_zhumo", "seh_jianding"], noYjhj: true, },
 			// gzr_hlmz: { sex: "male", group: "gzr", hp: 4, maxHp: 4, skills: ["gzr_niliu", "gzr_chunqiu", "gzr_honglian"] },
 
 			// 大明王朝
@@ -158,7 +180,7 @@ const block = (() => {
 			gzhlb_kl: { sex: "female", group: "ge", hp: 3, maxHp: 3, skills: ["gzhlb_kuilei", "gzhlb_leizhen", "gzhlb_wanou"] },
 			gzhlb_kuilei_lei: { sex: "male", group: "qun", hp: 1, maxHp: 1, hujia: 1, skills: ["gzhlb_wanou"], isUnseen: true },
 			gzhlb_yw: { sex: "female", group: "ge", hp: 3, maxHp: 3, skills: ["gzhlb_yiwei"] },
-			// gzhlb_hs: { sex: "female", group: "ge", hp: 3, maxHp: 3, skills: ["gzhlb_huashi", "gzhlb_sazi"] },
+			gzhlb_hs: { sex: "female", group: "ge", hp: 3, maxHp: 3, skills: ["gzhlb_huashi", "gzhlb_sazi"] },
 			gzhlb_B: { sex: "male", group: "ge", hp: 2, maxHp: 4, skills: ["gzhlb_chuanshu", "gzhlb_zheyi", "gzhlb_wangxiang"], noYjhj: true, },
 			gzhlb_M: { sex: "male", group: "ge", hp: 3, maxHp: 3, skills: ["gzhlb_baimian"], },
 			gzhlb_yll: { sex: "female", group: "ge", hp: 3, maxHp: 3, skills: ["gzhlb_yuelv"] },
@@ -167,6 +189,7 @@ const block = (() => {
 			gzhlb_st: { sex: "male", group: "ge", hp: 4, maxHp: 4, skills: ["gzhlb_shengtao", "gzhlb_shitan"] },
 			gzhlb_cg: { sex: "male", group: "ge", hp: 4, maxHp: 4, skills: ["gzhlb_chegui"] },
 			gzhlb_rm: { sex: "male", group: "ge", hp: 4, maxHp: 4, skills: ["gzhlb_rumo"], noYjhj: true, },
+			gzhlb_md: { sex: "male", group: "ge", hp: 4, maxHp: 4, skills: ["gzhlb_rumeng", "gzhlb_diewu"] },
 			gzhlb_fh: { sex: "male", group: "ge", hp: 4, maxHp: 4, skills: ["gzhlb_fenghuan", "gzhlb_jiuji"], noYjhj: true, },
 			gzhlb_by: { sex: "male", group: "ge", hp: 3, maxHp: 3, skills: ["gzhlb_baiyan", "gzhlb_ninglian"], isAiForbidden: true, noYjhj: true, },
 			gzhlb_cy: { sex: "male", group: "ge", hp: 4, maxHp: 4, skills: ["gzhlb_chenyu", "gzhlb_yuduan"] },
@@ -178,7 +201,7 @@ const block = (() => {
 			gzhlb_yq: { sex: "male", group: "ge", hp: 4, maxHp: 4, skills: ["gzhlb_yuanqing"] },
 			// gzhlb_ts: { sex: "female", group: "ge", hp: 3, maxHp: 3, skills: ["gzhlb_tianshi"] },
 			gzhlb_jy: { sex: "female", group: "ge", hp: 4, maxHp: 4, skills: ["gzhlb_jieyuan"] },
-			gzhlb_xr: { sex: "male", group: "ge", hp: 5, maxHp: 5, skills: ["gzhlb_xueren"] },
+			gzhlb_xr: { sex: "male", group: "ge", hp: 6, maxHp: 6, skills: ["gzhlb_xueren"] },
 			gzhlb_cd: { sex: "male", group: "ge", hp: 4, maxHp: 4, skills: ["gzhlb_caiduan"], noYjhj: true, },
 			gzhlb_kes: { sex: "male", group: "ge", hp: 4, maxHp: 4, skills: ["gzhlb_zuizhuang", "gzhlb_zhuiji"] },
 
@@ -205,6 +228,7 @@ const block = (() => {
 			// 奥奇传说
 			//"aqcs_cssl": { sex: "male", group: "qun", hp: 4, maxHp: 4, skills: ["aqcs_zhigao", "aqcs_tianli"] },
 			aqcs_ars: { sex: "male", group: "qun", hp: 1, maxHp: 4, hujia: 3, skills: ["aqcs_senluo", "aqcs_bitian"], noYjhj: true, },
+			aqcs_sp_frws: { sex: "male", group: "qun", hp: 4, maxHp: 4, skills: ["aqcs_sp_xl", "aqcs_sp_kx", "aqcs_sp_ds"], noYjhj: true },
 			aqcs_frws: { sex: "male", group: "qun", hp: 4, maxHp: 4, skills: ["seh_yuanchu", "seh_shenhai"], noYjhj: true, },
 			aqcs_lyjd: { sex: "male", group: "qun", hp: 4, maxHp: 4, skills: ["aqcs_tianjue", "aqcs_zhongyan"], noYjhj: true, },
 			aqcs_gmw: { sex: "male", group: "qun", hp: 4, maxHp: 4, skills: ["aqcs_rishen", "aqcs_xuri"], noYjhj: true, },
@@ -259,9 +283,11 @@ const block = (() => {
 			"wzzs_bl": ["male", "zhi", "4/4/0", ["wzzs_jianliu"], []],
 			"wzzs_znb": ["male", "zhi", "5/5/0", ["wzzs_guaili", "wzzs_jiangxin"], ["noYjhj"]],
 			"wzzs_aesdd": ["male", "zhi", "4/4/0", ["wzzs_longmen", "wzzs_jianzhen", "wzzs_douqi", "wzzs_dudang", "wzzs_shendao"], ["noYjhj"]],
-			"wzzs_lqx": ["female", "zhi", "3/3/0", ["wzzs_shuidan", "wzzs_jiyun"], []],
-			"wzzs_klf": ["male", "zhi", "3/3/0", ["wzzs_yiju", "wzzs_shenji"], []],
-			"wzzs_alnlj": ["female", "zhi", "4/4/0", ["wzzs_minren", "wzzs_benneng", "wzzs_mozhou"], []],
+			"wzzs_lqx": ["female", "zhi", "4/4/0", ["wzzs_shuidan", "wzzs_bingci", "wzzs_jiyun"], []],
+			"wzzs_klf": ["male", "zhi", "3/3/0", ["wzzs_shenxi", "wzzs_yuyan", "wzzs_yiju"], []],
+			"wzzs_alnlj": ["female", "zhi", "4/4/0", ["wzzs_zuzhou", "wzzs_minren", "wzzs_minjie"], []],
+			"wzzs_pks": ["male", "zhi", "4/4/0", ["wzzs_zeji", "wzzs_liguo"], []],
+			"wzzs_xlf": ["female", "zhi", "4/4/0", ["wzzs_zhuanyi", "wzzs_fengyu", "wzzs_xiangyi"], ["noYjhj"]],
 
 			// 荼家
 			"cxm_lb": ["male", "shu", "4/4/0", ["cxm_rende", "cxm_shenyi", "cxm_guying"], ["noYjhj"]],
@@ -305,6 +331,7 @@ const block = (() => {
 			// 蛊真人
 			"gzr_lg": ["male", "gzr", "4/4/0", ["gzr_sanqi", "gzr_longyu", "gzr_hxly"], []],
 			"gzr_wjmz": ["male", "gzr", "6/6/0", ["gzr_fubing", "gzr_wjzs", "gzr_tianyi", "gzr_jzym", "gzr_shijian"], ["noYjhj"]],
+			"seh_lingshen": ["male", "qun", "4/4/0", ["seh_shennian", "seh_zhumo", "seh_jianding"], ["noYjhj"]],
 			"gzr_hlmz": ["male", "gzr", "4/4/0", ["gzr_niliu", "gzr_chunqiu", "gzr_honglian"], []],
 
 			// 鸽子欢乐
@@ -365,6 +392,7 @@ const block = (() => {
 
 			// 奥奇传说
 			"aqcs_ars": ["male", "qun", "1/4/3", ["aqcs_senluo", "aqcs_bitian"], ["noYjhj"]],
+			"aqcs_sp_frws": ["male", "qun", "4/4/0", ["aqcs_sp_xl", "aqcs_sp_kx", "aqcs_sp_ds"], ["noYjhj"]],
 			"aqcs_frws": ["male", "qun", "4/4/0", ["seh_yuanchu", "seh_shenhai"], ["noYjhj"]],
 			"aqcs_lyjd": ["male", "qun", "4/4/0", ["aqcs_tianjue", "aqcs_zhongyan"], ["noYjhj"]],
 			"aqcs_gmw": ["male", "qun", "4/4/0", ["aqcs_rishen", "aqcs_xuri"], ["noYjhj"]],
@@ -391,7 +419,6 @@ const block = (() => {
 			"a_cerhao": ["male", "qun", "2/4/2", ["erhao"], ["noPool"]],
 			"a_asihao": ["male", "qun", "6/6/0", ["sihao"], ["noPool"]],
 			"a_awuhao": ["male", "qun", "4/4/0", ["wuhao", "awuyi"], ["noPool"]],
-
 		};
 	}
 })();

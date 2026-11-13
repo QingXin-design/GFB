@@ -9,12 +9,14 @@ let block = {//武将分类
 		'tj': ["tj_zzh", "tj_sr", "tj_lm", "tj_dmssq"],
 		'gzhlb': [],
 		'gzjcb': [],
-		'seh': [], 
+		'seh': [],
 		'aqcs': [], 
 		'gzlj': [],
 		'a': [],
-		'm': ["Mimi_nlMimi", "Mimi_xkMimi", "Mimi_bhMimi", "Mimi_egMimi", "Mimi_blMimi", "Mimi_ldMimi", "Mimi_mzMimi", "Mimi_psMimi", "Mimi_lfMimi", "Mimi_xzMimi", "Mimi_krMimi", "Mimi_gwMimi", "Mimi_lzMimi"],
+		'm': ["Mimi_nlMimi", "Mimi_xkMimi", "Mimi_bhMimi", "Mimi_egMimi", "Mimi_blMimi", "Mimi_ldMimi", "Mimi_mzMimi", "Mimi_psMimi", "Mimi_lfMimi", "Mimi_xzMimi", "Mimi_krMimi", "Mimi_gwMimi", "Mimi_lzMimi", "Mimi_dpMimi"],
 		'gzr': ["gzr_lg", "gzr_hlmz"],
+		'zgtz': [],
+		'zncs': [],
 	},
 };
 export const characterSort=block;
