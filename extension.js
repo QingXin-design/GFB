@@ -16,13 +16,13 @@ lib.gflib_custom.mp.push(function (player) {
 	if (player.name == 'seh_hytz') return { gflib_mp: 0, gflib_maxMp: 100, type: 'seh_xinzhiqiM', color: 'linear-gradient(#cccccc, #0000FF)', color2: 'linear-gradient(#ff0000, #cc00ff)' }
 });
 lib.gflib_custom.mp.push(function (player) {
-	if (player.name == 'wzzs_aesdd') return { gflib_mp: 100, gflib_maxMp: 100, type: 'wzzs_MoLi', color: 'linear-gradient(#cccccc, #0000FF)', color2: 'linear-gradient(#ff0000, #cc00ff)' }
-});
-lib.gflib_custom.mp.push(function (player) {
 	if (player.name == 'aqcs_cssl') return { gflib_mp: 0, gflib_maxMp: 100, type: 'aqcs_csnl', color: 'linear-gradient(#cccccc, #4B0082)', color2: 'linear-gradient(#ff0000, #cc00ff)' }
 });
 lib.gflib_custom.mp.push(function (player) {
-	if (player.name == 'gzhlb_kes') return { gflib_mp: 0, gflib_maxMp: 1000, type: 'gzhlb_zuizhuangZ', color: 'linear-gradient(#cccccc, #4B0082)', color2: 'linear-gradient(#ff0000, #cc00ff)' }
+	if (player.name == 'aqcs_sp_frws') return { gflib_mp: 100, gflib_maxMp: 200, type: 'qishi', color: 'linear-gradient(#a5f3fc, #0e7490)', color2: 'linear-gradient(#ff0000, #cc00ff)' };
+});
+lib.gflib_custom.mp.push(function (player) {
+	if (player.name == 'gzhlb_kes') return { gflib_mp: 0, gflib_maxMp: 100, type: 'gzhlb_zuizhuangZ', color: 'linear-gradient(#cccccc, #4B0082)', color2: 'linear-gradient(#ff0000, #cc00ff)' }
 });
 lib.gflib_custom.tongling.push(function(player) {
     if (player.name == 'aqcs_lyjd') { return { gflib_tongling: 0, gflib_maxTongling: 2, type: 'gflib_tongling' }; }
@@ -76,6 +76,32 @@ export default async function () {
 					color: "#000000",
 					nature: "gefu",
 				});
+				lib.nature.set("GF_water", 45);
+				lib.translate.GF_water = "水";
+				if (!lib.linked.includes("GF_water")) lib.linked.push("GF_water");
+				if (!document.getElementById("gf_water_style")) {
+					const gfWaterStyle = document.createElement("style");
+					gfWaterStyle.id = "gf_water_style";
+					gfWaterStyle.innerHTML = `div[data-nature="GF_water"],span[data-nature="GF_water"]{text-shadow:rgba(78,117,140,1) 0 0 2px,rgba(78,117,140,1) 0 0 5px,rgba(78,117,140,1) 0 0 10px,rgba(78,117,140,1) 0 0 10px,rgba(78,117,140,1) 0 0 20px,rgba(78,117,140,1) 0 0 20px,black 0 0 1px}
+div[data-nature="GF_waterm"],span[data-nature="GF_waterm"]{text-shadow:rgba(78,117,140,1) 0 0 2px,rgba(78,117,140,1) 0 0 5px,rgba(78,117,140,1) 0 0 5px,rgba(78,117,140,1) 0 0 5px,black 0 0 1px}
+div[data-nature="GF_watermm"],span[data-nature="GF_watermm"]{text-shadow:rgba(78,117,140,1) 0 0 2px,rgba(78,117,140,1) 0 0 2px,rgba(78,117,140,1) 0 0 2px,rgba(78,117,140,1) 0 0 2px,black 0 0 1px}
+div[data-nature="GF_watermx"],span[data-nature="GF_watermx"]{text-shadow:rgba(0,0,0,0.4) 0 0 1px,rgba(20,83,140,1) 0 0 2px,rgba(20,83,140,1) 0 0 2px,rgba(20,83,140,1) 0 0 5px,rgba(20,83,140,1) 0 0 5px,black 0 0 1px}
+#window>.damage.fullscreenavatar[data-nature="GF_water"]>div:first-child>div{box-shadow:rgba(0,0,0,0.2) 0 0 0 1px,rgba(0,0,0,0.5) 0 0 10px,rgba(0,0,0,0.3) 0 0 30px,rgba(78,117,140,1) 0 0 60px,rgba(78,117,140,1) 0 0 60px}`;
+					document.head.appendChild(gfWaterStyle);
+				}
+				lib.nature.set("GF_wind", 46);
+				lib.translate.GF_wind = "风";
+				if (!lib.linked.includes("GF_wind")) lib.linked.push("GF_wind");
+				if (!document.getElementById("gf_wind_style")) {
+					const gfWindStyle = document.createElement("style");
+					gfWindStyle.id = "gf_wind_style";
+					gfWindStyle.innerHTML = `div[data-nature="GF_wind"],span[data-nature="GF_wind"]{text-shadow:rgba(115,209,101,1) 0 0 2px,rgba(115,209,101,1) 0 0 5px,rgba(115,209,101,1) 0 0 10px,rgba(115,209,101,1) 0 0 10px,rgba(115,209,101,1) 0 0 20px,rgba(115,209,101,1) 0 0 20px,black 0 0 1px}
+div[data-nature="GF_windm"],span[data-nature="GF_windm"]{text-shadow:rgba(115,209,101,1) 0 0 2px,rgba(115,209,101,1) 0 0 5px,rgba(115,209,101,1) 0 0 5px,rgba(115,209,101,1) 0 0 5px,black 0 0 1px}
+div[data-nature="GF_windmm"],span[data-nature="GF_windmm"]{text-shadow:rgba(115,209,101,1) 0 0 2px,rgba(115,209,101,1) 0 0 2px,rgba(115,209,101,1) 0 0 2px,rgba(115,209,101,1) 0 0 2px,black 0 0 1px}
+div[data-nature="GF_windmx"],span[data-nature="GF_windmx"]{text-shadow:rgba(0,0,0,0.4) 0 0 1px,rgba(58,140,60,1) 0 0 2px,rgba(58,140,60,1) 0 0 2px,rgba(58,140,60,1) 0 0 5px,rgba(58,140,60,1) 0 0 5px,black 0 0 1px}
+#window>.damage.fullscreenavatar[data-nature="GF_wind"]>div:first-child>div{box-shadow:rgba(0,0,0,0.2) 0 0 0 1px,rgba(0,0,0,0.5) 0 0 10px,rgba(0,0,0,0.3) 0 0 30px,rgba(115,209,101,1) 0 0 60px,rgba(115,209,101,1) 0 0 60px}`;
+					document.head.appendChild(gfWindStyle);
+				}
 				const a = game.getRarity;
 				game.getRarity = function (name2) {
 					if (characterRank.SSS.includes(name2)) return "sss";
@@ -252,11 +278,9 @@ export default async function () {
 						});
 					};
 				};
-				video();
-			},
-			arenaReady() {
-			},
-			content: function (config, pack) {
+			video();
+		},
+		content: function (config, pack) {
 				content()
 				const zhiyin = () => {
 					if (!game || !game.players) return false;
