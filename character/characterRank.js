@@ -19,7 +19,7 @@ let block={//武将评级
         "gzlj_zhuxi",
         "gzlj_youjiali",
         "a_cerhao",
-        "gzt_xs", "gzt_zk", "gzt_jd", "gzt_thk", "gzt_lxp", "gzt_jkst", "gzt_sjw", "gzt_whsd", "gzt_sx", "gzt_nlj",
+        "gzt_xs", "gzt_zk", "gzt_jd", "gzt_thk", "gzt_lxp", "gzt_jkst", "gzt_sjw", "gzt_whsd", "gzt_sx",
         "Mimi_ldMimi",
         "gzhlb_cd", "seh_saier_hytz"
     ],
@@ -33,7 +33,7 @@ let block={//武将评级
         "gzhlb_ty", "gzhlb_yl", "gzhlb_yw", "gzhlb_hs", "gzhlb_shenshi", "gzhlb_yll", "gzhlb_hz", "gzhlb_st", "gzhlb_fh", "gzhlb_by", "gzhlb_cy", "gzhlb_yq", "gzhlb_ts",
         "aqcs_ars", "aqcs_gmw_hjsl", "aqcs_gmw_ydn", "aqcs_lzsz_cylz",
         "a_ayihao", "a_berhao",
-        "gzt_gzxzzn", "gzt_lye", "gzt_jh", "gzt_yyx",
+        "gzt_gzxzzn", "gzt_lye", "gzt_jh", "gzt_yyx", "gzt_bg",
         "Mimi_xkMimi", "Mimi_lfMimi", "Mimi_xzMimi", "Mimi_krMimi", "Mimi_nlMimi", "Mimi_bhMimi", "Mimi_blMimi", "Mimi_mzMimi", "Mimi_psMimi", "Mimi_gwMimi", 
         "gzhlb_kes"
     ],
@@ -48,7 +48,7 @@ let block={//武将评级
         "seh_lmht", "seh_hytz", "seh_sls", "seh_saier_cszy", "seh_saier_dtzf", "seh_saier_mmr", "seh_saier_fes", "seh_saier_aoly", "seh",
         "aqcs_frws", "aqcs_gmw", "aqcs_lzsz",
         "a_aerhao", "a_asanhao", "a_asihao",
-        "gzt_ym", "gzt_ht", "gzt_rl", "gzt_cy", "gzt_bg",
+        "gzt_ym", "gzt_ht", "gzt_rl", "gzt_cy", "gzt_nlj",
         "Mimi_egMimi", "Mimi_dpMimi"
     ],
     SSS:[

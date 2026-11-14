@@ -27,6 +27,7 @@ let block = {//武将称号
 	"dmwc_wyj": "润莲怀瑾",
 	
 	"seh_hytz": "圣殿复仇者",
+	"seh_tqdj": "君临天下",
 	"seh_sls": "混沌魔君",
 	"seh_lmht": "空元行者",
 	"seh": "圣灵天启",
@@ -37,6 +38,7 @@ let block = {//武将称号
 	"gzt_yyx": "杨叫兽",
 	"gzt_thk": "陶叫兽",
 	"gzt_lxp": "郎叫兽",
+	"gzt_kokoro": "儿歌大王",
 	"gzr_lg": "龙人之祖",
 };
 export const characterTitle=block;
