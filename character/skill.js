@@ -510,6 +510,336 @@ let block = {
 		},
 	},
 
+	// 剪红・小绿
+	"zncs_fenjian": {
+		enable: "phaseUse",
+		filter(event, player) {
+			return (
+				player.countCards("h", function (card) {
+					return lib.skill.zncs_fenjian.canRecast(card, player);
+				}) > 0
+			);
+		},
+		filterCard: function (card, player) {
+			return lib.skill.zncs_fenjian.canRecast(card, player);
+		},
+		position: "h",
+		selectCard: 1,
+		// discard: false,
+		// lose: false,
+		isTargetCard(card) {
+			if (!card || !card.name) return false;
+			const info = get.info(card);
+			return !!(info && info.selectTarget !== undefined);
+		},
+		canRecast(card, player) {
+			if (!lib.skill.zncs_fenjian.isTargetCard(card)) return false;
+			const suit = get.suit(card);
+			if (!suit || suit == "none") return true;
+			return !lib.skill.zncs_canhong.suits(player).includes(suit);
+		},
+		prompt: "分剪：重铸一张与中央区的牌花色均不同且有目标的牌，然后你使用的下张牌可将牌名或目标改为与本次重铸的牌一致。",
+		async content(event, trigger, player) {
+			const cards = event.cards;
+			const card = cards && cards[0];
+			if (!card) return;
+			player.storage.zncs_fenjian = { name: card.name };
+			await player.recast(cards);
+		},
+		ai: {
+			order: 1,
+			result: {
+				player: 1,
+			},
+		},
+		group: ["zncs_fenjian_use", "zncs_fenjian_cleanup"],
+		subSkill: {
+			use: {
+				trigger: {
+					player: "useCard",
+				},
+				filter(event, player) {
+					const store = player.storage.zncs_fenjian;
+					return !!(store && store.name && event.card && event.card.name);
+				},
+				logTarget: "player",
+				prompt(event, player) {
+					const store = player.storage.zncs_fenjian;
+					if (!store) return "分剪";
+					return "分剪：是否将" + get.translation(event.card) + "目标或效果改为与【" + get.translation(store.name) + "】中对应的一项一致？";
+				},
+				async content(event, trigger, player) {
+					const store = player.storage.zncs_fenjian;
+					delete player.storage.zncs_fenjian;
+					if (!store || !store.name) return;
+					const control = await player
+						.chooseControl("牌名变", "目标变", "取消")
+						.set("prompt", "分剪：将" + get.translation(trigger.card) + "目标或效果改为与【" + get.translation(store.name) + "】中对应的一项一致")
+						.set("ai", function () {
+							return 0;
+						})
+						.forResult();
+					if (!control || !control.control || control.control == "取消") return;
+					if (control.control == "牌名变") {
+						trigger.card.zncs_jhxl_origin = trigger.card.name;
+						trigger.card.name = store.name;
+						const type = get.type({ name: store.name });
+						const list = trigger.targets || [];
+						if (list.length > 1 && (type == "equip" || type == "delay")) {
+							const extras = [];
+							for (let i = 1; i < list.length; i++) {
+								const copy = game.createCard(trigger.card.zncs_jhxl_origin, get.suit(trigger.card), get.number(trigger.card), get.nature(trigger.card));
+								copy.zncs_jhxl_origin = trigger.card.zncs_jhxl_origin;
+								copy.name = store.name;
+								extras.push({ card: copy, target: list[i] });
+							}
+							trigger.targets = [list[0]];
+							trigger.num = 0;
+							delete trigger._result;
+							if (extras.length) {
+								const redo = game.createEvent("zncs_jhxl_fenjian_extra", false);
+								redo.player = player;
+								redo.setContent(async function (evt) {
+									for (const extra of extras) {
+										if (!extra.target || !extra.target.isAlive()) continue;
+										await player.useCard(extra.card, [extra.target]);
+									}
+								});
+								trigger.after.push(redo);
+							}
+						}
+						return;
+					}
+					const info = get.info({ name: store.name }) || {};
+					const result = await player
+						.chooseTarget("分剪：请重新为该牌指定目标", function (card, player, target) {
+							return player.canUse({ name: store.name }, target, false);
+						})
+						.set("selectTarget", info.selectTarget === undefined ? 1 : info.selectTarget)
+						.forResult();
+					if (!result.bool || !result.targets.length) return;
+					const targets = result.targets.slice();
+					const cardType = get.type(trigger.card);
+					if (targets.length > 1 && (cardType == "equip" || cardType == "delay")) {
+						const extras = [];
+						for (let i = 1; i < targets.length; i++) {
+							const copy = game.createCard(trigger.card.name, get.suit(trigger.card), get.number(trigger.card));
+							extras.push({ card: copy, target: targets[i] });
+						}
+						trigger.targets = [targets[0]];
+						trigger.num = 0;
+						delete trigger._result;
+						if (extras.length) {
+							const redo = game.createEvent("zncs_jhxl_fenjian_extra", false);
+							redo.player = player;
+							redo.setContent(async function (evt) {
+								for (const extra of extras) {
+									if (!extra.target || !extra.target.isAlive()) continue;
+									await player.useCard(extra.card, [extra.target]);
+								}
+							});
+							trigger.after.push(redo);
+						}
+						return;
+					}
+					trigger.targets = targets;
+					trigger.num = 0;
+					delete trigger._result;
+				},
+				sub: true,
+			},
+			cleanup: {
+				trigger: {
+					player: "useCardAfter",
+				},
+				silentForce: true,
+				filter(event, player) {
+					return !!(event.card && event.card.zncs_jhxl_origin);
+				},
+				content(event, trigger, player) {
+					const card = trigger.card;
+					const origin = card.zncs_jhxl_origin;
+					delete card.zncs_jhxl_origin;
+					const zone = get.position(card, true);
+					if (zone == "j" || zone == "e") return;
+					card.name = origin;
+				},
+				sub: true,
+			},
+		},
+	},
+	"zncs_canhong": {
+		centralCards(player) {
+			const list = [];
+			for (const card of player.storage.zncs_jhxl_central || []) {
+				if (get.position(card, true) == "d" && !list.includes(card)) list.push(card);
+			}
+			return list;
+		},
+		suits(player) {
+			const suits = [];
+			for (const card of lib.skill.zncs_canhong.centralCards(player)) {
+				const suit = get.suit(card);
+				if (suit && suit != "none" && !suits.includes(suit)) suits.push(suit);
+			}
+			return suits;
+		},
+		groups(player) {
+			const groups = {
+				spade: [],
+				club: [],
+				heart: [],
+				diamond: [],
+			};
+			for (const card of lib.skill.zncs_canhong.centralCards(player)) {
+				const suit = get.suit(card);
+				if (groups[suit]) groups[suit].push(card);
+			}
+			return groups;
+		},
+		refreshMark(player) {
+			try {
+				const cards = lib.skill.zncs_canhong.centralCards(player);
+				player.storage.zncs_canhong_mark = cards;
+				if (cards.length) {
+					if (!player.hasSkill("zncs_canhong_mark")) player.addTempSkill("zncs_canhong_mark", "phaseOver");
+					else player.markSkill("zncs_canhong_mark");
+				} else if (player.hasSkill("zncs_canhong_mark")) {
+					player.removeSkill("zncs_canhong_mark");
+				}
+			} catch (e) {
+				console.warn("zncs_canhong refreshMark", e);
+			}
+		},
+		group: ["zncs_canhong_central", "zncs_canhong_use"],
+		subSkill: {
+			mark: {
+				marktext: "残",
+				mark: true,
+				onremove: function (player) {
+					player.storage.zncs_canhong_mark = [];
+					player.storage.zncs_jhxl_central = [];
+				},
+				intro: {
+					markcount(storage) {
+						return Array.isArray(storage) ? storage.length : 0;
+					},
+					mark(dialog, storage, player) {
+						const cards = Array.isArray(storage) ? storage : [];
+						if (!cards.length) return "中央区暂无牌";
+						if (!player.isUnderControl(true)) return "共有" + get.cnNumber(cards.length) + "张牌";
+						const red = [],
+							black = [];
+						for (const card of cards) {
+							const suit = get.suit(card);
+							if (suit == "heart" || suit == "diamond") red.push(card);
+							else if (suit == "club" || suit == "spade") black.push(card);
+						}
+						if (red.length) {
+							dialog.add("红色");
+							dialog.addAuto(red);
+						}
+						if (black.length) {
+							dialog.add("黑色");
+							dialog.addAuto(black);
+						}
+					},
+				},
+			},
+			central: {
+				trigger: {
+					global: ["cardsDiscardAfter", "loseAfter", "gainAfter", "loseAsyncAfter"],
+				},
+				silentForce: true,
+				filter(event, player) {
+					const cards = event.cards || [];
+					if (!cards.length) return false;
+					if (_status.currentPhase !== player) return false;
+					if (event.name == "cardsDiscard") return true;
+					if (event.name == "lose") {
+						if (event.position != ui.discardPile) return false;
+						return cards.some(function (card) {
+							return get.position(card, true) == "d";
+						});
+					}
+					const central = player.storage.zncs_jhxl_central || [];
+					if (!central.length) return false;
+					return cards.some(function (card) {
+						return central.includes(card);
+					});
+				},
+				content(event, trigger, player) {
+					if (trigger.name == "cardsDiscard" || trigger.name == "lose") {
+						const arr = player.storage.zncs_jhxl_central || (player.storage.zncs_jhxl_central = []);
+						for (const card of trigger.cards) {
+							if (get.position(card, true) == "d" && !arr.includes(card)) arr.push(card);
+						}
+					}
+					lib.skill.zncs_canhong.refreshMark(player);
+				},
+				sub: true,
+			},
+			use: {
+				trigger: {
+					player: "useCardAfter",
+				},
+				frequent: true,
+				filter(event, player) {
+					if (event.zncs_jhxl_no_canhong) return false;
+					const suits = lib.skill.zncs_canhong.suits(player);
+					return ["heart", "diamond", "club", "spade"].every(function (suit) {
+						return suits.includes(suit);
+					});
+				},
+				prompt2(event, player) {
+					return "将中央区一种颜色的牌置于牌堆底，然后获得等量张牌并可使用其中一张";
+				},
+				check(event, player) {
+					return true;
+				},
+				usableColorCards(player) {
+					const res = { 红色: [], 黑色: [] };
+					for (const card of lib.skill.zncs_canhong.centralCards(player)) {
+						if (get.position(card, true) != "d") continue;
+						const suit = get.suit(card);
+						if (suit == "heart" || suit == "diamond") res["红色"].push(card);
+						else if (suit == "club" || suit == "spade") res["黑色"].push(card);
+					}
+					return res;
+				},
+				async content(event, trigger, player) {
+					const pool = lib.skill.zncs_canhong_use.usableColorCards(player);
+					const controls = ["红色", "黑色"].filter(function (key) {
+						return pool[key].length;
+					});
+					if (!controls.length) return;
+					let color = controls[0];
+					if (controls.length > 1) {
+						const result = await player
+							.chooseControl(controls)
+							.set("prompt", "残红：选择一种颜色的牌置于牌堆底")
+							.forResult();
+						if (!result || !result.control) return;
+						color = result.control;
+					}
+					const cards = pool[color] || [];
+					if (!cards.length) return;
+					const num = cards.length;
+					await game.cardsGotoPile(cards);
+					lib.skill.zncs_canhong.refreshMark(player);
+					const drawn = get.cards(num);
+					if (!drawn.length) return;
+					await player.gain(drawn, "draw");
+					if (!drawn.some(function (card) { return player.hasUseTarget(card); })) return;
+					await player.chooseToUse("残红：是否使用其中一张牌？", function (card, player) {
+						return drawn.includes(card) && player.hasUseTarget(card);
+					});
+				},
+				sub: true,
+			},
+		},
+	},
+
 	// SP凡尔维斯
 	"aqcs_qishi": {
 		trigger: {

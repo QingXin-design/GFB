@@ -142,6 +142,7 @@ const block = (() => {
 			zncs_yyxl: { sex: "female", group: "zhuni", hp: 4, maxHp: 4, skills: ["zncs_duanwen", "zncs_jingtu", "zncs_shiren"] },
 			zncs_chxl: { sex: "female", group: "zhuni", hp: 4, maxHp: 4, skills: ["zncs_lingzhi", "zncs_chusui"] },
 			zncs_xsxl: { sex: "female", group: "zhuni", hp: 4, maxHp: 4, skills: ["zncs_suixuan", "zncs_zhenling"] },
+			zncs_jhxl: { sex: "female", group: "zhuni", hp: 4, maxHp: 4, skills: ["zncs_fenjian", "zncs_canhong"] },
 
 			// 蛊真人
 			gzr_lg: { sex: "male", group: "gzr", hp: 3, maxHp: 3, skills: ["gzr_hxly", "gzr_lxbs", "gzr_llq", "gzr_jlw", "gzr_sanqi", "gzr_longyu"], noYjhj: true, },
