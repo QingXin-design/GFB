@@ -1,5 +1,5 @@
 {
-  "version": "1.6.4",
+  "version": "1.6.5",
   "files": {
     "LICENSE": "8624bcdae55baeef00cd11d5dfcfa60f68710a02",
     "README.md": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
@@ -384,7 +384,7 @@
     "character/dynamicTranslate.js": "29b2643cb8cbcefe50210f7e526a65e282936e72",
     "character/index.js": "833a52de3768ef409eb3b2fd664e1089524f1ae1",
     "character/perfectPair.js": "0af0f4886d2a070e4eb1d11a09b649a442984a0b",
-    "character/skill.js": "05df159993beca8c9121ecdcb04646b5f55f2e3e",
+    "character/skill.js": "3752a0e51a8f3afe4b55e11b5d54724db281fb6d",
     "character/translate.js": "ac91f4294e72ba7929833f82d1983a4ec0b2f493",
     "extension.js": "5993e95c832b05a7866a720b503e81ee861e5dc0",
     "extension/Bgm/bgm.js": "fe6f3acb68f8c57e46831a3d88d06165600361f1",
