@@ -1,6 +1,6 @@
 import {lib,game,ui,get,ai,_status} from '../../../noname.js'
 import {characterRank} from '../character/characterRank.js'
-import update from '../main/update.js';
+import update, { fetchRemoteManifest } from '../main/update.js';
 import { skill } from '../character/skill.js'
 export async function content(config,pack){
     //武将评级
@@ -9,30 +9,9 @@ export async function content(config,pack){
 	lib.rank.rarity.epic.add(...characterRank.SS);
 	lib.rank.rarity.legend.add(...characterRank.SSS);
 	if (lib.config.extension_鸽府包_gfb_zxgx == true) {
-		const proxyList = [
-			"",
-			"https://gh-proxy.com/",
-			"https://hk.gh-proxy.com/",
-			"https://tvv.tw/",
-		];
-		let proxy = proxyList[lib.config.extension_鸽府包_update_source] || "";
-		let remoteManifest = null;
-		let success = false;
-		for (const p of [proxy, ...proxyList.filter(x => x !== proxy)]) {
-			try {
-				const url = `${p}https://raw.githubusercontent.com/QingXin-design/GFB/main/manifest.json`;
-				const controller = new AbortController();
-				const timer = setTimeout(() => controller.abort(), 10000);
-				const res = await fetch(url, { signal: controller.signal });
-				clearTimeout(timer);
-				if (res.ok) {
-					remoteManifest = await res.json();
-					success = true;
-					break;
-				}
-			} catch (e) {}
-		}
-		if (success) {
+		const picked = await fetchRemoteManifest();
+		if (picked) {
+			const remoteManifest = picked.manifest;
 			let localVersion = "0.0.0";
 			const localManifestPath = "extension/鸽府包/manifest.json";
 			const localManifestExists = await game.promises.checkFile(localManifestPath);
