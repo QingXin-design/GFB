@@ -1,0 +1,139 @@
+
+030.png
+size: 993,1049
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+1glow_00
+  rotate: false
+  xy: 230, 191
+  size: 126, 126
+  orig: 135, 135
+  offset: 5, 4
+  index: -1
+2dimian_00
+  rotate: true
+  xy: 230, 30
+  size: 159, 58
+  orig: 346, 146
+  offset: 100, 41
+  index: -1
+2dimian_01
+  rotate: false
+  xy: 483, 349
+  size: 257, 100
+  orig: 346, 146
+  offset: 49, 16
+  index: -1
+2dimian_02
+  rotate: false
+  xy: 698, 26
+  size: 273, 101
+  orig: 346, 146
+  offset: 44, 15
+  index: -1
+2dimian_03
+  rotate: false
+  xy: 698, 129
+  size: 289, 105
+  orig: 346, 146
+  offset: 36, 11
+  index: -1
+2dimian_04
+  rotate: false
+  xy: 698, 236
+  size: 292, 111
+  orig: 346, 146
+  offset: 33, 6
+  index: -1
+2dimian_05
+  rotate: true
+  xy: 113, 19
+  size: 298, 115
+  orig: 346, 146
+  offset: 29, 3
+  index: -1
+3guang_00
+  rotate: true
+  xy: 788, 797
+  size: 250, 173
+  orig: 450, 440
+  offset: 91, 173
+  index: -1
+3guang_01
+  rotate: false
+  xy: 2, 793
+  size: 398, 254
+  orig: 450, 440
+  offset: 14, 173
+  index: -1
+3guang_02
+  rotate: false
+  xy: 402, 666
+  size: 380, 256
+  orig: 450, 440
+  offset: 10, 173
+  index: -1
+3guang_03
+  rotate: false
+  xy: 2, 534
+  size: 369, 257
+  orig: 450, 440
+  offset: 21, 173
+  index: -1
+3guang_04
+  rotate: false
+  xy: 373, 451
+  size: 368, 213
+  orig: 450, 440
+  offset: 22, 174
+  index: -1
+3guang_05
+  rotate: false
+  xy: 2, 319
+  size: 362, 213
+  orig: 450, 440
+  offset: 30, 175
+  index: -1
+3guang_06
+  rotate: true
+  xy: 483, 11
+  size: 336, 213
+  orig: 450, 440
+  offset: 61, 176
+  index: -1
+3guang_07
+  rotate: true
+  xy: 784, 457
+  size: 338, 207
+  orig: 450, 440
+  offset: 60, 178
+  index: -1
+4xian_00
+  rotate: false
+  xy: 743, 358
+  size: 224, 97
+  orig: 414, 162
+  offset: 113, 42
+  index: -1
+4xian_01
+  rotate: true
+  xy: 2, 11
+  size: 306, 109
+  orig: 414, 162
+  offset: 58, 18
+  index: -1
+4xian_02
+  rotate: true
+  xy: 366, 2
+  size: 354, 115
+  orig: 414, 162
+  offset: 39, 14
+  index: -1
+4xian_03
+  rotate: false
+  xy: 402, 924
+  size: 384, 123
+  orig: 414, 162
+  offset: 14, 5
+  index: -1
