@@ -1,0 +1,111 @@
+
+080.png
+size: 307,495
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+huoyan0001
+  rotate: false
+  xy: 199, 4
+  size: 95, 89
+  orig: 130, 131
+  offset: 15, 16
+  index: -1
+huoyan0002
+  rotate: false
+  xy: 2, 100
+  size: 98, 92
+  orig: 130, 131
+  offset: 16, 16
+  index: -1
+huoyan0003
+  rotate: false
+  xy: 101, 2
+  size: 96, 93
+  orig: 130, 131
+  offset: 18, 16
+  index: -1
+huoyan0004
+  rotate: false
+  xy: 2, 2
+  size: 97, 96
+  orig: 130, 131
+  offset: 18, 16
+  index: -1
+huoyan0005
+  rotate: false
+  xy: 102, 97
+  size: 98, 96
+  orig: 130, 131
+  offset: 17, 16
+  index: -1
+huoyan0006
+  rotate: false
+  xy: 206, 395
+  size: 99, 98
+  orig: 130, 131
+  offset: 16, 15
+  index: -1
+huoyan0007
+  rotate: false
+  xy: 206, 295
+  size: 99, 98
+  orig: 130, 131
+  offset: 15, 15
+  index: -1
+huoyan0008
+  rotate: false
+  xy: 104, 394
+  size: 100, 99
+  orig: 130, 131
+  offset: 14, 15
+  index: -1
+huoyan0009
+  rotate: false
+  xy: 2, 393
+  size: 100, 100
+  orig: 130, 131
+  offset: 14, 15
+  index: -1
+huoyan0010
+  rotate: true
+  xy: 104, 294
+  size: 98, 100
+  orig: 130, 131
+  offset: 16, 15
+  index: -1
+huoyan0011
+  rotate: true
+  xy: 2, 293
+  size: 98, 100
+  orig: 130, 131
+  offset: 16, 15
+  index: -1
+huoyan0012
+  rotate: false
+  xy: 206, 193
+  size: 98, 100
+  orig: 130, 131
+  offset: 16, 15
+  index: -1
+huoyan0013
+  rotate: true
+  xy: 104, 195
+  size: 97, 98
+  orig: 130, 131
+  offset: 17, 15
+  index: -1
+huoyan0014
+  rotate: true
+  xy: 2, 194
+  size: 97, 98
+  orig: 130, 131
+  offset: 17, 15
+  index: -1
+huoyan0015
+  rotate: false
+  xy: 202, 95
+  size: 97, 96
+  orig: 130, 131
+  offset: 15, 16
+  index: -1

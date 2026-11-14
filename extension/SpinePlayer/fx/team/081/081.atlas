@@ -1,0 +1,104 @@
+
+081.png
+size: 776,579
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+tubiao0001
+  rotate: false
+  xy: 578, 455
+  size: 122, 122
+  orig: 300, 300
+  offset: 89, 90
+  index: -1
+tubiao0002
+  rotate: false
+  xy: 2, 3
+  size: 167, 168
+  orig: 300, 300
+  offset: 70, 64
+  index: -1
+tubiao0003
+  rotate: false
+  xy: 401, 400
+  size: 175, 177
+  orig: 300, 300
+  offset: 65, 59
+  index: -1
+tubiao0004
+  rotate: true
+  xy: 533, 2
+  size: 184, 189
+  orig: 300, 300
+  offset: 59, 51
+  index: -1
+tubiao0005
+  rotate: false
+  xy: 205, 380
+  size: 194, 197
+  orig: 300, 300
+  offset: 54, 46
+  index: -1
+tubiao0006
+  rotate: false
+  xy: 2, 173
+  size: 199, 201
+  orig: 300, 300
+  offset: 52, 44
+  index: -1
+tubiao0007
+  rotate: false
+  xy: 2, 376
+  size: 201, 201
+  orig: 300, 300
+  offset: 51, 45
+  index: -1
+tubiao0008
+  rotate: false
+  xy: 203, 175
+  size: 195, 199
+  orig: 300, 300
+  offset: 54, 48
+  index: -1
+tubiao0009
+  rotate: true
+  xy: 400, 188
+  size: 190, 185
+  orig: 300, 300
+  offset: 56, 50
+  index: -1
+tubiao0010
+  rotate: false
+  xy: 348, 26
+  size: 183, 147
+  orig: 300, 300
+  offset: 60, 69
+  index: -1
+tubiao0011
+  rotate: false
+  xy: 171, 15
+  size: 175, 156
+  orig: 300, 300
+  offset: 65, 65
+  index: -1
+tubiao0012
+  rotate: false
+  xy: 587, 356
+  size: 137, 97
+  orig: 300, 300
+  offset: 83, 99
+  index: -1
+tubiao0013
+  rotate: true
+  xy: 587, 223
+  size: 131, 93
+  orig: 300, 300
+  offset: 86, 101
+  index: -1
+tubiao0014
+  rotate: true
+  xy: 682, 225
+  size: 129, 92
+  orig: 300, 300
+  offset: 87, 102
+  index: -1

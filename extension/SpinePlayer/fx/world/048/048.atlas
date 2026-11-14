@@ -1,0 +1,153 @@
+
+048.png
+size: 2021,1763
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+images1/baok01
+  rotate: false
+  xy: 1187, 2
+  size: 265, 241
+  orig: 265, 241
+  offset: 0, 0
+  index: -1
+images1/baok02
+  rotate: false
+  xy: 1454, 2
+  size: 265, 241
+  orig: 265, 241
+  offset: 0, 0
+  index: -1
+images1/baok03
+  rotate: false
+  xy: 776, 1349
+  size: 418, 412
+  orig: 418, 412
+  offset: 0, 0
+  index: -1
+images1/baok04
+  rotate: false
+  xy: 1196, 1349
+  size: 418, 412
+  orig: 418, 412
+  offset: 0, 0
+  index: -1
+images1/baok05
+  rotate: true
+  xy: 389, 799
+  size: 418, 412
+  orig: 418, 412
+  offset: 0, 0
+  index: -1
+images1/baok06
+  rotate: true
+  xy: 389, 379
+  size: 418, 412
+  orig: 418, 412
+  offset: 0, 0
+  index: -1
+images1/baok07
+  rotate: false
+  xy: 803, 935
+  size: 418, 412
+  orig: 418, 412
+  offset: 0, 0
+  index: -1
+images1/baok08
+  rotate: false
+  xy: 803, 521
+  size: 418, 412
+  orig: 418, 412
+  offset: 0, 0
+  index: -1
+images1/baok09
+  rotate: true
+  xy: 1223, 929
+  size: 418, 412
+  orig: 418, 412
+  offset: 0, 0
+  index: -1
+images1/baok10
+  rotate: true
+  xy: 1223, 509
+  size: 418, 412
+  orig: 418, 412
+  offset: 0, 0
+  index: -1
+images1/juji01
+  rotate: false
+  xy: 2, 1219
+  size: 385, 542
+  orig: 385, 542
+  offset: 0, 0
+  index: -1
+images1/juji02
+  rotate: false
+  xy: 2, 675
+  size: 385, 542
+  orig: 385, 542
+  offset: 0, 0
+  index: -1
+images1/juji03
+  rotate: false
+  xy: 389, 1219
+  size: 385, 542
+  orig: 385, 542
+  offset: 0, 0
+  index: -1
+images1/juji04
+  rotate: false
+  xy: 2, 131
+  size: 385, 542
+  orig: 385, 542
+  offset: 0, 0
+  index: -1
+images1/juji05
+  rotate: false
+  xy: 1616, 1395
+  size: 382, 366
+  orig: 382, 366
+  offset: 0, 0
+  index: -1
+images1/juji06
+  rotate: false
+  xy: 1637, 1027
+  size: 382, 366
+  orig: 382, 366
+  offset: 0, 0
+  index: -1
+images1/juji07
+  rotate: false
+  xy: 1637, 659
+  size: 382, 366
+  orig: 382, 366
+  offset: 0, 0
+  index: -1
+images1/juji08
+  rotate: false
+  xy: 1637, 291
+  size: 382, 366
+  orig: 382, 366
+  offset: 0, 0
+  index: -1
+images1/juji09
+  rotate: false
+  xy: 389, 11
+  size: 382, 366
+  orig: 382, 366
+  offset: 0, 0
+  index: -1
+images1/juji10
+  rotate: false
+  xy: 803, 153
+  size: 382, 366
+  orig: 382, 366
+  offset: 0, 0
+  index: -1
+images2/00000
+  rotate: false
+  xy: 1187, 245
+  size: 326, 262
+  orig: 326, 262
+  offset: 0, 0
+  index: -1

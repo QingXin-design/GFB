@@ -1,0 +1,174 @@
+
+049.png
+size: 2002,1898
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+images1/ci002
+  rotate: true
+  xy: 2, 982
+  size: 350, 363
+  orig: 350, 363
+  offset: 0, 0
+  index: -1
+images1/cixian
+  rotate: true
+  xy: 2, 1859
+  size: 37, 200
+  orig: 37, 200
+  offset: 0, 0
+  index: -1
+images1/gj00
+  rotate: false
+  xy: 367, 900
+  size: 498, 426
+  orig: 498, 426
+  offset: 0, 0
+  index: -1
+images1/gj01
+  rotate: false
+  xy: 867, 858
+  size: 498, 426
+  orig: 498, 426
+  offset: 0, 0
+  index: -1
+images1/gj02
+  rotate: false
+  xy: 1367, 858
+  size: 498, 426
+  orig: 498, 426
+  offset: 0, 0
+  index: -1
+images1/gj03
+  rotate: false
+  xy: 2, 472
+  size: 498, 426
+  orig: 498, 426
+  offset: 0, 0
+  index: -1
+images1/gj04
+  rotate: false
+  xy: 502, 430
+  size: 498, 426
+  orig: 498, 426
+  offset: 0, 0
+  index: -1
+images1/gj05
+  rotate: false
+  xy: 1002, 430
+  size: 498, 426
+  orig: 498, 426
+  offset: 0, 0
+  index: -1
+images1/gj06
+  rotate: false
+  xy: 1502, 430
+  size: 498, 426
+  orig: 498, 426
+  offset: 0, 0
+  index: -1
+images1/gj07
+  rotate: false
+  xy: 2, 44
+  size: 498, 426
+  orig: 498, 426
+  offset: 0, 0
+  index: -1
+images1/gj08
+  rotate: false
+  xy: 502, 2
+  size: 498, 426
+  orig: 498, 426
+  offset: 0, 0
+  index: -1
+images1/gj09
+  rotate: false
+  xy: 1002, 2
+  size: 498, 426
+  orig: 498, 426
+  offset: 0, 0
+  index: -1
+images1/gj10
+  rotate: false
+  xy: 1502, 2
+  size: 498, 426
+  orig: 498, 426
+  offset: 0, 0
+  index: -1
+images1/guangyun
+  rotate: false
+  xy: 436, 1640
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: -1
+images1/qilang01
+  rotate: false
+  xy: 1022, 1592
+  size: 334, 304
+  orig: 334, 304
+  offset: 0, 0
+  index: -1
+images1/qilang02
+  rotate: false
+  xy: 1358, 1592
+  size: 334, 304
+  orig: 334, 304
+  offset: 0, 0
+  index: -1
+images1/qilang03
+  rotate: true
+  xy: 1694, 1562
+  size: 334, 304
+  orig: 334, 304
+  offset: 0, 0
+  index: -1
+images1/qilang04
+  rotate: false
+  xy: 2, 1364
+  size: 334, 304
+  orig: 334, 304
+  offset: 0, 0
+  index: -1
+images1/qilang05
+  rotate: false
+  xy: 338, 1334
+  size: 334, 304
+  orig: 334, 304
+  offset: 0, 0
+  index: -1
+images1/qilang06
+  rotate: false
+  xy: 674, 1328
+  size: 334, 304
+  orig: 334, 304
+  offset: 0, 0
+  index: -1
+images1/qilang07
+  rotate: false
+  xy: 1010, 1286
+  size: 334, 304
+  orig: 334, 304
+  offset: 0, 0
+  index: -1
+images1/qilang08
+  rotate: false
+  xy: 1346, 1286
+  size: 334, 304
+  orig: 334, 304
+  offset: 0, 0
+  index: -1
+images1/quan
+  rotate: false
+  xy: 204, 1670
+  size: 230, 226
+  orig: 230, 226
+  offset: 0, 0
+  index: -1
+images2/00000
+  rotate: false
+  xy: 694, 1634
+  size: 326, 262
+  orig: 326, 262
+  offset: 0, 0
+  index: -1
