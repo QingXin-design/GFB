@@ -1,0 +1,62 @@
+
+046.png
+size: 256,500
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+hong_bk00
+  rotate: false
+  xy: 2, 2
+  size: 122, 118
+  orig: 140, 140
+  offset: 6, 8
+  index: -1
+hong_bk01
+  rotate: false
+  xy: 2, 122
+  size: 122, 119
+  orig: 140, 140
+  offset: 6, 9
+  index: -1
+hong_bk02
+  rotate: true
+  xy: 134, 373
+  size: 125, 120
+  orig: 140, 140
+  offset: 4, 9
+  index: -1
+hong_bk03
+  rotate: true
+  xy: 132, 121
+  size: 126, 122
+  orig: 140, 140
+  offset: 5, 7
+  index: -1
+hong_bk04
+  rotate: false
+  xy: 2, 372
+  size: 130, 126
+  orig: 140, 140
+  offset: 6, 4
+  index: -1
+hong_bk05
+  rotate: true
+  xy: 2, 243
+  size: 127, 128
+  orig: 140, 140
+  offset: 6, 5
+  index: -1
+hong_bk06
+  rotate: false
+  xy: 134, 249
+  size: 120, 122
+  orig: 140, 140
+  offset: 10, 6
+  index: -1
+hong_bk07
+  rotate: true
+  xy: 126, 12
+  size: 107, 114
+  orig: 140, 140
+  offset: 16, 15
+  index: -1

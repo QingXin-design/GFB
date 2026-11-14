@@ -1,0 +1,90 @@
+
+047.png
+size: 212,495
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+xz00
+  rotate: false
+  xy: 2, 354
+  size: 135, 139
+  orig: 175, 175
+  offset: 12, 20
+  index: -1
+xz01
+  rotate: false
+  xy: 2, 220
+  size: 124, 132
+  orig: 175, 175
+  offset: 17, 18
+  index: -1
+xz02
+  rotate: false
+  xy: 2, 101
+  size: 107, 117
+  orig: 175, 175
+  offset: 29, 18
+  index: -1
+xz03
+  rotate: true
+  xy: 2, 2
+  size: 97, 112
+  orig: 175, 175
+  offset: 43, 28
+  index: -1
+xz04
+  rotate: false
+  xy: 111, 121
+  size: 95, 97
+  orig: 175, 175
+  offset: 42, 45
+  index: -1
+xz05
+  rotate: true
+  xy: 128, 261
+  size: 91, 82
+  orig: 175, 175
+  offset: 37, 55
+  index: -1
+xz06
+  rotate: true
+  xy: 139, 418
+  size: 75, 70
+  orig: 175, 175
+  offset: 41, 57
+  index: -1
+xz07
+  rotate: false
+  xy: 139, 355
+  size: 70, 61
+  orig: 175, 175
+  offset: 51, 56
+  index: -1
+xz08
+  rotate: true
+  xy: 116, 59
+  size: 60, 54
+  orig: 175, 175
+  offset: 59, 60
+  index: -1
+xz09
+  rotate: true
+  xy: 116, 9
+  size: 48, 49
+  orig: 175, 175
+  offset: 68, 65
+  index: -1
+xz10
+  rotate: false
+  xy: 167, 13
+  size: 41, 44
+  orig: 175, 175
+  offset: 70, 68
+  index: -1
+xz11
+  rotate: false
+  xy: 167, 13
+  size: 41, 44
+  orig: 175, 175
+  offset: 70, 68
+  index: -1

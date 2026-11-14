@@ -1,0 +1,76 @@
+
+044.png
+size: 201,483
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+zi_bk00
+  rotate: true
+  xy: 100, 16
+  size: 83, 95
+  orig: 125, 125
+  offset: 24, 6
+  index: -1
+zi_bk01
+  rotate: true
+  xy: 2, 2
+  size: 79, 92
+  orig: 125, 125
+  offset: 24, 12
+  index: -1
+zi_bk02
+  rotate: true
+  xy: 2, 280
+  size: 98, 102
+  orig: 125, 125
+  offset: 12, 14
+  index: -1
+zi_bk03
+  rotate: false
+  xy: 2, 180
+  size: 98, 98
+  orig: 125, 125
+  offset: 12, 17
+  index: -1
+zi_bk04
+  rotate: false
+  xy: 102, 101
+  size: 96, 96
+  orig: 125, 125
+  offset: 13, 18
+  index: -1
+zi_bk05
+  rotate: false
+  xy: 107, 388
+  size: 92, 93
+  orig: 125, 125
+  offset: 15, 20
+  index: -1
+zi_bk06
+  rotate: true
+  xy: 106, 199
+  size: 89, 91
+  orig: 125, 125
+  offset: 17, 19
+  index: -1
+zi_bk07
+  rotate: false
+  xy: 2, 83
+  size: 96, 95
+  orig: 125, 125
+  offset: 15, 15
+  index: -1
+zi_bk08
+  rotate: true
+  xy: 2, 380
+  size: 101, 103
+  orig: 125, 125
+  offset: 12, 10
+  index: -1
+zi_bk09
+  rotate: false
+  xy: 107, 290
+  size: 87, 96
+  orig: 125, 125
+  offset: 16, 17
+  index: -1
