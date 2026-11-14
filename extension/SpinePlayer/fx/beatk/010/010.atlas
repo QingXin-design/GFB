@@ -1,0 +1,118 @@
+
+010.png
+size: 1658,146
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+fight_collision_1
+  rotate: false
+  xy: 1593, 27
+  size: 43, 44
+  orig: 178, 156
+  offset: 56, 77
+  index: -1
+fight_collision_2
+  rotate: false
+  xy: 1593, 27
+  size: 43, 44
+  orig: 178, 156
+  offset: 56, 77
+  index: -1
+fight_collision_10
+  rotate: true
+  xy: 1293, 25
+  size: 119, 104
+  orig: 178, 156
+  offset: 8, 38
+  index: -1
+fight_collision_11
+  rotate: true
+  xy: 1076, 21
+  size: 123, 112
+  orig: 178, 156
+  offset: 7, 30
+  index: -1
+fight_collision_12
+  rotate: true
+  xy: 952, 16
+  size: 128, 122
+  orig: 178, 156
+  offset: 7, 20
+  index: -1
+fight_collision_13
+  rotate: true
+  xy: 706, 14
+  size: 130, 128
+  orig: 178, 156
+  offset: 8, 15
+  index: -1
+fight_collision_14
+  rotate: false
+  xy: 454, 6
+  size: 123, 138
+  orig: 178, 156
+  offset: 19, 8
+  index: -1
+fight_collision_15
+  rotate: false
+  xy: 332, 2
+  size: 120, 142
+  orig: 178, 156
+  offset: 22, 4
+  index: -1
+fight_collision_16
+  rotate: false
+  xy: 836, 2
+  size: 114, 142
+  orig: 178, 156
+  offset: 30, 0
+  index: -1
+fight_collision_3
+  rotate: false
+  xy: 1593, 73
+  size: 63, 71
+  orig: 178, 156
+  offset: 46, 59
+  index: -1
+fight_collision_4
+  rotate: false
+  xy: 1498, 33
+  size: 93, 111
+  orig: 178, 156
+  offset: 29, 35
+  index: -1
+fight_collision_5
+  rotate: false
+  xy: 1190, 20
+  size: 101, 124
+  orig: 178, 156
+  offset: 25, 23
+  index: -1
+fight_collision_6
+  rotate: true
+  xy: 579, 9
+  size: 135, 125
+  orig: 178, 156
+  offset: 21, 23
+  index: -1
+fight_collision_7
+  rotate: false
+  xy: 2, 2
+  size: 162, 142
+  orig: 178, 156
+  offset: 14, 7
+  index: -1
+fight_collision_8
+  rotate: false
+  xy: 166, 6
+  size: 164, 138
+  orig: 178, 156
+  offset: 12, 9
+  index: -1
+fight_collision_9
+  rotate: true
+  xy: 1399, 27
+  size: 117, 97
+  orig: 178, 156
+  offset: 8, 45
+  index: -1

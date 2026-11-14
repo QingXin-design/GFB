@@ -1,0 +1,153 @@
+
+071.png
+size: 1985,493
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+fight_recovery_1
+  rotate: true
+  xy: 1216, 40
+  size: 147, 198
+  orig: 375, 285
+  offset: 146, 5
+  index: -1
+fight_recovery_10
+  rotate: true
+  xy: 273, 148
+  size: 343, 221
+  orig: 375, 285
+  offset: 3, 21
+  index: -1
+fight_recovery_11
+  rotate: true
+  xy: 1746, 273
+  size: 218, 237
+  orig: 375, 285
+  offset: 86, 18
+  index: -1
+fight_recovery_12
+  rotate: false
+  xy: 622, 3
+  size: 117, 159
+  orig: 375, 285
+  offset: 134, 39
+  index: -1
+fight_recovery_13
+  rotate: false
+  xy: 861, 2
+  size: 117, 161
+  orig: 375, 285
+  offset: 134, 43
+  index: -1
+fight_recovery_14
+  rotate: false
+  xy: 1097, 25
+  size: 117, 162
+  orig: 375, 285
+  offset: 134, 47
+  index: -1
+fight_recovery_15
+  rotate: true
+  xy: 459, 28
+  size: 118, 161
+  orig: 375, 285
+  offset: 134, 51
+  index: -1
+fight_recovery_16
+  rotate: true
+  xy: 296, 27
+  size: 119, 161
+  orig: 375, 285
+  offset: 133, 55
+  index: -1
+fight_recovery_17
+  rotate: true
+  xy: 131, 27
+  size: 119, 163
+  orig: 375, 285
+  offset: 133, 59
+  index: -1
+fight_recovery_18
+  rotate: false
+  xy: 741, 6
+  size: 118, 156
+  orig: 375, 285
+  offset: 134, 64
+  index: -1
+fight_recovery_19
+  rotate: false
+  xy: 980, 14
+  size: 115, 149
+  orig: 375, 285
+  offset: 136, 78
+  index: -1
+fight_recovery_2
+  rotate: false
+  xy: 1529, 9
+  size: 215, 226
+  orig: 375, 285
+  offset: 106, 1
+  index: -1
+fight_recovery_20
+  rotate: false
+  xy: 1416, 69
+  size: 111, 146
+  orig: 375, 285
+  offset: 138, 83
+  index: -1
+fight_recovery_3
+  rotate: false
+  xy: 1746, 37
+  size: 234, 234
+  orig: 375, 285
+  offset: 97, 3
+  index: -1
+fight_recovery_4
+  rotate: true
+  xy: 1489, 237
+  size: 254, 241
+  orig: 375, 285
+  offset: 87, 6
+  index: -1
+fight_recovery_5
+  rotate: true
+  xy: 1240, 217
+  size: 274, 247
+  orig: 375, 285
+  offset: 77, 10
+  index: -1
+fight_recovery_6
+  rotate: true
+  xy: 982, 189
+  size: 302, 256
+  orig: 375, 285
+  offset: 59, 10
+  index: -1
+fight_recovery_7
+  rotate: true
+  xy: 496, 164
+  size: 327, 267
+  orig: 375, 285
+  offset: 42, 8
+  index: -1
+fight_recovery_8
+  rotate: true
+  xy: 2, 148
+  size: 343, 269
+  orig: 375, 285
+  offset: 27, 7
+  index: -1
+fight_recovery_9
+  rotate: true
+  xy: 765, 165
+  size: 326, 215
+  orig: 375, 285
+  offset: 13, 25
+  index: -1
+glow
+  rotate: false
+  xy: 2, 10
+  size: 127, 136
+  orig: 150, 150
+  offset: 10, 4
+  index: -1

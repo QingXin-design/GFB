@@ -1,0 +1,181 @@
+
+058.png
+size: 923,1066
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+fight_buff_00
+  rotate: true
+  xy: 2, 144
+  size: 168, 195
+  orig: 215, 259
+  offset: 22, 9
+  index: -1
+fight_buff_01
+  rotate: true
+  xy: 2, 314
+  size: 165, 200
+  orig: 215, 259
+  offset: 25, 10
+  index: -1
+fight_buff_02
+  rotate: true
+  xy: 2, 3
+  size: 139, 195
+  orig: 215, 259
+  offset: 30, 11
+  index: -1
+fight_buff_03
+  rotate: true
+  xy: 199, 2
+  size: 154, 200
+  orig: 215, 259
+  offset: 31, 13
+  index: -1
+fight_buff_04
+  rotate: true
+  xy: 199, 158
+  size: 152, 207
+  orig: 215, 259
+  offset: 33, 11
+  index: -1
+fight_buff_05
+  rotate: true
+  xy: 245, 312
+  size: 168, 210
+  orig: 215, 259
+  offset: 27, 9
+  index: -1
+fight_buff_06
+  rotate: false
+  xy: 747, 620
+  size: 174, 218
+  orig: 215, 259
+  offset: 21, 7
+  index: -1
+fight_buff_07
+  rotate: true
+  xy: 487, 300
+  size: 183, 230
+  orig: 215, 259
+  offset: 16, 6
+  index: -1
+fight_buff_08
+  rotate: true
+  xy: 2, 674
+  size: 191, 241
+  orig: 215, 259
+  offset: 12, 5
+  index: -1
+fight_buff_09
+  rotate: true
+  xy: 2, 867
+  size: 197, 248
+  orig: 215, 259
+  offset: 10, 4
+  index: -1
+fight_buff_10
+  rotate: true
+  xy: 252, 868
+  size: 196, 247
+  orig: 215, 259
+  offset: 10, 5
+  index: -1
+fight_buff_11
+  rotate: true
+  xy: 501, 869
+  size: 195, 245
+  orig: 215, 259
+  offset: 10, 5
+  index: -1
+fight_buff_12
+  rotate: true
+  xy: 501, 673
+  size: 194, 244
+  orig: 215, 259
+  offset: 11, 6
+  index: -1
+fight_buff_13
+  rotate: true
+  xy: 252, 674
+  size: 192, 244
+  orig: 215, 259
+  offset: 12, 6
+  index: -1
+fight_buff_14
+  rotate: true
+  xy: 2, 481
+  size: 191, 241
+  orig: 215, 259
+  offset: 13, 7
+  index: -1
+fight_buff_15
+  rotate: true
+  xy: 245, 482
+  size: 190, 240
+  orig: 215, 259
+  offset: 13, 7
+  index: -1
+fight_buff_16
+  rotate: true
+  xy: 487, 485
+  size: 186, 237
+  orig: 215, 259
+  offset: 15, 9
+  index: -1
+fight_buff_17
+  rotate: false
+  xy: 726, 385
+  size: 183, 233
+  orig: 215, 259
+  offset: 16, 10
+  index: -1
+fight_buff_18
+  rotate: false
+  xy: 719, 152
+  size: 178, 231
+  orig: 215, 259
+  offset: 19, 12
+  index: -1
+fight_buff_19
+  rotate: false
+  xy: 748, 840
+  size: 170, 224
+  orig: 215, 259
+  offset: 22, 13
+  index: -1
+fight_buff_20
+  rotate: true
+  xy: 401, 8
+  size: 148, 208
+  orig: 215, 259
+  offset: 33, 16
+  index: -1
+fight_buff_21
+  rotate: false
+  xy: 611, 119
+  size: 106, 179
+  orig: 215, 259
+  offset: 57, 23
+  index: -1
+fight_buff_22
+  rotate: true
+  xy: 408, 190
+  size: 108, 177
+  orig: 215, 259
+  offset: 55, 30
+  index: -1
+fight_buff_23
+  rotate: true
+  xy: 719, 39
+  size: 111, 172
+  orig: 215, 259
+  offset: 52, 34
+  index: -1
+fight_buff_24
+  rotate: true
+  xy: 611, 4
+  size: 113, 84
+  orig: 215, 259
+  offset: 51, 75
+  index: -1
