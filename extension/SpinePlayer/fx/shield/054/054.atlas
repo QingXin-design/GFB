@@ -1,0 +1,272 @@
+
+054.png
+size: 956,1053
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+hudun_00000
+  rotate: false
+  xy: 783, 702
+  size: 165, 176
+  orig: 275, 226
+  offset: 56, 8
+  index: -1
+hudun_00001
+  rotate: true
+  xy: 240, 172
+  size: 173, 194
+  orig: 275, 226
+  offset: 60, 8
+  index: -1
+hudun_00002
+  rotate: false
+  xy: 717, 277
+  size: 201, 198
+  orig: 275, 226
+  offset: 42, 10
+  index: -1
+hudun_00003
+  rotate: false
+  xy: 495, 308
+  size: 220, 198
+  orig: 275, 226
+  offset: 32, 14
+  index: -1
+hudun_00004
+  rotate: false
+  xy: 2, 170
+  size: 236, 197
+  orig: 275, 226
+  offset: 24, 17
+  index: -1
+hudun_00005
+  rotate: false
+  xy: 517, 508
+  size: 247, 194
+  orig: 275, 226
+  offset: 17, 22
+  index: -1
+hudun_00006
+  rotate: false
+  xy: 261, 536
+  size: 254, 187
+  orig: 275, 226
+  offset: 13, 28
+  index: -1
+hudun_00007
+  rotate: false
+  xy: 2, 557
+  size: 257, 178
+  orig: 275, 226
+  offset: 10, 34
+  index: -1
+hudun_00008
+  rotate: false
+  xy: 531, 884
+  size: 260, 167
+  orig: 275, 226
+  offset: 9, 41
+  index: -1
+hudun_00009
+  rotate: false
+  xy: 267, 897
+  size: 262, 154
+  orig: 275, 226
+  offset: 8, 49
+  index: -1
+hudun_00010
+  rotate: false
+  xy: 2, 900
+  size: 263, 151
+  orig: 275, 226
+  offset: 6, 50
+  index: -1
+hudun_00011
+  rotate: false
+  xy: 2, 737
+  size: 261, 161
+  orig: 275, 226
+  offset: 6, 44
+  index: -1
+hudun_00012
+  rotate: false
+  xy: 265, 725
+  size: 259, 170
+  orig: 275, 226
+  offset: 8, 37
+  index: -1
+hudun_00013
+  rotate: false
+  xy: 526, 704
+  size: 255, 178
+  orig: 275, 226
+  offset: 10, 31
+  index: -1
+hudun_00014
+  rotate: false
+  xy: 2, 369
+  size: 250, 186
+  orig: 275, 226
+  offset: 10, 24
+  index: -1
+hudun_00015
+  rotate: false
+  xy: 254, 347
+  size: 239, 187
+  orig: 275, 226
+  offset: 13, 20
+  index: -1
+hudun_00016
+  rotate: true
+  xy: 766, 477
+  size: 223, 188
+  orig: 275, 226
+  offset: 18, 15
+  index: -1
+hudun_00017
+  rotate: false
+  xy: 494, 125
+  size: 195, 181
+  orig: 275, 226
+  offset: 24, 12
+  index: -1
+hudun_00018
+  rotate: false
+  xy: 793, 880
+  size: 160, 171
+  orig: 275, 226
+  offset: 33, 9
+  index: -1
+hudun_00019
+  rotate: true
+  xy: 2, 5
+  size: 163, 176
+  orig: 275, 226
+  offset: 44, 8
+  index: -1
+hudundan_00000
+  rotate: true
+  xy: 403, 60
+  size: 110, 88
+  orig: 274, 210
+  offset: 81, 26
+  index: -1
+hudundan_00002
+  rotate: false
+  xy: 849, 86
+  size: 98, 92
+  orig: 274, 210
+  offset: 114, 29
+  index: -1
+hudundan_00004
+  rotate: false
+  xy: 761, 174
+  size: 86, 101
+  orig: 274, 210
+  offset: 147, 34
+  index: -1
+hudundan_00006
+  rotate: false
+  xy: 580, 13
+  size: 78, 110
+  orig: 274, 210
+  offset: 171, 41
+  index: -1
+hudundan_00008
+  rotate: false
+  xy: 180, 47
+  size: 69, 121
+  orig: 274, 210
+  offset: 183, 49
+  index: -1
+hudundan_00010
+  rotate: false
+  xy: 660, 16
+  size: 68, 107
+  orig: 274, 210
+  offset: 184, 63
+  index: -1
+hudundan_00012
+  rotate: false
+  xy: 436, 253
+  size: 56, 92
+  orig: 274, 210
+  offset: 189, 82
+  index: -1
+hudundan_00014
+  rotate: true
+  xy: 308, 2
+  size: 49, 77
+  orig: 274, 210
+  offset: 182, 102
+  index: -1
+hudundan_00016
+  rotate: true
+  xy: 246, 21
+  size: 24, 60
+  orig: 274, 210
+  offset: 184, 117
+  index: -1
+hudundan_00022
+  rotate: true
+  xy: 180, 13
+  size: 32, 64
+  orig: 274, 210
+  offset: 76, 117
+  index: -1
+hudundan_00024
+  rotate: false
+  xy: 436, 175
+  size: 54, 76
+  orig: 274, 210
+  offset: 54, 106
+  index: -1
+hudundan_00026
+  rotate: true
+  xy: 825, 19
+  size: 65, 88
+  orig: 274, 210
+  offset: 35, 93
+  index: -1
+hudundan_00028
+  rotate: false
+  xy: 691, 169
+  size: 68, 106
+  orig: 274, 210
+  offset: 28, 74
+  index: -1
+hudundan_00030
+  rotate: false
+  xy: 251, 53
+  size: 77, 117
+  orig: 274, 210
+  offset: 17, 58
+  index: -1
+hudundan_00032
+  rotate: false
+  xy: 330, 53
+  size: 71, 117
+  orig: 274, 210
+  offset: 25, 44
+  index: -1
+hudundan_00034
+  rotate: false
+  xy: 493, 9
+  size: 85, 114
+  orig: 274, 210
+  offset: 26, 36
+  index: -1
+hudundan_00036
+  rotate: false
+  xy: 730, 63
+  size: 93, 104
+  orig: 274, 210
+  offset: 39, 31
+  index: -1
+hudundan_00038
+  rotate: false
+  xy: 849, 180
+  size: 99, 95
+  orig: 274, 210
+  offset: 61, 27
+  index: -1

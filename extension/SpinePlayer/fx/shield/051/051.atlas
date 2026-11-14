@@ -1,0 +1,76 @@
+
+051.png
+size: 346,615
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+jian_00
+  rotate: false
+  xy: 204, 2
+  size: 105, 151
+  orig: 124, 294
+  offset: 19, 0
+  index: -1
+jian_01
+  rotate: true
+  xy: 2, 2
+  size: 107, 200
+  orig: 124, 294
+  offset: 13, 9
+  index: -1
+jian_02
+  rotate: false
+  xy: 2, 368
+  size: 105, 245
+  orig: 124, 294
+  offset: 9, 3
+  index: -1
+jian_03
+  rotate: false
+  xy: 109, 376
+  size: 103, 237
+  orig: 124, 294
+  offset: 8, 18
+  index: -1
+jian_04
+  rotate: false
+  xy: 94, 144
+  size: 104, 222
+  orig: 124, 294
+  offset: 10, 24
+  index: -1
+jian_05
+  rotate: false
+  xy: 200, 155
+  size: 108, 219
+  orig: 124, 294
+  offset: 7, 27
+  index: -1
+jian_06
+  rotate: false
+  xy: 214, 390
+  size: 106, 223
+  orig: 124, 294
+  offset: 5, 29
+  index: -1
+jian_07
+  rotate: false
+  xy: 2, 111
+  size: 90, 255
+  orig: 124, 294
+  offset: 10, 32
+  index: -1
+jian_08
+  rotate: false
+  xy: 310, 237
+  size: 34, 151
+  orig: 124, 294
+  offset: 64, 38
+  index: -1
+jian_09
+  rotate: false
+  xy: 311, 97
+  size: 32, 138
+  orig: 124, 294
+  offset: 65, 49
+  index: -1

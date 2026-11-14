@@ -1,0 +1,55 @@
+
+017.png
+size: 369,520
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+00000
+  rotate: true
+  xy: 282, 116
+  size: 22, 51
+  orig: 182, 384
+  offset: 85, 165
+  index: -1
+00001
+  rotate: false
+  xy: 133, 95
+  size: 147, 268
+  orig: 182, 384
+  offset: 22, 59
+  index: -1
+00002
+  rotate: true
+  xy: 2, 365
+  size: 153, 295
+  orig: 182, 384
+  offset: 19, 45
+  index: -1
+00003
+  rotate: false
+  xy: 2, 46
+  size: 129, 317
+  orig: 182, 384
+  offset: 31, 34
+  index: -1
+00004
+  rotate: false
+  xy: 282, 140
+  size: 85, 209
+  orig: 182, 384
+  offset: 44, 110
+  index: -1
+00005
+  rotate: false
+  xy: 299, 351
+  size: 66, 167
+  orig: 182, 384
+  offset: 63, 107
+  index: -1
+jian
+  rotate: true
+  xy: 133, 2
+  size: 91, 218
+  orig: 114, 270
+  offset: 12, 28
+  index: -1

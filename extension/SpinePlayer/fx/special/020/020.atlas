@@ -1,0 +1,118 @@
+
+020.png
+size: 1860,489
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+glow_00
+  rotate: false
+  xy: 2, 31
+  size: 130, 130
+  orig: 230, 230
+  offset: 49, 49
+  index: -1
+glow_01
+  rotate: false
+  xy: 134, 31
+  size: 130, 130
+  orig: 230, 230
+  offset: 49, 49
+  index: -1
+glow_02
+  rotate: false
+  xy: 1664, 43
+  size: 194, 218
+  orig: 230, 230
+  offset: 16, 6
+  index: -1
+xunhuan_00
+  rotate: false
+  xy: 1009, 10
+  size: 214, 226
+  orig: 512, 512
+  offset: 154, 162
+  index: -1
+xunhuan_01
+  rotate: true
+  xy: 1561, 263
+  size: 224, 238
+  orig: 512, 512
+  offset: 152, 153
+  index: -1
+xunhuan_02
+  rotate: true
+  xy: 531, 2
+  size: 234, 239
+  orig: 512, 512
+  offset: 149, 150
+  index: -1
+xunhuan_03
+  rotate: false
+  xy: 1077, 248
+  size: 249, 239
+  orig: 512, 512
+  offset: 142, 144
+  index: -1
+xunhuan_04
+  rotate: false
+  xy: 558, 256
+  size: 264, 231
+  orig: 512, 512
+  offset: 133, 140
+  index: -1
+xunhuan_05
+  rotate: false
+  xy: 284, 244
+  size: 272, 243
+  orig: 512, 512
+  offset: 131, 137
+  index: -1
+xunhuan_06
+  rotate: false
+  xy: 1446, 33
+  size: 216, 219
+  orig: 512, 512
+  offset: 154, 148
+  index: -1
+xunhuan_07
+  rotate: false
+  xy: 1225, 15
+  size: 219, 231
+  orig: 512, 512
+  offset: 151, 140
+  index: -1
+xunhuan_08
+  rotate: true
+  xy: 772, 12
+  size: 224, 235
+  orig: 512, 512
+  offset: 146, 135
+  index: -1
+xunhuan_09
+  rotate: false
+  xy: 1328, 254
+  size: 231, 233
+  orig: 512, 512
+  offset: 141, 136
+  index: -1
+xunhuan_10
+  rotate: true
+  xy: 284, 2
+  size: 240, 245
+  orig: 512, 512
+  offset: 136, 131
+  index: -1
+xunhuan_11
+  rotate: true
+  xy: 824, 238
+  size: 249, 251
+  orig: 512, 512
+  offset: 131, 127
+  index: -1
+zhong
+  rotate: false
+  xy: 2, 163
+  size: 280, 324
+  orig: 287, 331
+  offset: 4, 2
+  index: -1
