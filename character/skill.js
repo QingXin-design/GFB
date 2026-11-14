@@ -613,8 +613,11 @@ let block = {
 					const info = get.info({ name: store.name }) || {};
 					const result = await player
 						.chooseTarget("分剪：请重新为该牌指定目标", function (card, player, target) {
-							return player.canUse({ name: store.name }, target, false);
+							const name = (this && this.zncs_fenjian_name) || (_status.event && _status.event.zncs_fenjian_name);
+							if (!name) return false;
+							return player.canUse({ name: name }, target, false);
 						})
+						.set("zncs_fenjian_name", store.name)
 						.set("selectTarget", info.selectTarget === undefined ? 1 : info.selectTarget)
 						.forResult();
 					if (!result.bool || !result.targets.length) return;
@@ -676,11 +679,20 @@ let block = {
 			}
 			return list;
 		},
-		suits(player) {
+		suitsOf(cards) {
 			const suits = [];
-			for (const card of lib.skill.zncs_canhong.centralCards(player)) {
+			for (const card of cards || []) {
 				const suit = get.suit(card);
 				if (suit && suit != "none" && !suits.includes(suit)) suits.push(suit);
+			}
+			return suits;
+		},
+		suits(player) {
+			const suits = lib.skill.zncs_canhong.suitsOf(lib.skill.zncs_canhong.centralCards(player));
+			if (!suits.length) {
+				// 联机客机拿不到 host 的 storage，用 refreshMark 广播过来的花色列表
+				const synced = player.storage.zncs_canhong_suits;
+				if (Array.isArray(synced) && synced.length) return synced.slice();
 			}
 			return suits;
 		},
@@ -700,7 +712,20 @@ let block = {
 		refreshMark(player) {
 			try {
 				const cards = lib.skill.zncs_canhong.centralCards(player);
+				const suits = lib.skill.zncs_canhong.suitsOf(cards);
 				player.storage.zncs_canhong_mark = cards;
+				player.storage.zncs_canhong_suits = suits;
+				// 客机的 filterCard 也要判花色，这里把花色列表同步过去（函数里不能引用外层变量）
+				game.broadcastAll(
+					function (id, list) {
+						const target = game.players.find(function (p) {
+							return p.playerid === id;
+						});
+						if (target) target.storage.zncs_canhong_suits = list;
+					},
+					player.playerid,
+					suits
+				);
 				if (cards.length) {
 					if (!player.hasSkill("zncs_canhong_mark")) player.addTempSkill("zncs_canhong_mark", "phaseOver");
 					else player.markSkill("zncs_canhong_mark");
@@ -719,6 +744,16 @@ let block = {
 				onremove: function (player) {
 					player.storage.zncs_canhong_mark = [];
 					player.storage.zncs_jhxl_central = [];
+					player.storage.zncs_canhong_suits = [];
+					game.broadcastAll(
+						function (id) {
+							const target = game.players.find(function (p) {
+								return p.playerid === id;
+							});
+							if (target) target.storage.zncs_canhong_suits = [];
+						},
+						player.playerid
+					);
 				},
 				intro: {
 					markcount(storage) {
@@ -829,11 +864,16 @@ let block = {
 					lib.skill.zncs_canhong.refreshMark(player);
 					const drawn = get.cards(num);
 					if (!drawn.length) return;
-					await player.gain(drawn, "draw");
-					if (!drawn.some(function (card) { return player.hasUseTarget(card); })) return;
-					await player.chooseToUse("残红：是否使用其中一张牌？", function (card, player) {
-						return drawn.includes(card) && player.hasUseTarget(card);
-					});
+					await player.gain(drawn, "draw").gaintag.add("zncs_canhong");
+					try {
+						if (drawn.some(function (card) { return player.hasUseTarget(card); })) {
+							await player.chooseToUse("残红：是否使用其中一张牌？", function (card, player) {
+								return card.hasGaintag("zncs_canhong") && player.hasUseTarget(card);
+							});
+						}
+					} finally {
+						await player.removeGaintag("zncs_canhong");
+					}
 				},
 				sub: true,
 			},
