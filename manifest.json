@@ -1,5 +1,5 @@
 {
-  "version": "1.6.5",
+  "version": "1.6.6",
   "files": {
     "LICENSE": "8624bcdae55baeef00cd11d5dfcfa60f68710a02",
     "README.md": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
@@ -373,7 +373,7 @@
     "card/image/wzzs_ys.jpg": "e508b13b389162ca76cae104ac74a3b0749f4b5e",
     "card/image/wzzs_zzyzmdj.jpg": "86eb35485f9f984dfd1b1a34964d170f302b6b70",
     "card/image/wzzs_zzyztk.jpg": "562d3c9d6022894e774be874f2e6718c5972b9b5",
-    "character/characterData.js": "89c21290cb74c63e35723425a9db7027bfafdb97",
+    "character/characterData.js": "e39498ce74760ade93c3e6eaf61a51c8d1ba54a7",
     "character/characterImage.js": "0bc9729138b4851314157068d0a414a6b7917a62",
     "character/characterIntro.js": "201f87b02524d99d7da6ab68864366acc400d954",
     "character/characterRank.js": "2e746ead1a0add4c6fe4cf53418565432da873df",
@@ -384,8 +384,8 @@
     "character/dynamicTranslate.js": "29b2643cb8cbcefe50210f7e526a65e282936e72",
     "character/index.js": "833a52de3768ef409eb3b2fd664e1089524f1ae1",
     "character/perfectPair.js": "0af0f4886d2a070e4eb1d11a09b649a442984a0b",
-    "character/skill.js": "3752a0e51a8f3afe4b55e11b5d54724db281fb6d",
-    "character/translate.js": "ac91f4294e72ba7929833f82d1983a4ec0b2f493",
+    "character/skill.js": "2a194f37c8385001735828162ad88c672570b224",
+    "character/translate.js": "11afad932e279eb83c540b04a23c5a7223c84040",
     "extension.js": "5993e95c832b05a7866a720b503e81ee861e5dc0",
     "extension/Bgm/bgm.js": "fe6f3acb68f8c57e46831a3d88d06165600361f1",
     "extension/CreateCharacterSkill/createCharacterSkill.css": "5a119ddcafa1ff4e0d195499867362680328777a",
@@ -1010,6 +1010,7 @@
     "image/character/stand/zgtz_toka.jpg": "f1f739ee212dbb2464c9e2113500331ea28f023c",
     "image/character/stand/zncs_chxl.jpg": "1d4ac8d9d3b4a7708c3827b8ad93873db67314cf",
     "image/character/stand/zncs_jhxl.jpg": "f34305ba1741f6138d2082e8ccda6e02781b7e7c",
+    "image/character/stand/zncs_xingluo.jpg": "991cab42a4e6bf02dac7b129e21d4cbecb8a893a",
     "image/character/stand/zncs_xsxl.jpg": "bd7cec6ca94642eb647be68ed01457c120bd27eb",
     "image/character/stand/zncs_yyxl.jpg": "92b59cf76c6baa173e97ec61646fabf383e284e9",
     "image/character/stand/测试.jpg": "993918f897eb9604b28db0c201021a96df2f180e",
@@ -1047,12 +1048,12 @@
     "info.json": "7b5833d0d60d998d35df1deae3004a5c489e4085",
     "main/basic.js": "a165a3096ff6e71eb3e9223eb628c0af901d8509",
     "main/config.js": "b2d4db4e5d4e8a95263c54bef819c3a71f23f776",
-    "main/content.js": "6427c5406536a0472f76cc2491abf7df5c94a2a3",
+    "main/content.js": "13465a99bf20f91eb20db0d822e60adb07579363",
     "main/gflib.js": "cdb6d73d68ed55ba76f9b97c8cdfa34814e64e8f",
     "main/help.js": "c57a4c38eac912b3619e79ab9b115b706386a08f",
     "main/main.js": "4279a5cafc8a0ce031267d3a54fe6bfc9fda191c",
     "main/precontent.js": "e718a830e797a2c6c52da44e2aab6ac74c452802",
-    "main/shipei.js": "b69d8563307363a98329ae1a3c9237e3f9956732",
+    "main/shipei.js": "56bda8159c11286f227f114792d18bce2340e39c",
     "main/update.js": "08c3bed90bd5d75972441f5698917ea0aff51848"
   }
 }
