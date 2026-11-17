@@ -741,17 +741,12 @@ export function initShipei(lib, game, ui, get, ai, _status, datasrc) {
     lib.element.player.gflib_initFrozen = function() {
         var player = this;
         if (player.node.gflib_frozenContainer) return player.node.gflib_frozenContainer;
-        const frozenContainer = ui.create.div('.gflib_frozen', player);
+        const frozenContainer = ui.create.div('.gflib_frozen');
         Object.assign(frozenContainer.style, {
-            display: 'block',
+            display: 'none',
             position: 'absolute',
-            left: '0',
-            top: 'auto',
-            bottom: '5px',
-            width: '100%',
             zIndex: '90',
-            pointerEvents: 'none',
-            textAlign: 'center'
+            pointerEvents: 'none'
         });
         player.node.gflib_frozenContainer = frozenContainer;
         player.node.gflib_frozen = frozenContainer;
@@ -776,80 +771,123 @@ export function initShipei(lib, game, ui, get, ai, _status, datasrc) {
                 player.node.gflib_frozen.type = customConfig.type || 'gflib_frozen';
             }
         }
+        if (!player.updates) player.updates = [];
+        let hasUpdater = false;
+        for (const fn of player.updates) {
+            if (fn && fn._gflibFrozen) {
+                hasUpdater = true;
+                break;
+            }
+        }
+        if (!hasUpdater) {
+            const updater = function (p) {
+                if (p.gflib_updateFrozenUI) p.gflib_updateFrozenUI();
+            };
+            updater._gflibFrozen = true;
+            player.updates.push(updater);
+        }
         player.gflib_updateFrozenUI();
         return frozenContainer;
     };
 
     lib.element.player.gflib_updateFrozenUI = function() {
         const player = this;
-        const container = player.node.gflib_frozenContainer;
-        if (!container) return;
-        const current = player.gflib_frozen || 0;
-        if (current === 0) {
-            container.style.display = 'none';
-            return;
+        const hpEl = player.node && player.node.hp;
+        if (!hpEl) return;
+        const olds = hpEl.querySelectorAll('.gflib_frozen_overlay');
+        for (let i = 0; i < olds.length; i++) olds[i].remove();
+        let container = player.node.gflib_frozenContainer;
+        if (!container) {
+            container = ui.create.div('.gflib_frozen');
+            player.node.gflib_frozenContainer = container;
+            player.node.gflib_frozen = container;
+            player.node.gflib_frozen.type = 'gflib_frozen';
         }
-        const max = player.gflib_getMaxFrozen();
-        const renderCurrent = Math.min(Math.max(current, 0), max);
-        const isLargeHp = player.maxHp > 5;
-        Object.assign(container.style, isLargeHp ? {
-            display: 'inline-block',
-            position: 'absolute',
-            left: 'calc(50% + 25px)',
-            bottom: '18px',
-            width: '12px',
-            height: '12px',
-            zIndex: 90,
-            pointerEvents: 'none'
-        } : {
-            display: 'flex', flexDirection: 'column', alignItems: 'center',
-            position: 'absolute', left: 'calc(50% + 36px)', bottom: '18px',
-            width: '12px', height: 'auto', zIndex: 90, pointerEvents: 'none',
-            gap: '6px', padding: 0, flexWrap: 'nowrap'
-        });
         container.innerHTML = '';
-        if (isLargeHp) {
+        container.style.display = 'none';
+        const current = Math.max(0, Math.floor(player.gflib_frozen || 0));
+        const renderCurrent = Math.min(current, Math.max(0, Math.floor(player.gflib_getMaxFrozen())));
+        if (!renderCurrent) return;
+        const isLargeHp = player.maxHp > 5 || player.maxHp % 1 !== 0;
+        const createIcon = (src) => {
             const img = document.createElement('img');
             img.className = 'gflib_frozen_img';
-            img.src = `${lib.assetURL}extension/鸽府包/image/hp/frozenGlass2.png`;
+            img.src = src;
             Object.assign(img.style, {
-                width: '12px', height: '12px', objectFit: 'contain',
-                transition: '0.3s linear', opacity: 1, transform: 'scale(1.3)',
-                right: '-11px',
-                position: 'relative', zIndex: 99998
+                width: '10px', height: '10px', objectFit: 'contain',
+                pointerEvents: 'none'
+            });
+            return img;
+        };
+        if (isLargeHp) {
+            if (getComputedStyle(hpEl).position == 'static') hpEl.style.position = 'relative';
+            if (container.parentNode !== hpEl) hpEl.appendChild(container);
+            let dw = 8;
+            let dh = 8;
+            let dl = 0;
+            let dt = 0;
+            let slot = null;
+            for (let i = hpEl.children.length - 1; i >= 0; i--) {
+                if (hpEl.children[i] !== container) {
+                    slot = hpEl.children[i];
+                    break;
+                }
+            }
+            if (slot) {
+                const hr = hpEl.getBoundingClientRect();
+                const sr = slot.getBoundingClientRect();
+                dw = sr.width || slot.offsetWidth || 8;
+                dh = sr.height || slot.offsetHeight || 8;
+                dl = sr.left - hr.left;
+                dt = sr.top - hr.top;
+            }
+            dw = Math.max(6, dw - 2);
+            dh = Math.max(6, dh - 2);
+            dt = Math.max(0, dt - 8);
+            Object.assign(container.style, {
+                display: 'block', position: 'absolute',
+                left: dl + 'px', top: dt + 'px', bottom: 'auto', right: 'auto', transform: 'none',
+                width: dw + 'px', height: dh + 'px', zIndex: 90,
+                pointerEvents: 'none', whiteSpace: 'nowrap', lineHeight: '0',
+                background: 'none', backgroundColor: 'transparent', backgroundImage: 'none',
+                boxShadow: 'none', borderRadius: '0', border: 'none', filter: 'none'
+            });
+            const img = createIcon(`${lib.assetURL}extension/鸽府包/image/hp/frozenGlass2.png`);
+            Object.assign(img.style, {
+                display: 'block', position: 'absolute', left: '0', top: '0',
+                width: '100%', height: '100%', margin: '0', objectFit: 'fill'
             });
             const numText = document.createElement('div');
             numText.innerText = renderCurrent;
+            const fontSize = Math.max(9, Math.round(dh * 0.9));
             Object.assign(numText.style, {
-                color: '#00ffff', fontSize: '14px', fontWeight: 900,
-                textShadow: '0 0 2px #000, 0 0 4px #000, 1px 1px 2px #000',
-                lineHeight: '12px',
-                position: 'absolute',
-                right: '6px',
-                top: '1px',
-                textAlign: 'right',
-                whiteSpace: 'nowrap',
-                zIndex: 99999,
-                pointerEvents: 'none'
+                position: 'absolute', left: '100%', top: '50%',
+                display: 'block', whiteSpace: 'nowrap',
+                transform: 'translateY(-50%)', marginLeft: '1px',
+                color: '#00ffff', fontSize: fontSize + 'px', fontWeight: 900,
+                lineHeight: fontSize + 'px',
+                textShadow: '0 0 2px #000, 0 0 3px #000, 1px 1px 1px #000'
             });
             container.append(img, numText);
-        } else {
-            const num2 = Math.floor(renderCurrent / 2);
-            const num1 = renderCurrent % 2;
-            const createIcon = (src) => {
-                const img = document.createElement('img');
-                img.className = 'gflib_frozen_img';
-                img.src = src;
-                Object.assign(img.style, {
-                    width: '10px', height: '10px', objectFit: 'contain',
-                    transition: '0.3s linear', opacity: 1, transform: 'scale(1.3)'
-                });
-                return img;
-            };
-            if (num1) container.appendChild(createIcon(`${lib.assetURL}extension/鸽府包/image/hp/frozenGlass1.png`));
-            for (let i = 0; i < num2; i++) {
-                container.appendChild(createIcon(`${lib.assetURL}extension/鸽府包/image/hp/frozenGlass2.png`));
-            }
+            return;
+        }
+        const dots = [];
+        for (let i = 0; i < hpEl.childNodes.length; i++) {
+            const node = hpEl.childNodes[i];
+            if (node && node.nodeName == 'DIV') dots.push(node);
+        }
+        let remain = renderCurrent;
+        for (let i = dots.length - 1; i >= 0 && remain > 0; i--) {
+            const dot = dots[i];
+            const amount = Math.min(2, remain);
+            remain -= amount;
+            if (getComputedStyle(dot).position == 'static') dot.style.position = 'relative';
+            const img = createIcon(`${lib.assetURL}extension/鸽府包/image/hp/${amount >= 2 ? 'frozenGlass2' : 'frozenGlass1'}.png`);
+            Object.assign(img.style, {
+                position: 'absolute', left: '0', top: '0', width: '100%', height: '100%',
+                objectFit: 'contain', zIndex: 10, pointerEvents: 'none'
+            });
+            dot.appendChild(img);
         }
     };
 

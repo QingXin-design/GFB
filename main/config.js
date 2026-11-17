@@ -107,8 +107,9 @@ const gfbQmxgnOption = {
 	},
 	gfb_zxgx: {
 		name: `自动检测更新`,
-		intro: `启动游戏时自动检查更新（需联网）`,
-		init: false,
+		intro: `启动游戏时自动检查更新（需非联机模式下）`,
+		init: true,
+		defaultOn: true,
 		onclick: function (bool) {
 			if(bool != lib.config.extension_鸽府包_gfb_zxgx){
 				game.saveConfig('extension_鸽府包_gfb_zxgx', bool);
