@@ -1362,6 +1362,10 @@ let block = {
 			if (!inserted.length) return;
 			await player.lose(inserted, ui.cardPile);
 			for (const card of order) ui.cardPile.appendChild(card);
+			const discard = Array.from(ui.discardPile.childNodes).filter((card) => !!card);
+			if (!discard.length) return;
+			const num = Math.min(inserted.length, discard.length);
+			await player.gain(discard.slice(discard.length - num), "gain2");
 		},
 		group: ["zncs_yingyin_start", "zncs_yingyin_tag", "zncs_yingyin_gift"],
 		subSkill: {
@@ -1429,12 +1433,12 @@ let block = {
 				silentForce: true,
 				async content(event, trigger, player) {
 					const gainer = trigger.player;
-					const result = await gainer.chooseBool("萤引：是否令" + get.translation(player) + "摸两张牌并视为对由其指定的角色使用一张【杀】？").set("ai", () => get.attitude(gainer, player) > 0).forResult();
+					const result = await gainer.chooseBool("萤引：是否令【" + get.translation(player) + "】摸两张牌并视为对由其指定的角色使用一张【杀】？").set("ai", () => get.attitude(gainer, player) > 0).forResult();
 					if (!result.bool) return;
 					player.storage.zncs_yingyin_cur = game.roundNumber + "_" + (_status.currentPhase ? _status.currentPhase.playerid : "");
 					await player.draw(2);
-					const choose = player.chooseTarget("萤引：请选择【杀】的目标", (card, player2, target2) => player2.canUse({ name: "sha" }, target2));
-					choose.set("ai", (target2) => -get.attitude(player, target2));
+					const choose = player.chooseTarget("萤引：请选择【杀】的目标");
+					choose.set("ai", (target2) => -get.attitude(get.player(), target2));
 					const res = await choose.forResult();
 					const target = res.targets && res.targets[0];
 					if (!target) return;
