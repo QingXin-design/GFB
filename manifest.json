@@ -1,5 +1,5 @@
 {
-  "version": "1.6.8",
+  "version": "1.6.9",
   "files": {
     "LICENSE": "8624bcdae55baeef00cd11d5dfcfa60f68710a02",
     "README.md": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
@@ -745,7 +745,7 @@
     "extension/SpinePlayer/preview_fx.html": "a326e65c4925b61c9507d5eef8a58933f910535b",
     "extension/SpinePlayer/spine_decade.js": "afd81f7cf799d4603973d4bbb7d0c0dd4fc6631f",
     "extension/Wish/Wish.css": "f93369ee2b07884ae7109e95d47f99625fbaf1ab",
-    "extension/Wish/Wish.js": "74d7f943e9fe916cee4d18a784fe4ca550bbd943",
+    "extension/Wish/Wish.js": "91ec3547c39169912e248029d5f9259774b10e2c",
     "extension/Wish/image/WishBg.png": "21a21bb82f7d6a1b2f92b9862dec7985bbf8ca73",
     "extension/Wish/image/bigBg.png": "768aad145d64abf036c82b2788f1b13882e29c97",
     "extension/Wish/image/bpCancel.png": "dd55749fff20d768d022e58cfc6dbc263792eb52",
@@ -913,7 +913,6 @@
     "image/character/stand/gzhlb_md.jpg": "da30c41503dc5ffaeb04be16d2296dcd27e087f9",
     "image/character/stand/gzhlb_mj.jpg": "77be2eab4759b0340c127b8ddf430630b7ac6646",
     "image/character/stand/gzhlb_ml.jpg": "b17b9bae05a9ca481dcba53977b8f43a5fa521b6",
-    "image/character/stand/gzhlb_nian.jpg": "5ab445a920026514ed47f234656dade96a0d158c",
     "image/character/stand/gzhlb_qifu.jpg": "27b73689e4fe21ad0f55c967d0ce12f3aac4df4b",
     "image/character/stand/gzhlb_rm.jpg": "d0547a86c1b7aa4a076fe244fcc2f434140a40f7",
     "image/character/stand/gzhlb_shenshi.jpg": "6fbf514fa8743b45a664fe4635260db5190bb67d",
