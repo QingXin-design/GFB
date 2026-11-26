@@ -1,5 +1,5 @@
 {
-  "version": "1.6.9",
+  "version": "1.6.10",
   "files": {
     "LICENSE": "8624bcdae55baeef00cd11d5dfcfa60f68710a02",
     "README.md": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
@@ -390,8 +390,8 @@
     "character/dynamicTranslate.js": "e1d850498e5bf7988cf1c7b76144f520cf01295f",
     "character/index.js": "77ce46c8eb24369cb91f5dafb522c854af511963",
     "character/perfectPair.js": "0af0f4886d2a070e4eb1d11a09b649a442984a0b",
-    "character/skill.js": "7ede59acadec152c933a43fbae71a9bce4b3d812",
-    "character/translate.js": "4ddc3bd44f9ff6891fb6000a5de7038bd785e74a",
+    "character/skill.js": "49552f0ed6eb180d10324a818429269039dce257",
+    "character/translate.js": "879e84195104ccb4939bf7ee15b8dabca544e087",
     "extension.js": "aa580b1dee647803c76b5df0f60b2bae86e3bee1",
     "extension/Bgm/bgm.js": "fe6f3acb68f8c57e46831a3d88d06165600361f1",
     "extension/CreateCharacterSkill/createCharacterSkill.css": "5a119ddcafa1ff4e0d195499867362680328777a",
