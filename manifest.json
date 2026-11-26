@@ -1,5 +1,5 @@
 {
-  "version": "1.6.7",
+  "version": "1.6.8",
   "files": {
     "LICENSE": "8624bcdae55baeef00cd11d5dfcfa60f68710a02",
     "README.md": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
@@ -390,7 +390,7 @@
     "character/dynamicTranslate.js": "e1d850498e5bf7988cf1c7b76144f520cf01295f",
     "character/index.js": "77ce46c8eb24369cb91f5dafb522c854af511963",
     "character/perfectPair.js": "0af0f4886d2a070e4eb1d11a09b649a442984a0b",
-    "character/skill.js": "821c8309172c898424b4ce292ef5fff71e148135",
+    "character/skill.js": "7ede59acadec152c933a43fbae71a9bce4b3d812",
     "character/translate.js": "4ddc3bd44f9ff6891fb6000a5de7038bd785e74a",
     "extension.js": "aa580b1dee647803c76b5df0f60b2bae86e3bee1",
     "extension/Bgm/bgm.js": "fe6f3acb68f8c57e46831a3d88d06165600361f1",
@@ -427,9 +427,6 @@
     "extension/Leaderboard/image/characterHead.png": "3716065a693233d0cc0d491e8addf2f1e3b1545e",
     "extension/Leaderboard/image/charge.png": "55e32c9f8afc805086305cec50c4adc6b2daf84f",
     "extension/Leaderboard/image/dataLbtn.png": "a9edfafbf322d10090f42bb341575a5642e2bce0",
-    "extension/Leaderboard/rank/Mimi_战绩数据_20261109_213356.json": "9e81cdc1aed715f6825e6820638c3e75457f2cf3",
-    "extension/Leaderboard/rank/Mimi_战绩数据_20261111_000511.json": "d6a961247eed30e283ecb62170871f8dee1c4c93",
-    "extension/Leaderboard/rank/Mimi_战绩数据_20261114_115830.json": "5360f65dcba25995f3d6cc950eecc696603ea309",
     "extension/Leaderboard/rank/Mimi_战绩数据_20261119_221059.json": "543aca931ee9ea3af644306dbc0550ae860ad325",
     "extension/Leaderboard/rank/单机玩家_战绩数据_20260310_235750.json": "dea7d1f20d7830c220cb6ceff778d5c3c78c833b",
     "extension/Leaderboard/rank/单机玩家_战绩数据_20261025_035630.json": "16f6b4b06cd953d4391eaf18d1b60c6b0b491470",
