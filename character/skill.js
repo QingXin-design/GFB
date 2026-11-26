@@ -1455,7 +1455,7 @@ let block = {
 		filterTarget(card, player, target) {
 			if (!target || target === player) return false;
 			if (lib.skill.zncs_lingji_lost.isLost(target)) return false;
-			return target.countCards("h") > 0;
+			return target.countCards("h") >= 0;
 		},
 		selectTarget: 1,
 		ai1(card) {
@@ -1487,13 +1487,20 @@ let block = {
 			let target = event.targets && event.targets[0];
 			const receivers = [];
 			if (card) card.zncs_lingji_src = true;
+			const srcId = card ? card.cardid : null;
 			for (let i = 0; i < 10; i++) {
 				if (!card || !target) break;
 				const given = card;
 				await target.gain(given, "gain2");
-				if (given.zncs_lingji_src && !receivers.includes(target)) receivers.push(target);
+				if ((given.zncs_lingji_src || (srcId != null && given.cardid === srcId)) && !receivers.includes(target)) receivers.push(target);
 				markLost(actor);
-				await actor.gainPlayerCard(target, "h", true);
+				const takeResult = await actor.gainPlayerCard(target, "h", true).forResult();
+				if (takeResult && takeResult.cards && takeResult.cards.length && srcId != null) {
+					const backOwn = takeResult.cards.some(function (c) {
+						return c && c.cardid === srcId;
+					});
+					if (backOwn && !receivers.includes(actor)) receivers.push(actor);
+				}
 				markLost(target);
 				const canTargets = game.filterPlayer(function (t) {
 					return t !== target && t.isIn() && !isLost(t) && t.countCards("h") > 0;
@@ -1531,6 +1538,14 @@ let block = {
 						})[0];
 					if (!nextCard) break;
 				} else {
+					const keyNow = keyOf();
+					const lostIds = game
+						.filterPlayer(function (t) {
+							return lib.skill.zncs_lingji_lost.isLost(t);
+						})
+						.map(function (t) {
+							return t.playerid;
+						});
 					const result = await target
 						.chooseCardTarget({
 							forced: false,
@@ -1539,18 +1554,26 @@ let block = {
 							selectTarget: 1,
 							prompt: "灵迹：是否将一张牌交给一名本回合未失去过牌的角色，并获得其一张手牌？",
 							filterCard(card2, p) {
-								return !!(card2.zncs_lingji_got && card2.zncs_lingji_got.key === keyOf() && card2.zncs_lingji_got.owner == p.playerid);
+								const evt = get.event() || {};
+								const key = evt.zncsKey || game.roundNumber + "_" + (_status.currentPhase ? _status.currentPhase.playerid : "");
+								return !!(card2.zncs_lingji_got && card2.zncs_lingji_got.key === key && card2.zncs_lingji_got.owner == p.playerid);
 							},
 							filterTarget(card2, p, t) {
-								return t !== p && !lib.skill.zncs_lingji_lost.isLost(t) && t.countCards("h") > 0;
+								const evt = get.event() || {};
+								if (!t || t === p) return false;
+								const lostIds = evt.zncsLostIds;
+								if (lostIds) return lostIds.indexOf(t.playerid) < 0;
+								return !lib.skill.zncs_lingji_lost.isLost(t);
 							},
 							ai1(card2) {
 								return -get.value(card2);
 							},
 							ai2(t) {
-								return get.attitude(target, t);
+								return get.attitude(get.player(), t);
 							},
 						})
+						.set("zncsKey", keyNow)
+						.set("zncsLostIds", lostIds)
 						.forResult();
 					if (!result.bool || !result.cards || !result.targets) break;
 					nextCard = result.cards[0];
@@ -1566,13 +1589,14 @@ let block = {
 			});
 			if (!finalTargets.length) return;
 			const used = player.storage.zncs_lingji_used || [];
+			const seen = {};
 			const names = lib.inpile.filter(function (name) {
-				if (used.includes(name)) return false;
-				const type = get.type(name);
-				if (type != "trick") return false;
-				return finalTargets.every(function (t) {
-					return player.canUse({ name: name }, t);
-				});
+				if (!name || seen[name] || used.includes(name)) return false;
+				const info = lib.card[name];
+				if (!info || info.notarget) return false;
+				if (get.type(name) != "trick") return false;
+				seen[name] = true;
+				return true;
 			});
 			if (!names.length) return;
 			const result = await player
