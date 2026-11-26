@@ -123,6 +123,45 @@ window.gefu_card = function (name, label, doOpen, el) {
 	const safe = String(name).replace(/"/g, '\\"');
 	return `<a class='gefu_text' onclick='window.gefu_card("${safe}","",1,this)'><font color='#ff7b00'><u>【${text}】</u></font></a>`;
 };
+window.gefu_player = function (name, label, doOpen, el) {
+	if (!name) return "";
+	if (doOpen) {
+		if (typeof game === "undefined" || typeof ui === "undefined" || !lib.character[name]) return;
+		if (typeof game.closePoptipDialog === "function") game.closePoptipDialog();
+		let dialog = null;
+		try {
+			dialog = ui.create.dialog("hidden", "notouchscroll");
+			dialog.addSmall([[name], "character"]);
+			const node = dialog.buttons && dialog.buttons[0];
+			if (node && typeof get.nodeintro === "function") get.nodeintro(node, null, null, dialog);
+			dialog.classList.add("popped", "static");
+			dialog.style.zIndex = "100";
+			ui.window.appendChild(dialog);
+			let pos = null;
+			try {
+				if (el && typeof el.getBoundingClientRect === "function") {
+					const rect = el.getBoundingClientRect();
+					pos = { clientX: rect.left + rect.width / 2, clientY: rect.bottom };
+				}
+			} catch (e) { }
+			if (typeof lib !== "undefined" && typeof lib.placePoppedDialog === "function") {
+				lib.placePoppedDialog(dialog, pos || { clientX: ui.window.offsetWidth / 2, clientY: ui.window.offsetHeight / 2 });
+			}
+		} catch (e) {
+			if (dialog) { try { dialog.remove(); } catch (e2) { } }
+			return;
+		}
+		const layer = ui.create.div(".poplayer", ui.window);
+		layer.style.zIndex = "99";
+		const closeTip = function () { layer.remove(); dialog.delete(); };
+		layer.listen(closeTip);
+		dialog.listen(closeTip);
+		return;
+	}
+	const text = label || (typeof get !== "undefined" && get.translation ? get.translation(name) : name);
+	const safe = String(name).replace(/"/g, '\\"');
+	return `<a class='gefu_text' onclick='window.gefu_player("${safe}","",1,this)'><font color='#FF69B4'><u>${text}</u></font></a>`;
+};
 let block = {//翻译信息
 	'gf': '鸽府',
 	'wzzs': '无职转生',
@@ -236,6 +275,8 @@ let block = {//翻译信息
 	"gzhlb_dx": "读心测试",
 	"gzhlb_cd": "菜段",
 	"gzhlb_kes": "卡厄斯",
+	"gzhlb_hzr": "画中人",
+	"gzhlb_pl": "跑路",
 
 	//汝
 	"tj_zzh": "张春华",
@@ -342,6 +383,7 @@ let block = {//翻译信息
 	"seh_sls": "索伦森",
 	"seh_lmht": "罗姆怀特",
 	"seh_tqdj": "天启帝君",
+	"seh_lingshen": "圣光灵神",
 
 	//奥
 	"aqcs_sp_frws": "SP凡尔维斯",
@@ -430,10 +472,10 @@ let block = {//翻译信息
 	"gf_gefu_info": "游戏开始时，随机分配除主公外其余角色的身份。",
 	"gf_douzhuan": "斗转",
 	"gf_douzhuan_info": "准备阶段或结束阶段开始前，你可以选择一名角色，然后移动其区域内的一张牌。",
-	"gzj_renyi": "仁义",
-	"gzj_renyi_info": "出牌阶段限一次，你可以将任意张手牌交于一名其他角色，之后其交给你至多X张牌。若其交给你的牌数不为0，则你选择以下其中一项，①摸两张牌②恢复一点体力值。 （X为你给予其的手牌数。）",
-	"gzj_zhengxiong": "争雄",
-	"gzj_zhengxiong_info": "出牌阶段限一次，你可以弃置一张牌，之后选择任意一名其他角色对其使用一张虚拟杀，若所选武将可作为[仁义]技能目标，且曾交给你的牌数目不为0，则此杀伤害+2，造成伤害后，其不可再作为[仁义]技能目标。",
+	"gzhlb_renyi": "仁义",
+	"gzhlb_renyi_info": "出牌阶段限一次，你可以将任意张手牌交于一名其他角色，之后其交给你至多X张牌。若其交给你的牌数不为0，则你选择以下其中一项，①摸两张牌②恢复一点体力值。 （X为你给予其的手牌数。）",
+	"gzhlb_zhengxiong": "争雄",
+	"gzhlb_zhengxiong_info": "出牌阶段限一次，你可以弃置一张牌，之后选择任意一名其他角色对其使用一张虚拟杀，若所选武将可作为[仁义]技能目标，且曾交给你的牌数目不为0，则此杀伤害+2，造成伤害后，其不可再作为[仁义]技能目标。",
 	"gf_kushui": "酷税",
 	"gf_kushui_info": "<a class='gefu_text' onclick='javescript:window.gefu_text(\"〖酷税〗①当你使用伤害类的牌指定角色后，你可以记录此牌指定的所有目标。被记录的角色累计获得5张牌后你令其选择一张手牌并弃置其余的所有手牌，然后你获得等同于其弃置牌数的“酷”标记。<br>②出牌阶段限一次，你可以选择一名其他角色，若其已被记录，则其弃置记录获得牌数的牌（至少为1），然后你从中选择一张牌获得并重置该角色的记录；若未被记录，则记录该角色。<br>③摸牌阶段开始时，你将摸牌数调整为1~x的随机数（x为你拥有的“酷”标记数，且至少为1），然后你弃置所有“酷”标记。\")'><font color='#FFFF00'><u>技能简述</u></font></a>①当你使用带有「伤害」标签的基本牌或普通锦囊牌指定角色后，你可以记录所有未记录的目标。被记录的角色累计获得5张牌后你令其选择一张手牌并弃置其余的所有手牌，然后你获得等同于其弃置牌数的“酷”标记。<br>②出牌阶段限一次，你可以选择一名其他角色，若该角色已被记录，则其弃置等同于已记录获得牌数的牌（至少为1），然后你从中选择一张牌获得之，最后你移除对该角色的记录；若未被记录，则你记录该角色。<br>③摸牌阶段开始时，你将本次摸牌数调整为1~x的随机数（x为你拥有的“酷”标记数，且至少为1），然后你弃置所有的“酷”标记。",
 	"gf_moli": "墨吏",
@@ -1111,6 +1153,51 @@ let block = {//翻译信息
 	"gzhlb_zhuiji_info": "出牌阶段限一次，你可获得100点罪状并令至多两名角色获得1枚“追缉”标记。拥有该标记的角色受到伤害后失去此标记，然后你摸其失去标记数张牌，若伤害来源为你，则此伤害+1。",
 	"gzhlb_zuiye": "罪业",
 	"gzhlb_zuiye_info": "限定技，出牌阶段，你可获得罪状的数值翻倍直至本回合结束，然后你攻击范围内所有角色获得1枚“追缉”标记并视为对其使用一张火【杀】。",
+	"gzhlb_paolu": "跑路",
+	"gzhlb_paolu_info": "出牌阶段限一次，你可删除自己，然后本轮结束时，你在原位召唤一个自己。",
+	"gzhlb_fig_zhengyi": "整仪",
+	"gzhlb_fig_lianren": "敛衽",
+	"gzhlb_fig_zhenying": "振缨",
+	"gzhlb_fig_roujia": "柔嘉",
+	"gzhlb_fig_jieshou": "结绶",
+	"gzhlb_fig_chenghuan": "承鬟",
+	"gzhlb_fig_qingcai": "清裁",
+	"gzhlb_fig_shuangying": "双缨",
+	"gzhlb_fig_ningdi": "凝睇",
+	"gzhlb_figpool": "画中人",
+	"gzhlb_miyue": "蜜月",
+	"gzhlb_bg_forest": "暗夜松塔",
+	"gzhlb_bg_night": "星穹夜路",
+	"gzhlb_bg_valley": "幽谷晨雾",
+	"gzhlb_bg_sea": "月下海",
+	"gzhlb_bg_city": "夜色山城",
+	"gzhlb_bg_tower": "雾林",
+	"gzhlb_zhengyi": "整仪",
+	"gzhlb_miyue_info": `<准备阶段/你受到伤害后>，从${get.poptip("gzhlb_figpool")}中随机抽出<2~5名并任选1名/1名>获得其技能。`,
+	"gzhlb_shiqin": "侍寝",
+	"gzhlb_shiqin_info": `有角色不因使用失去装备牌后，若其拥有${get.poptip("gzhlb_figpool")}，你可令其摸等量张牌，然后可将其中一个${get.poptip("gzhlb_figpool")}交给其他角色并令此技能本回合失效。`,
+	"gzhlb_yuehua": "月华",
+	"gzhlb_yuehua_info": `出牌阶段限一次，你可获得一名其他角色所有${get.poptip("gzhlb_figpool")}或令你失去一个${get.poptip("gzhlb_figpool")}并无目标限制的发动对应技能。`,
+	"gzhlb_figpool_info": `${window.gefu_player("gzhlb_fig_zhengyi", "整仪")}、${window.gefu_player("gzhlb_fig_qingcai", "清裁")}、${window.gefu_player("gzhlb_fig_roujia", "柔嘉")}、${window.gefu_player("gzhlb_fig_chenghuan", "承鬟")}、${window.gefu_player("gzhlb_fig_jieshou", "结绶")}、${window.gefu_player("gzhlb_fig_ningdi", "凝睇")}、${window.gefu_player("gzhlb_fig_zhenying", "振缨")}、${window.gefu_player("gzhlb_fig_lianren", "敛衽")}、${window.gefu_player("gzhlb_fig_shuangying", "双缨")}`,
+	"gzhlb_scenepool": "景点",
+	"gzhlb_scenepool_info": ["暗夜松塔", "星穹夜路", "幽谷晨雾", "月下海", "夜色山城", "雾林"].map(function (name) { return "<div style='padding:1px 0'><span class='yellowtext'>" + name + "</span></div>";}).join(""),
+	"gzhlb_zhengyi_info": "你登场时，令你或当前回合角色获得一张装备牌。",
+	"gzhlb_zhenying": "振缨",
+	"gzhlb_zhenying_info": "你登场时，令你或当前回合角色本回合对失去过牌的角色造成的伤害+1。",
+	"gzhlb_qingcai": "清裁",
+	"gzhlb_qingcai_info": "你登场时，重铸你或当前回合角色两张牌。",
+	"gzhlb_lianren": "敛衽",
+	"gzhlb_lianren_info": "你登场时，令你或当前回合角色获得其区域内的所有牌。",
+	"gzhlb_jieshou": "结绶",
+	"gzhlb_jieshou_info": "你登场时，令你或当前回合角色交给一名其他角色一张装备牌，然后其回复1点体力。",
+	"gzhlb_chenghuan": "承鬟",
+	"gzhlb_chenghuan_info": "你登场时，移动你或当前回合角色装备区的一张牌至对方对应装备栏。",
+	"gzhlb_shuangying": "双缨",
+	"gzhlb_shuangying_info": "你登场时，若你装备区牌数大于当前回合角色，其流失1点体力；若小于，其受到1点伤害。",
+	"gzhlb_roujia": "柔嘉",
+	"gzhlb_roujia_info": "你登场时，令你或当前回合角色摸一张牌，若其体力值小于3，你摸一张牌。",
+	"gzhlb_ningdi": "凝睇",
+	"gzhlb_ningdi_info": "你登场时，令你或当前回合角色本回合使用【杀】的次数上限+1。",
 
 	//赛
 	"gy_douhun": "斗魂",
@@ -1193,7 +1280,6 @@ let block = {//翻译信息
 	"seh_dinyin_zhen_info": "你视为拥有〖阶段〗；每名角色死亡后你获得1层阵，每层阵你受到的伤害减少10%且你使用杀造成的伤害增加10%（至多60%）；若场上存活人数小于3，你的回合外免疫弃牌；其他角色受到的恢复效果减少50%",
 	"seh_dinyin_yun": "帝君之陨",
 	"seh_dinyin_yun_info": "当你死亡时你选择一名其他角色对其随机造成1至3点伤害",
-	"seh_lingshen": "圣光灵神",
 	"seh_shennian": "神念净世",
 	"seh_shennian_info": `持恒技，①游戏开始时，你获得${window.GfTag("神魂之器", "神魂之器：<br>①当你的势力为“神”时，你拥有被“神魂之器”记录的效果。<br>②初始记录以下效果：<br>1、你视为拥有〖阶段〗。<br>2、你回合外免疫弃牌效果。<br>3、你视为拥有〖体力〗。<br>4、你免疫无来源伤害。<br>③当你令其他角色濒死时，你恢复一条被移除的记录，若无被移除的记录你摸三张牌。")}。<br>②当你死亡时，若你的势力不为“神”且神魂之器的记录不为0，你移除一项记录，然后免疫此次死亡、将体力上限改为4、回复全部体力并摸X张手牌，你的势力改为“神”直到你的下下个回合结束（X为剩余记录数）。<br>③当你使用或打出牌后，若此牌为你本回合使用的前X张牌，则此牌无视距离与次数限制且不计入使用次数，然后你摸一张牌（X为记录数+1）。`,
 	"seh_shennian_ab": "【神念净世】",

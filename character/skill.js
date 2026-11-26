@@ -2,8 +2,1227 @@ import{lib,game,ui,get,ai,_status}from '../../../noname.js'
 import { translate } from './translate.js'
 
 let block = {
-	//在这里编写技能。
-	// 星洛
+	// 白月光
+	gzhlb_miyue: {
+		trigger: {
+			player: ["phaseZhunbeiBegin", "damageEnd"],
+		},
+		frequent: true,
+		// derivation: ["gzhlb_zhengyi", "gzhlb_jieshou", "gzhlb_roujia", "gzhlb_chenghuan", "gzhlb_ningdi", "gzhlb_qingcai", "gzhlb_lianren", "gzhlb_zhenying", "gzhlb_shuangying"],
+		gzhlbPath: "extension/鸽府包/image/character/stand/hzr/",
+		gzhlbFigs: [
+			["zhengyi", "整仪", "front_zhengyi.png", 0.92, "gzhlb_zhengyi", "gzhlb_fig_zhengyi"],
+			["jieshou", "结绶", "front_jieshou.png", 0.9, "gzhlb_jieshou", "gzhlb_fig_jieshou"],
+			["roujia", "柔嘉", "front_roujia.png", 1.0, "gzhlb_roujia", "gzhlb_fig_roujia"],
+			["chenghuan", "承鬟", "front_chenghuan.png", 0.88, "gzhlb_chenghuan", "gzhlb_fig_chenghuan"],
+			["ningdi", "凝睇", "front_ningdi.png", 0.94, "gzhlb_ningdi", "gzhlb_fig_ningdi"],
+			["qingcai", "清裁", "front_qingcai.png", 0.92, "gzhlb_qingcai", "gzhlb_fig_qingcai"],
+			["lianren", "敛衽", "front_lianren.png", 0.86, "gzhlb_lianren", "gzhlb_fig_lianren"],
+			["zhenying", "振缨", "front_zhenying.png", 1.0, "gzhlb_zhenying", "gzhlb_fig_zhenying"],
+			["shuangying", "双缨", "front_shuangying.png", 0.96, "gzhlb_shuangying", "gzhlb_fig_shuangying"],
+		],
+		gzhlbScenes: [
+			["forest", "暗夜松塔"],
+			["night", "星穹夜路"],
+			["valley", "幽谷晨雾"],
+			["sea", "月下海"],
+			["city", "夜色山城"],
+			["tower", "雾林"],
+		],
+		gzhlbSlots: [
+			[3, 4],
+			[36, 2],
+			[68, 5],
+			[2, 34],
+			[35, 32],
+			[67, 35],
+			[5, 66],
+			[36, 64],
+			[67, 68],
+		],
+		gzhlbFig(key) {
+			for (const fig of this.gzhlbFigs) {
+				if (fig[0] == key) return { key: fig[0], name: fig[1], img: fig[2], size: fig[3], skill: fig[4], char: fig[5] };
+			}
+			return null;
+		},
+		gzhlbEffects: {
+			gzhlb_zhengyi: "令你或当前回合角色获得一张装备牌。",
+			gzhlb_qingcai: "重铸你或当前回合角色两张牌。",
+			gzhlb_roujia: "令你或当前回合角色摸一张牌，若其体力值小于3，你摸一张牌。",
+			gzhlb_chenghuan: "移动你或当前回合角色装备区的一张牌至对方对应装备栏。",
+			gzhlb_jieshou: "令你或当前回合角色交给一名其他角色一张装备牌，然后其回复1点体力。",
+			gzhlb_ningdi: "令你或当前回合角色本回合使用【杀】的次数上限+1。",
+			gzhlb_zhenying: "令你或当前回合角色对本回合失去过牌的角色造成的伤害+1。",
+			gzhlb_lianren: "令你或当前回合角色获得其区域内的所有牌。",
+			gzhlb_shuangying: "若你的装备牌数大于当前回合角色，当前回合角色流失1点体力；若小于，当前回合角色受到1点伤害。",
+		},
+		gzhlbState(player) {
+			if (!player.storage) player.storage = {};
+			if (!player.storage.gzhlb_figs) player.storage.gzhlb_figs = [];
+			return player.storage.gzhlb_figs;
+		},
+		gzhlbHolders(key) {
+			const out = [];
+			game.players.forEach(function (p) {
+				if (p.dead || !p.storage) return;
+				const figs = p.storage.gzhlb_figs || [];
+				if (figs.some(function (fig) { return fig.key == key; })) out.push(p);
+			});
+			return out;
+		},
+		gzhlbPool(player) {
+			const self = this;
+			const owned = [];
+			game.players.forEach(function (p) {
+				if (p.dead || !p.storage) return;
+				(p.storage.gzhlb_figs || []).forEach(function (fig) {
+					owned.push(fig.key);
+				});
+			});
+			return self.gzhlbFigs.filter(function (fig) {
+				return owned.indexOf(fig[0]) < 0;
+			});
+		},
+		async gzhlbFire(player, key, timing) {
+			const self = this;
+			const info = self.gzhlbFig(key);
+			if (!info) return false;
+			const skill = lib.skill[info.skill];
+			if (!skill || typeof skill.content != "function") return false;
+			timing = timing || "dengchang";
+			let timings = skill.gzhlbTiming == null ? ["dengchang"] : skill.gzhlbTiming;
+			if (!Array.isArray(timings)) timings = [timings];
+			if (timings.indexOf(timing) < 0) return false;
+			const event = game.createEvent("gzhlb_" + timing);
+			event.player = player;
+			event.timing = timing;
+			event.figKey = key;
+			event.figName = info.name;
+			event.figSkill = info.skill;
+			if (typeof skill.filter == "function" && !skill.filter(event, player, event)) return false;
+			event.setContent(skill.content);
+			try {
+				await event;
+			} catch (e) {
+				return false;
+			}
+			return true;
+		},
+		async gzhlbDengchang(player, key) {
+			const self = this;
+			const info = self.gzhlbFig(key);
+			if (!info) return false;
+			player.addTempSkill(info.skill, { player: "dieAfter" });
+			game.broadcastAll(function (player, skill) {
+				player.addTempSkill(skill, { player: "dieAfter" });
+			}, player, info.skill);
+			await self.gzhlbFire(player, key, "dengchang");
+			self.gzhlbRoll(player, key);
+			return true;
+		},
+		gzhlbDropSkill(player, skill) {
+			if (!player || !skill) return;
+			if (player.tempSkills) delete player.tempSkills[skill];
+			if (player.additionalSkills) {
+				for (const i in player.additionalSkills) {
+					const list = player.additionalSkills[i];
+					if (Array.isArray(list)) {
+						player.additionalSkills[i] = list.filter(function (s) {
+							return s != skill;
+						});
+					} else if (list == skill) delete player.additionalSkills[i];
+				}
+			}
+			if (player.hasSkill(skill)) player.removeSkill(skill, true);
+			if (player.skills) player.skills.remove(skill);
+			if (player.hiddenSkills) player.hiddenSkills.remove(skill);
+			if (player.invisibleSkills) player.invisibleSkills.remove(skill);
+			if (typeof player.update == "function") player.update();
+		},
+		gzhlbApply(player) {
+			if (!player || !player.storage) return;
+			const self = lib.skill.gzhlb_miyue;
+			const owned = self.gzhlbState(player).map(function (fig) {
+				return fig.key;
+			});
+			for (const fig of self.gzhlbFigs) {
+				if (fig[4] && owned.indexOf(fig[0]) < 0) self.gzhlbDropSkill(player, fig[4]);
+			}
+			if (!player.node || !player.node.avatar) return;
+			try {
+				self.gzhlbUiBoot();
+			} catch (e) { }
+			if (!document.getElementById("gzhlb_scene_style")) {
+				const style = document.createElement("style");
+				style.id = "gzhlb_scene_style";
+				style.innerHTML =
+					".player .avatar.gzhlb_scene{overflow:hidden;}" +
+					".player .avatar.gzhlb_scene > .gzhlb_figures{position:absolute;left:0;top:0;width:100%;height:100%;overflow:hidden;pointer-events:none;border-radius:inherit;z-index:5;}" +
+					".player .avatar.gzhlb_scene > .gzhlb_figures > .gzhlb_figure{position:absolute;height:auto;object-fit:contain;pointer-events:none;transform-origin:center center;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4));}" +
+					".gzhlb_scene_style_end{}";
+				document.head.appendChild(style);
+			}
+			const base = lib.assetURL + self.gzhlbPath;
+			if (player.hasSkill("gzhlb_miyue")) {
+				if (!player.storage.gzhlb_scene) {
+					const scenes = self.gzhlbScenes;
+					player.storage.gzhlb_scene = scenes[Math.floor(self.gzhlbRand(self.gzhlbSeed(player, 11)) * scenes.length)][0];
+				}
+				const bgs = {
+					forest: "bg_forest.jpg",
+					night: "bg_night.jpg",
+					valley: "bg_valley.jpg",
+					sea: "bg_sea.jpg",
+					city: "bg_city.jpg",
+					tower: "bg_tower.jpg",
+				};
+				const bg = player.storage.gzhlb_scene;
+				if (typeof player.node.avatar.setBackgroundImage == "function") {
+					player.node.avatar.setBackgroundImage(self.gzhlbPath + (bgs[bg] || bgs.forest));
+				}
+			}
+			player.node.avatar.classList.add("gzhlb_scene");
+			let layer = player.node.avatar.querySelector(".gzhlb_figures");
+			if (!layer) {
+				layer = document.createElement("div");
+				layer.className = "gzhlb_figures";
+				player.node.avatar.appendChild(layer);
+			}
+			layer.style.position = "absolute";
+			layer.style.left = "0";
+			layer.style.top = "0";
+			layer.style.width = "100%";
+			layer.style.height = "100%";
+			layer.style.overflow = "hidden";
+			layer.style.pointerEvents = "none";
+			layer.style.zIndex = "5";
+			layer.innerHTML = "";
+			for (const fig of self.gzhlbState(player)) {
+				const info = self.gzhlbFig(fig.key);
+				if (!info) continue;
+				const img = document.createElement("img");
+				img.className = "gzhlb_figure";
+				img.src = base + info.img;
+				const width = Math.max(4, Math.min(100, fig.width || 25));
+				const left = Math.max(0, Math.min(100 - width, fig.left || 0));
+				const top = Math.max(0, Math.min(100, fig.top || 0));
+				img.style.position = "absolute";
+				img.style.height = "auto";
+				img.style.left = left + "%";
+				img.style.top = top + "%";
+				img.style.width = width + "%";
+				img.style.transform = "rotate(" + (fig.angle || 0) + "deg)";
+				layer.appendChild(img);
+				if (info.skill) player.addTempSkill(info.skill, { player: "dieAfter" });
+			}
+		},
+		gzhlbPlace(player, key) {
+			const self = lib.skill.gzhlb_miyue;
+			const info = self.gzhlbFig(key);
+			if (!info) return null;
+			let idx = 0;
+			for (let i = 0; i < self.gzhlbFigs.length; i++) {
+				if (self.gzhlbFigs[i][0] == key) {
+					idx = i;
+					break;
+				}
+			}
+			const slot = self.gzhlbSlots[idx % self.gzhlbSlots.length];
+			const width = Math.round((24 + Math.random() * 6) * info.size);
+			const jitterX = Math.round(Math.random() * 6 - 3);
+			const jitterY = Math.round(Math.random() * 6 - 3);
+			const left = Math.max(0, Math.min(100 - width, slot[0] + jitterX));
+			const top = Math.max(0, Math.min(100 - width, slot[1] + jitterY));
+			const angle = Math.round(Math.random() * 20 - 10);
+			return { left: left, top: top, width: width, height: width, angle: angle };
+		},
+		gzhlbSyncFigs(player, figs) {
+			game.broadcastAll(function (player, figs) {
+				if (!player.storage) player.storage = {};
+				player.storage.gzhlb_figs = figs;
+				lib.skill.gzhlb_miyue.gzhlbApply(player);
+			}, player, figs);
+		},
+		gzhlbSyncAll() {
+			const snapshot = game.players.map(function (p) {
+				return (p.storage && p.storage.gzhlb_figs) || [];
+			});
+			game.broadcastAll(function (snapshot) {
+				game.players.forEach(function (p, i) {
+					if (!p.storage) p.storage = {};
+					p.storage.gzhlb_figs = snapshot[i] || [];
+					lib.skill.gzhlb_miyue.gzhlbApply(p);
+				});
+			}, snapshot);
+		},
+		gzhlbRand(seed) {
+			const x = Math.sin(seed * 12.9898 + 78.233) * 43758.5453;
+			return x - Math.floor(x);
+		},
+		gzhlbSeed(player, salt) {
+			const id = player && player.playerid ? String(player.playerid).replace(/[^0-9]/g, "") : "0";
+			return (game.roundNumber || 0) * 977 + (game.phaseNumber || 0) * 131 + (parseInt(id) || 0) + (salt || 0) * 7;
+		},
+		gzhlbAdd(player, key) {
+			const self = lib.skill.gzhlb_miyue;
+			const figs = self.gzhlbState(player);
+			const info = self.gzhlbFig(key);
+			if (!info) return false;
+			if (figs.some(function (fig) { return fig.key == key; })) return false;
+			if (self.gzhlbHolders(key).length) return false;
+			const spot = self.gzhlbPlace(player, key);
+			if (!spot) return false;
+			figs.push({ key: key, left: spot.left, top: spot.top, width: spot.width, angle: spot.angle });
+			self.gzhlbSyncFigs(player, figs);
+			return true;
+		},
+		gzhlbRemove(player, key) {
+			const self = lib.skill.gzhlb_miyue;
+			const info = self.gzhlbFig(key);
+			if (!info) return;
+			self.gzhlbSyncFigs(player, self.gzhlbState(player).filter(function (fig) { return fig.key != key; }));
+		},
+		gzhlbRoll(player, key) { },
+		async gzhlbGive(player, key, target) {
+			const self = this;
+			const info = self.gzhlbFig(key);
+			if (!info || !target) return false;
+			self.gzhlbRemove(player, key);
+			if (player.hasSkill(info.skill)) self.gzhlbDropSkill(player, info.skill);
+			self.gzhlbAdd(target, key);
+			await self.gzhlbFire(target, key, "dengchang");
+			return true;
+		},
+		gzhlbSwitchScene(player) {
+			const self = this;
+			if (!player.storage) player.storage = {};
+			const list = self.gzhlbScenes.filter(function (s) {
+				return s[0] != player.storage.gzhlb_scene;
+			});
+			const pool = list.length ? list : self.gzhlbScenes;
+			if (!player.storage.gzhlb_bg_n) player.storage.gzhlb_bg_n = 0;
+			player.storage.gzhlb_bg_n++;
+			const hit = pool[Math.floor(self.gzhlbRand(self.gzhlbSeed(player, 51 + player.storage.gzhlb_bg_n)) * pool.length)];
+			if (!hit) return;
+			game.broadcastAll(function (player, key) {
+				if (!player.storage) player.storage = {};
+				player.storage.gzhlb_scene = key;
+				lib.skill.gzhlb_miyue.gzhlbApply(player);
+			}, player, hit[0]);
+		},
+		gzhlbArmSceneTimer(player) {
+			const self = this;
+			if (player.gzhlbSceneTimer) {
+				clearTimeout(player.gzhlbSceneTimer);
+				player.gzhlbSceneTimer = null;
+			}
+			if (!player.storage) player.storage = {};
+			const last = player.storage.gzhlb_bg_span || 0;
+			let span = 0;
+			for (let i = 0; i < 30; i++) {
+				span = 60000 + Math.floor(self.gzhlbRand(self.gzhlbSeed(player, 61 + i)) * 120001);
+				if (Math.abs(span - last) >= 20000) break;
+			}
+			player.storage.gzhlb_bg_span = span;
+			player.gzhlbSceneTimer = setTimeout(function () {
+				delete player.gzhlbSceneTimer;
+				if (!player.isAlive() || !player.hasSkill("gzhlb_miyue")) return;
+				self.gzhlbSwitchScene(player);
+			}, span);
+		},
+		async gzhlbActor(player, name) {
+			this.gzhlbClearSelect();
+			const cur = _status.currentPhase;
+			const anyone = !!this._gzhlbAnyone;
+			let desc = "";
+			for (const id in this.gzhlbEffects) {
+				if (get.translation(id) == name) {
+					desc = this.gzhlbEffects[id];
+					break;
+				}
+			}
+			if (!anyone && (!cur || cur == player)) return player;
+			const prompt = anyone
+				? "【" + name + "】" + (desc || "").replace(/你或当前回合角色/g, "任意一名角色")
+				: "【" + name + "】" + (desc || "");
+			if (anyone) {
+				const list = game.players.filter(function (target) {
+					return target && (!target.isOut || !target.isOut());
+				});
+				const picked = await this.gzhlbChooseTarget(player, prompt, list);
+				return picked || player;
+			}
+			const candidates = game.players.filter(function (target) {
+				return target && (!target.isOut || !target.isOut()) && (target == player || target == _status.currentPhase);
+			});
+			return await this.gzhlbChooseTarget(player, prompt, candidates);
+		},
+		async gzhlbChooseTarget(player, prompt, cands) {
+			const self = lib.skill.gzhlb_miyue;
+			const list = (cands || []).filter(function (target) {
+				return !!target && (!target.isOut || !target.isOut());
+			});
+			if (!list.length) return player || null;
+			if (list.length == 1) return list[0];
+			const ids = list.map(function (target) {
+				return target.playerid;
+			});
+			self._gzhlbCandIds = ids;
+			this.gzhlbClearSelect();
+			const filterTarget = function (card, p, target) {
+				if (!target) return false;
+				let idList = null;
+				try {
+					if (this && this.gzhlbCandIds && this.gzhlbCandIds.length) idList = this.gzhlbCandIds;
+				} catch (e) { }
+				if (!idList) {
+					try {
+						const ev = get.event();
+						if (ev && ev.gzhlbCandIds && ev.gzhlbCandIds.length) idList = ev.gzhlbCandIds;
+					} catch (e) { }
+				}
+				if (!idList) {
+					try {
+						const miyue = lib.skill.gzhlb_miyue;
+						if (miyue && miyue._gzhlbCandIds && miyue._gzhlbCandIds.length) idList = miyue._gzhlbCandIds;
+					} catch (e) { }
+				}
+				if (!idList) return true;
+				return idList.indexOf(target.playerid) >= 0;
+			};
+			const aiPick = function () {
+				return 1;
+			};
+			let result = null;
+			try {
+				result = await player
+					.chooseTarget(prompt, false, filterTarget)
+					.set("gzhlbCandIds", ids)
+					.set("targets", list.slice())
+					.set("ai", aiPick)
+					.forResult();
+			} catch (e) {
+				return list[0];
+			}
+			if (!result || !result.bool || !result.targets || !result.targets.length) return null;
+			return result.targets[0];
+		},
+		gzhlbClearSelect() {
+			try {
+				game.uncheck();
+			} catch (e) { }
+			if (typeof ui !== "undefined" && ui.selected) {
+				ui.selected.targets.length = 0;
+				ui.selected.buttons.length = 0;
+				ui.selected.cards.length = 0;
+			}
+		},
+		gzhlbPickStyle() {
+			return this.gzhlbInjectPickStyle();
+		},
+		gzhlbSkillsOf(id) {
+			const char = lib.character[id];
+			if (!char) return [];
+			return char.skills || char[3] || [];
+		},
+		gzhlbPickRow(items, title, ctx) {
+			const self = lib.skill.gzhlb_miyue;
+			self.gzhlbPickStyle();
+			const dialog = ui.create.dialog("hidden");
+			dialog.classList.add("gzhlb-pick-row");
+			dialog.add('<div class="text center" style="font-weight:bold;padding:2px 0 6px">' + title + "</div>");
+			const box = ui.create.div(".gzhlb-pics", dialog.content);
+			const res = self.gzhlbFillPics(box, items, ctx);
+			const areaW = (ui.arena && ui.arena.clientWidth) || window.innerWidth;
+			const areaH = (ui.arena && ui.arena.clientHeight) || window.innerHeight;
+			const dialogW = Math.min(Math.max(res.totalW + 56, 360), Math.max(360, Math.floor(areaW * 0.92)));
+			dialog.classList.add("fullheight");
+			dialog.style.width = dialogW + "px";
+			dialog.style.left = Math.max(8, Math.round((areaW - dialogW) / 2)) + "px";
+			dialog.style.top = "40px";
+			dialog.style.height = Math.max(260, Math.floor(areaH * 0.8)) + "px";
+			dialog.content.style.maxHeight = "none";
+			dialog.content.style.overflowY = "auto";
+			dialog.buttons = res.tiles;
+			dialog.add('<div class="text center" style="opacity:.6;font-size:12px;padding:4px 0">左键选择</div>');
+			return dialog;
+		},
+		gzhlbPickButton(items, title) {
+			const self = lib.skill.gzhlb_miyue;
+			const cols = Math.max(1, items.length);
+			const availW = Math.min(Math.floor(((ui.arena && ui.arena.clientWidth) || window.innerWidth) * 0.92), 940) - 60;
+			const cellW = Math.max(150, Math.min(230, Math.floor(availW / cols)));
+			const list = items.map(function (item) {
+				const w = item.w || 150;
+				const h = item.h || 172;
+				const imgW = cellW - 16;
+				const imgH = Math.round((imgW * h) / w);
+				const skills = item.noSkill ? [] : self.gzhlbSkillsOf(item.link);
+				let html =
+					'<div style="position:relative;display:inline-block;width:' +
+					cellW +
+					'px;vertical-align:top;text-align:center;white-space:normal;padding:6px 4px;box-sizing:border-box">';
+				html +=
+					'<img src="' +
+					lib.assetURL +
+					item.img +
+					'" style="position:relative;display:block;width:' +
+					imgW +
+					"px;height:" +
+					imgH +
+					'px;margin:0 auto;object-fit:contain">';
+				html += '<div style="color:#ffd978;font-weight:bold;margin-top:4px">' + get.translation(item.link) + "</div>";
+				for (const skill of skills) {
+					html +=
+						'<div style="margin-top:2px;color:#eee;font-size:13px;line-height:1.5;text-align:left"><span style="color:#8fd0ff;font-weight:bold">【' +
+						get.translation(skill) +
+						"】</span>" +
+						get.skillInfoTranslation(skill, null, false) +
+						"</div>";
+				}
+				html += "</div>";
+				return [item.link, html];
+			});
+			return [title, [list, "tdnodes"]];
+		},
+		async gzhlbSummon(player) {
+			const self = lib.skill.gzhlb_miyue;
+			self.gzhlbPickStyle();
+			const pool = self.gzhlbPool(player);
+			if (!pool.length) return;
+			const want = Math.max(1, Math.min(pool.length, 2 + Math.floor(self.gzhlbRand(self.gzhlbSeed(player, 21)) * 4)));
+			const cand = pool
+				.slice()
+				.sort(function (a, b) {
+					const sa = self.gzhlbRand(self.gzhlbSeed(player, 31) + a[0].charCodeAt(a[0].length - 1) * 13);
+					const sb = self.gzhlbRand(self.gzhlbSeed(player, 31) + b[0].charCodeAt(b[0].length - 1) * 13);
+					return sa - sb;
+				})
+				.slice(0, want);
+			let picked = null;
+			if (_status.auto || cand.length == 1) {
+				picked = cand[0];
+			} else if (_status.connectMode) {
+				const list = cand.map(function (fig) {
+					const src = self.gzhlbPath + fig[2];
+					return [
+						fig[0],
+						'<div class="gzhlb-pic" style="width:150px;height:172px;background-size:contain;background-position:center bottom;background-repeat:no-repeat;background-image:url(' +
+							src +
+							')"></div>',
+					];
+				});
+				const title =
+					'<div class="text center" style="font-weight:bold;padding:2px 0 6px">【' +
+					get.translation("gzhlb_miyue") +
+					"】选择一名角色登场</div>";
+				const result = await player
+					.chooseButton([title, [list, "textbutton"]], true, [1, 1])
+					.set("ai", function () {
+						return Math.random() * 10;
+					})
+					.forResult();
+				if (!result || !result.bool || !result.links || !result.links.length) return;
+				picked = cand.filter(function (f) {
+					return f[0] == result.links[0];
+				})[0];
+			} else {
+				const items = cand.map(function (fig) {
+					return { link: fig[5], img: self.gzhlbPath + fig[2], w: 150, h: 172 };
+				});
+				const dialog = self.gzhlbPickRow(items, "【" + get.translation("gzhlb_miyue") + "】选择一名角色登场", player);
+				const result = await player
+					.chooseButton(dialog)
+					.set("filterButton", function (button) {
+						return !!button && button.link != null;
+					})
+					.set("ai", function () {
+						return Math.random() * 10;
+					})
+					.forResult();
+				try {
+					dialog.delete();
+				} catch (e) {}
+				if (!result || !result.bool || !result.links || !result.links.length) return;
+				picked = cand.filter(function (f) {
+					return f[5] == result.links[0];
+				})[0];
+			}
+			if (!picked) return;
+			self.gzhlbAdd(player, picked[0]);
+			await self.gzhlbDengchang(player, picked[0]);
+		},
+		filter(event, player) {
+			if (event.name == "damage") return event.player == player && event.num > 0;
+			return true;
+		},
+		async content(event, trigger, player) {
+			const self = lib.skill.gzhlb_miyue;
+			self.gzhlbState(player);
+			const triggername = event.triggername || trigger.name;
+			if (triggername == "phaseZhunbeiBegin") self.gzhlbArmSceneTimer(player);
+			if (triggername == "damageEnd") {
+				const times = Math.max(1, trigger.num || 1);
+				for (let i = 0; i < times; i++) {
+					const pool = self.gzhlbPool(player);
+					if (!pool.length) return;
+					const fig = pool[Math.floor(self.gzhlbRand(self.gzhlbSeed(player, 41 + i)) * pool.length)];
+					self.gzhlbAdd(player, fig[0]);
+					await self.gzhlbDengchang(player, fig[0]);
+				}
+				return;
+			}
+			await self.gzhlbSummon(player);
+		},
+		group: ["gzhlb_miyue_scene"],
+		subSkill: {
+			scene: {
+				trigger: {
+					global: "gameStart",
+				},
+				silentForce: true,
+				content(event, trigger, player) {
+					lib.skill.gzhlb_miyue.gzhlbSyncAll();
+					lib.skill.gzhlb_miyue.gzhlbArmSceneTimer(player);
+				},
+				sub: true,
+			},
+		},
+		gzhlbInjectPickStyle() {
+			if (typeof document == "undefined" || !document.head) return false;
+			if (document.getElementById("gzhlb-pick-style")) return true;
+			const style = document.createElement("style");
+			style.id = "gzhlb-pick-style";
+			style.innerHTML = [
+				".gzhlb-pick-row .caption,.gzhlb-dialog .caption{position:relative!important;display:block!important;width:100%!important;height:auto!important;margin:0!important;padding-top:6px!important;left:auto!important;top:auto!important}",
+				".gzhlb-pick-row .caption>div,.gzhlb-dialog .caption>div{position:relative!important;display:block!important;width:100%!important;height:auto!important;left:auto!important;top:auto!important;box-sizing:border-box!important;white-space:normal!important;text-align:left!important}",
+				".gzhlb-pick-row .caption>div>div,.gzhlb-dialog .caption>div>div{position:relative!important;display:block!important;width:auto!important;height:auto!important}",
+				".gzhlb-pick-row .content *,.gzhlb-dialog .content *{position:relative!important;transition:none}",
+				".gzhlb-pick-row .content,.gzhlb-dialog .content{position:relative!important;display:block!important;width:100%!important}",
+				".gzhlb-thumb{display:flex!important;align-items:center;box-sizing:border-box;width:100%!important;padding:4px 6px;gap:8px}",
+				".gzhlb-thumb>img{position:relative!important;display:block!important;flex:0 0 auto!important;height:74px!important;width:auto!important;max-width:120px;object-fit:contain}",
+				".gzhlb-thumb>div{position:relative!important;display:block!important;flex:1 1 auto!important;min-width:0;height:auto!important}",
+				".gzhlb-thumb .gzhlb-thumbname{color:#ffd978;font-weight:bold;font-size:15px}",
+				".gzhlb-thumb .gzhlb-thumbskill{color:#8fd0ff;font-size:13px}",
+				".gzhlb-thumb .gzhlb-thumbdesc{color:#e8e8e8;font-size:12px;line-height:1.45;white-space:normal}",
+				".gzhlb-line{position:relative!important;display:block!important;width:100%!important;padding:5px 8px;box-sizing:border-box;line-height:1.6;white-space:normal}",
+				".gzhlb-pics{display:flex!important;flex-wrap:wrap;justify-content:center;align-items:flex-start}",
+				".gzhlb-cell{display:flex!important;flex-direction:column;align-items:center;margin:4px 8px 10px}",
+				".gzhlb-pic{display:block!important;cursor:pointer;outline:none;border:none}",
+				".gzhlb-pic:hover,.gzhlb-pic.selected{transform:translateY(-6px) scale(1.05);filter:drop-shadow(0 0 6px #ffd678) drop-shadow(0 0 14px rgba(255,214,120,.85))}",
+				".gzhlb-cap{color:#eee;font-size:14px;line-height:1.65;text-align:left;margin-top:8px}",
+				".gzhlb-dialog .caption>.gzhlb-thumb.selected,.gzhlb-dialog .caption>.gzhlb-line.selected{background:rgba(255,214,120,.14);box-shadow:inset 0 0 0 2px #ffd678;border-radius:8px}",
+				".gzhlb-dialog .caption>.gzhlb-thumb:hover,.gzhlb-dialog .caption>.gzhlb-line:hover{background:rgba(255,255,255,.07);border-radius:8px}",
+			].join("");
+			document.head.appendChild(style);
+			return true;
+		},
+		gzhlbFillPics(box, items, ctx) {
+			const self = lib.skill.gzhlb_miyue;
+			const tiles = [];
+			let totalW = 0;
+			for (const item of items) {
+				const info = self.gzhlbFig(item.link);
+				const charId = (info && info.char) || item.link;
+				const w = item.w || 150;
+				const h = item.h || 172;
+				const skills = item.noSkill ? [] : self.gzhlbSkillsOf(charId);
+				const cellW = skills.length ? Math.max(w + 60, 220) : w + 16;
+				totalW += cellW + 16;
+				const cell = ui.create.div(".gzhlb-cell", box);
+				cell.style.width = cellW + "px";
+				let tile;
+				if (item.tile) {
+					tile = item.tile;
+					tile.classList.add("gzhlb-pic");
+					cell.appendChild(tile);
+				} else {
+					tile = ui.create.div(".gzhlb-pic", cell);
+				}
+				tile.style.width = w + "px";
+				tile.style.height = h + "px";
+				tile.link = item.link;
+				if (item.cover) tile.style.borderRadius = "8px";
+				let img = item.img;
+				if (!img) {
+					const figInfo = self.gzhlbFig(charId) || info;
+					if (figInfo) img = self.gzhlbPath + figInfo.img;
+				}
+				if (img) tile.style.backgroundImage = 'url("' + lib.assetURL + img + '")';
+				tile.style.backgroundRepeat = "no-repeat";
+				tile.style.backgroundPosition = item.bgPosition || "center bottom";
+				tile.style.backgroundSize = item.cover ? "cover" : "contain";
+				tile._customintro = function (uiintro) {
+					uiintro.add('<div class="text center" style="font-weight:bold">' + get.translation(charId) + "</div>");
+					if (item.noSkill) return;
+					for (const skill of lib.skill.gzhlb_miyue.gzhlbSkillsOf(charId)) {
+						uiintro.add('<div><div class="skill">' + get.translation(skill) + "</div><div>" + get.skillInfoTranslation(skill, ctx || null, false) + "</div></div>");
+					}
+				};
+				if (!item.tile) tile.addEventListener(lib.config.touchscreen ? "touchend" : "click", ui.click.button);
+				tile.addEventListener("contextmenu", function (event) {
+					event.preventDefault();
+					event.stopPropagation();
+					ui.click.intro.call(tile, event);
+				});
+				if (skills.length) {
+					const cap = ui.create.div(".gzhlb-cap", cell);
+					let html = '<div style="text-align:center;color:#ffd978;font-weight:bold;margin-bottom:4px">' + get.translation(charId) + "</div>";
+					for (const skill of skills) {
+						html +=
+							'<div style="margin-top:3px"><span style="color:#8fd0ff;font-weight:bold">【' +
+							get.translation(skill) +
+							"】</span>" +
+							get.skillInfoTranslation(skill, ctx || null, false) +
+							"</div>";
+					}
+					cap.innerHTML = html;
+				}
+				tiles.push(tile);
+			}
+			return { box: box, tiles: tiles, totalW: totalW };
+		},
+		gzhlbRebuildPics(dialog) {
+			let pics = [];
+			let holderBox = null;
+			try {
+				const holder = dialog.buttons;
+				if (Array.isArray(holder)) {
+					if (!holder.length) return null;
+					for (const node of holder) {
+						if (!node || !node.classList || !node.classList.contains("gzhlb-pic")) return null;
+						pics.push(node);
+					}
+				} else if (holder && typeof holder.querySelectorAll == "function") {
+					pics = Array.prototype.slice.call(holder.querySelectorAll(".gzhlb-pic"));
+					const kids = Array.prototype.slice.call(holder.children || []);
+					if (!pics.length || kids.length != pics.length) return null;
+					for (const kid of kids) {
+						if (!kid.classList || !kid.classList.contains("gzhlb-pic")) return null;
+					}
+					holderBox = holder;
+				} else {
+					return null;
+				}
+			} catch (e) {
+				return null;
+			}
+			if (!pics.length) return null;
+			try {
+				if (holderBox) {
+					while (holderBox.firstChild) holderBox.removeChild(holderBox.firstChild);
+					holderBox.style.display = "none";
+				}
+				const box = ui.create.div(".gzhlb-pics", dialog.content);
+				const items = pics.map(function (tile) {
+					return { link: tile.link, tile: tile };
+				});
+				const res = this.gzhlbFillPics(box, items, null);
+				Array.prototype.slice.call(dialog.content.querySelectorAll(".caption")).forEach(function (cap) {
+					try {
+						if (cap.querySelector(".gzhlb-pic,.gzhlb-pics,.gzhlb-thumb,.gzhlb-line")) return;
+						if (!String(cap.textContent || "").replace(/\s/g, "") && cap.delete) cap.delete();
+					} catch (e) { }
+				});
+				dialog.buttons = res.tiles;
+				dialog.add('<div class="text center" style="opacity:.6;font-size:12px;padding:4px 0">左键选择</div>');
+				return res;
+			} catch (e) {
+				return null;
+			}
+		},
+		gzhlbFixPickDialog(dialog) {
+			if (!dialog || !dialog.classList || !dialog.querySelector) return;
+			let ours = false;
+			try {
+				ours = !!dialog.querySelector(".gzhlb-pic,.gzhlb-thumb,.gzhlb-line,.gzhlb-pics,.gzhlb-cell");
+			} catch (e) {
+				ours = false;
+			}
+			if (!ours) return;
+			dialog.classList.add("gzhlb-dialog");
+			try {
+				lib.skill.gzhlb_miyue.gzhlbInjectPickStyle();
+			} catch (e) { }
+			const areaW = (typeof ui != "undefined" && ui.arena && ui.arena.clientWidth) || (typeof window != "undefined" ? window.innerWidth : 1024) || 1024;
+			const areaH = (typeof ui != "undefined" && ui.arena && ui.arena.clientHeight) || (typeof window != "undefined" ? window.innerHeight : 720) || 720;
+			const rebuilt = lib.skill.gzhlb_miyue.gzhlbRebuildPics(dialog);
+			if (rebuilt) {
+				const dialogW = Math.min(Math.max(rebuilt.totalW + 56, 360), Math.max(360, Math.floor(areaW * 0.92)));
+				dialog.classList.add("fullheight");
+				dialog.style.width = dialogW + "px";
+				dialog.style.left = Math.max(8, Math.round((areaW - dialogW) / 2)) + "px";
+				dialog.style.top = "40px";
+				dialog.style.height = Math.max(260, Math.floor(areaH * 0.8)) + "px";
+				try {
+					dialog.content.style.maxHeight = "none";
+					dialog.content.style.overflowY = "auto";
+				} catch (e) { }
+				return;
+			}
+			const width = Math.max(300, Math.min(Math.floor(areaW * 0.94), 680));
+			const height = Math.max(200, Math.min(Math.floor(areaH * 0.88), 720));
+			dialog.style.width = width + "px";
+			dialog.style.left = Math.max(4, Math.floor((areaW - width) / 2)) + "px";
+			dialog.style.top = Math.max(6, Math.floor(areaH * 0.05)) + "px";
+			dialog.style.height = height + "px";
+			dialog.style.maxHeight = "none";
+			dialog.style.minWidth = "0px";
+			try {
+				Array.prototype.slice.call(dialog.querySelectorAll(".gzhlb-pic")).forEach(function (pic) {
+					if (!pic.style.width) pic.style.width = "150px";
+					if (!pic.style.height) pic.style.height = "172px";
+					if (!pic.style.backgroundSize) pic.style.backgroundSize = "contain";
+					if (!pic.style.backgroundPosition) pic.style.backgroundPosition = "center bottom";
+				});
+			} catch (e) { }
+		},
+		gzhlbPatchDialog() {
+			if (typeof ui == "undefined" || !ui.create || typeof ui.create.dialog != "function") return false;
+			const factory = ui.create.dialog;
+			if (factory._gzhlbPatched) return true;
+			const self = this;
+			const patched = function () {
+				const dialog = factory.apply(void 0, arguments);
+				try {
+					self.gzhlbFixPickDialog(dialog);
+				} catch (e) { }
+				return dialog;
+			};
+			patched._gzhlbPatched = true;
+			ui.create.dialog = patched;
+			return true;
+		},
+		gzhlbUiBoot() {
+			const self = lib.skill.gzhlb_miyue || this;
+			try {
+				self.gzhlbInjectPickStyle();
+			} catch (e) { }
+			try {
+				this.gzhlbPatchDialog();
+			} catch (e) { }
+		},
+	},
+	/*gzhlb_yuehua: {
+		enable: "phaseUse",
+		usable: 1,
+		filter(event, player) {
+			return lib.skill.gzhlb_miyue.gzhlbState(player).length > 0;
+		},
+		chooseButton: {
+			dialog(event, player) {
+				const miyue = lib.skill.gzhlb_miyue;
+				const figs = miyue.gzhlbState(player).slice();
+				const list = figs.map(function (fig) {
+					const info = miyue.gzhlbFig(fig.key);
+					const name = info ? info.name : fig.key;
+					const skill = info ? info.skill : "";
+					const desc = (miyue.gzhlbEffects && miyue.gzhlbEffects[skill]) || lib.translate[skill + "_info"] || "";
+					return [
+						fig.key,
+						'<div class="popup text textbutton" style="padding:5px 10px;line-height:1.65"><span class="yellowtext">画中人·' +
+							name +
+							'</span><br><span style="color:#8fd0ff;font-weight:bold">' +
+							(get.translation(skill) || skill) +
+							"</span>：" +
+							desc +
+							"</div>",
+					];
+				});
+				return ui.create.dialog("月华：选择要发动的画中人", [list, "tdnodes"], "hidden");
+			},
+			check(button) {
+				return 1;
+			},
+			backup(links, player) {
+				return {
+					figKey: links[0],
+					filterCard() {
+						return false;
+					},
+					selectCard: -1,
+					direct: true,
+					async content(event, trigger, player) {
+						const miyue = lib.skill.gzhlb_miyue;
+						const info = get.info("gzhlb_yuehua_backup");
+						const key = (info && info.figKey) || event.figKey;
+						if (!key) return;
+						player.logSkill("gzhlb_yuehua");
+						miyue._gzhlbAnyone = true;
+						try {
+							await miyue.gzhlbFire(player, key, "dengchang");
+						} finally {
+							miyue._gzhlbAnyone = false;
+						}
+					},
+				};
+			},
+			prompt(links, player) {
+				const miyue = lib.skill.gzhlb_miyue;
+				const info = miyue.gzhlbFig(links[0]);
+				return "月华：发动【" + (info ? info.name : links[0]) + "】";
+			},
+		},
+		ai: {
+			order: 7,
+			result: {
+				player: 1,
+			},
+		},
+	},*/
+	gzhlb_yuehua: {
+		enable: "phaseUse",
+		usable: 1,
+		selectTarget: 1,
+		filterTarget(card, player, target) {
+			try {
+				if (!target || (target.isOut && target.isOut())) return false;
+				return !!((target.storage && target.storage.gzhlb_figs) || []).length;
+			} catch (e) {
+				return false;
+			}
+		},
+		filter(event, player) {
+			const ok = function (cur) {
+				return !!cur && (!cur.isOut || !cur.isOut()) && ((cur.storage && cur.storage.gzhlb_figs) || []).length > 0;
+			};
+			if (ok(player)) return true;
+			return game.hasPlayer(function (cur) {
+				return cur != player && ok(cur);
+			});
+		},
+		async content(event, trigger, player) {
+			const miyue = lib.skill.gzhlb_miyue;
+			const target = (event.targets && event.targets[0]) || null;
+			if (!target) return;
+			if (target == player) {
+				miyue.gzhlbPickStyle();
+				const figs = miyue.gzhlbState(player).slice();
+				const list = figs.map(function (fig) {
+					const info = miyue.gzhlbFig(fig.key);
+					const name = info ? info.name : fig.key;
+					const skill = info ? info.skill : "";
+					const desc = (miyue.gzhlbEffects && miyue.gzhlbEffects[skill]) || lib.translate[skill + "_info"] || "";
+					return [fig.key, '<div class="gzhlb-line" style="position:relative;display:block;padding:5px 10px;line-height:1.65;white-space:normal"><span class="yellowtext">画中人·' + name + '</span><br><span style="color:#8fd0ff;font-weight:bold">' + (get.translation(skill) || skill) + '</span>：' + desc + '</div>'];
+				});
+				const picked = await player
+					.chooseButton(["月华：选择要发动的画中人", [list, "textbutton"]], [1, 1])
+					.set("ai", function () {
+						return 1;
+					})
+					.forResult();
+				if (!picked || !picked.bool || !picked.links || !picked.links.length) return;
+				const key = picked.links[0];
+				miyue.gzhlbRemove(player, key);
+				miyue._gzhlbAnyone = true;
+				game.broadcastAll(function (value) {
+					lib.skill.gzhlb_miyue._gzhlbAnyone = value;
+				}, true);
+				miyue.gzhlbClearSelect();
+				try {
+					await miyue.gzhlbFire(player, key, "dengchang");
+				} finally {
+					miyue._gzhlbAnyone = false;
+					game.broadcastAll(function (value) {
+						lib.skill.gzhlb_miyue._gzhlbAnyone = value;
+					}, false);
+				}
+				return;
+			}
+			player.logSkill("gzhlb_yuehua", target);
+			player.line(target, "green");
+			const keys = miyue.gzhlbState(target).map(function (fig) {
+				return fig.key;
+			});
+			for (const key of keys) {
+				await miyue.gzhlbGive(target, key, player);
+			}
+		},
+		ai: {
+			order: 7,
+			result: {
+				target(player, target) {
+					if (target.storage && (target.storage.gzhlb_figs || []).length) return -1;
+					return 0;
+				},
+			},
+		},
+	},
+	gzhlb_zhengyi: {
+		async content(event, trigger, player) {
+			const miyue = lib.skill.gzhlb_miyue;
+			const target = await miyue.gzhlbActor(player, "整仪");
+			if (!target) return;
+			const card = get.cardPile2(function (c) {
+				return get.type(c) == "equip";
+			});
+			if (!card) return;
+			await target.gain(card, "gain2");
+		},
+	},
+	gzhlb_jieshou: {
+		async content(event, trigger, player) {
+			const miyue = lib.skill.gzhlb_miyue;
+			const giver = await miyue.gzhlbActor(player, "结绶");
+			if (!giver) return;
+			const cards = giver.getCards("he", function (c) {
+				return get.type(c) == "equip";
+			});
+			if (!cards.length) return;
+			const picked = await player.chooseCardButton("结绶：选择" + get.translation(giver) + "要交出的装备牌", cards, false).forResult();
+			if (!picked.bool || !picked.links || !picked.links.length) return;
+			const cands = game.players.filter(function (target) {
+				return target && (!target.isOut || !target.isOut()) && target != giver;
+			});
+			const receiver = await lib.skill.gzhlb_miyue.gzhlbChooseTarget(
+				player,
+				"结绶：交给" + get.translation(giver) + "以外的一名角色",
+				cands
+			);
+			if (!receiver) return;
+			if (receiver != giver) await giver.give(picked.links, receiver, true);
+			await giver.recover();
+		},
+	},
+	gzhlb_roujia: {
+		async content(event, trigger, player) {
+			const miyue = lib.skill.gzhlb_miyue;
+			const target = await miyue.gzhlbActor(player, "柔嘉");
+			if (!target) return;
+			await target.draw(1);
+			if (target.hp < 3) {
+				await player.draw(1);
+			}
+		},
+	},
+	gzhlb_chenghuan: {
+		async content(event, trigger, player) {
+			const miyue = lib.skill.gzhlb_miyue;
+			const actor = await miyue.gzhlbActor(player, "承鬟");
+			if (!actor) return;
+			const cards = actor.getCards("e");
+			if (!cards.length) {
+				return;
+			}
+			let other;
+			if (miyue._gzhlbAnyone) {
+				const cands = game.players.filter(function (target) {
+					return target && (!target.isOut || !target.isOut()) && target != actor;
+				});
+				other = await miyue.gzhlbChooseTarget(player, "承鬟：选择要把这张装备牌移到谁的区域", cands);
+				if (!other) return;
+			} else {
+				other = actor == player ? _status.currentPhase : player;
+			}
+			if (!other || other == actor) {
+				return;
+			}
+			const picked = await player.chooseCardButton("承鬟：选择" + get.translation(actor) + "要移走的装备牌", cards, false).forResult();
+			if (!picked.bool || !picked.links || !picked.links.length) return;
+			const card = picked.links[0];
+			actor.$give(card, other);
+			await other.equip(card);
+		},
+	},
+	gzhlb_qingcai: {
+		async content(event, trigger, player) {
+			const miyue = lib.skill.gzhlb_miyue;
+			const actor = await miyue.gzhlbActor(player, "清裁");
+			if (!actor) return;
+			const cards = actor.getCards("he");
+			if (!cards.length) return;
+			const num = Math.min(2, cards.length);
+			const picked = await player
+				.choosePlayerCard(actor, "he", num, "清裁：选择" + get.translation(actor) + "的" + num + "张牌重铸")
+				.forResult();
+			if (!picked.bool || !picked.cards || !picked.cards.length) return;
+			await actor.recast(picked.cards);
+		},
+	},
+	gzhlb_ningdi: {
+		async content(event, trigger, player) {
+			const miyue = lib.skill.gzhlb_miyue;
+			const target = await miyue.gzhlbActor(player, "凝睇");
+			if (!target) return;
+			const owner = _status.currentPhase;
+			target.addTempSkill("gzhlb_ningdi_buff", function (event, p, name) {
+				return name == "phaseAfter" && event.player == owner;
+			});
+		},
+		subSkill:{
+			buff: {
+				charlotte: true,
+				mod: {
+					cardUsable(card, player, num) {
+						if (card.name == "sha") {
+							return num + 1;
+						}
+					},
+				},
+				sub: true,
+			},
+		},
+	},
+	gzhlb_zhenying: {
+		async content(event, trigger, player) {
+			const miyue = lib.skill.gzhlb_miyue;
+			const target = await miyue.gzhlbActor(player, "振缨");
+			if (!target) return;
+			const owner = _status.currentPhase;
+			target.addTempSkill("gzhlb_zhenying_buff", function (event, p, name) {
+				return name == "phaseAfter" && event.player == owner;
+			});
+		},
+		subSkill:{
+			buff: {
+				trigger: {
+					source: "damageBegin1",
+				},
+				silentForce: true,
+				filter(event, player) {
+					const phase = event.getParent("phase");
+					if (!phase) return false;
+					return event.player.hasHistory("lose", function (evt) {
+						return evt.getParent("phase") == phase;
+					});
+				},
+				content(event, trigger, player) {
+					trigger.num++;
+				},
+				sub: true,
+			},
+		},
+	},
+	gzhlb_shuangying: {
+		async content(event, trigger, player) {
+			const cur = _status.currentPhase;
+			if (!cur || cur == player) {
+				return;
+			}
+			const mine = player.countCards("e");
+			const theirs = cur.countCards("e");
+			if (mine == theirs) return;
+			player.line(cur, "fire");
+			if (mine > theirs) {
+				await cur.loseHp(1);
+			} else {
+				await cur.damage(1, player);
+			}
+		},
+	},
+	gzhlb_lianren: {
+		async content(event, trigger, player) {
+			const miyue = lib.skill.gzhlb_miyue;
+			const target = await miyue.gzhlbActor(player, "敛衽");
+			if (!target) return;
+			const cards = target.getCards("ej");
+			if (!cards.length) return;
+			await target.gain(cards, "gain2");
+		},
+	},
+	// 侍寝
+	gzhlb_shiqin: {
+		trigger: {
+			global: ["loseEnd", "loseAsyncAfter", "discardAfter"],
+		},
+		filter(event, player) {
+			if (player.hasSkill("gzhlb_shiqin_cd")) return false;
+			if (!event || event._gzhlbShiqinDone) return false;
+			const parent = typeof event.getParent == "function" ? event.getParent() : null;
+			if (parent && parent._gzhlbShiqinDone) return false;
+			let loser = event.player;
+			if (!loser && typeof event.getl == "function") {
+				for (const cur of game.players) {
+					const got = event.getl(cur);
+					if (got && got.cards2 && got.cards2.length) {
+						loser = cur;
+						break;
+					}
+				}
+			}
+			if (!loser || !loser.storage) return false;
+			const figs = loser.storage.gzhlb_figs;
+			if (!figs || !figs.length) return false;
+			let cards = (event.cards || []).concat(event.cards2 || []);
+			if (typeof event.getl == "function") {
+				const got = event.getl(loser);
+				if (got) cards = cards.concat(got.cards2 || [], got.es || []);
+			}
+			if (
+				!cards.some(function (card) {
+					return card && get.type(card, loser) == "equip";
+				})
+			)
+				return false;
+			if (parent && parent.name == "useCard" && parent.player == loser) {
+				if (get.type(parent.card, null, false) == "equip") return false;
+			}
+			return true;
+		},
+		async content(event, trigger, player) {
+			trigger._gzhlbShiqinDone = true;
+			const parent = typeof trigger.getParent == "function" ? trigger.getParent() : null;
+			if (parent) parent._gzhlbShiqinDone = true;
+			let owner = trigger.player;
+			let cards = (trigger.cards || []).concat(trigger.cards2 || []);
+			if (typeof trigger.getl == "function") {
+				const got = trigger.getl(owner);
+				if (got) cards = cards.concat(got.cards2 || [], got.es || []);
+			}
+			if (!owner || !owner.storage || !(owner.storage.gzhlb_figs || []).length) {
+				owner = null;
+				for (const cur of game.players) {
+					if (!cur.storage) continue;
+					const got = typeof trigger.getl == "function" ? trigger.getl(cur) : null;
+					const list = got && got.cards2 ? got.cards2 : [];
+					if (list.length && (cur.storage.gzhlb_figs || []).length) {
+						owner = cur;
+						cards = list;
+						break;
+					}
+				}
+			}
+			if (!owner) return;
+			const lost = [];
+			for (const card of cards) {
+				if (card && !lost.includes(card) && get.type(card, owner) == "equip") lost.push(card);
+			}
+			if (!lost.length) return;
+			await owner.draw(lost.length);
+			const miyue = lib.skill.gzhlb_miyue;
+			miyue.gzhlbPickStyle();
+			if (!miyue.gzhlbState(owner).length) return;
+			const figs = miyue.gzhlbState(owner).slice();
+			const list = figs.map(function (fig) {
+				const info = miyue.gzhlbFig(fig.key);
+				const name = info ? info.name : fig.key;
+				const skill = info ? info.skill : "";
+				const desc = (miyue.gzhlbEffects && miyue.gzhlbEffects[skill]) || lib.translate[skill + "_info"] || "";
+				return [fig.key, '<div class="gzhlb-line" style="position:relative;display:block;padding:5px 10px;line-height:1.65;white-space:normal"><span class="yellowtext">画中人·' + name + '</span><br><span style="color:#8fd0ff;font-weight:bold">' + (get.translation(skill) || skill) + '</span>：' + desc + '</div>'];
+			});
+			const picked = await player
+				.chooseButton(["侍寝：选择要从【" + get.translation(owner) + "】身上交出的画中人", [list, "textbutton"]], [1, 1])
+				.set("ai", function () {
+					return 1;
+				})
+				.forResult();
+			if (!picked || !picked.bool || !picked.links || !picked.links.length) return;
+			const key = picked.links[0];
+			const cands = game.players.filter(function (target) {
+				return target && (!target.isOut || !target.isOut()) && target != owner;
+			});
+			const receiver = await miyue.gzhlbChooseTarget(player, "侍寝：选择获得这名画中人的角色", cands);
+			if (!receiver) return;
+			await miyue.gzhlbGive(owner, key, receiver);
+			player.addTempSkill("gzhlb_shiqin_cd");
+		},
+		subSkill: {
+			cd: {
+				sub: true,
+			},
+		},
+	},
 	zncs_yingyin: {
 		trigger: {
 			global: "roundStart",
@@ -210,7 +1429,7 @@ let block = {
 				silentForce: true,
 				async content(event, trigger, player) {
 					const gainer = trigger.player;
-					const result = await gainer.chooseBool("萤引：是否令" + get.translation(player) + "摸两张牌并视为对由你指定的角色使用一张【杀】？").set("ai", () => get.attitude(gainer, player) > 0).forResult();
+					const result = await gainer.chooseBool("萤引：是否令" + get.translation(player) + "摸两张牌并视为对由其指定的角色使用一张【杀】？").set("ai", () => get.attitude(gainer, player) > 0).forResult();
 					if (!result.bool) return;
 					player.storage.zncs_yingyin_cur = game.roundNumber + "_" + (_status.currentPhase ? _status.currentPhase.playerid : "");
 					await player.draw(2);
@@ -2260,14 +3479,9 @@ let block = {
 					if (!num) return;
 					if (player.group == "shen") {
 						game.log(player, "对", trigger.player, "造成了", "#y" + num, "点", "#y绝毁伤害");
-						const hadDamage = player.hasSkill("gf_damage");
-						if (!hadDamage) player.addSkill("gf_damage");
-						try {
-							await trigger.player.damage(num, player);
-						} finally {
-							player.removeSkill("gf_damage_a");
-							if (!hadDamage) player.removeSkill("gf_damage");
-						}
+						if (trigger.source) trigger.source.gf_trueDamage(trigger);
+						trigger._triggered = null;
+						// await player.gf_trueDamageTo(trigger.player, num);
 					} else {
 						await trigger.player.loseHp(num);
 					}
@@ -4247,6 +5461,9 @@ let block = {
 			const pool = player.getExpansions("gzt_zijin2");
 			const num = Math.min(cards.length, pool.length);
 			if (num <= 0) return;
+			game.broadcastAll((p) => {
+				game.playAudio(`../extension/鸽府包/audio/skill/gzt_zijin2${[1, 2].randomGet()}.mp3`);
+			}, player);
 			const back = await player.chooseButton(true, ["资金：请依次选择" + get.cnNumber(num) + "张“资金”置于牌堆顶", pool], [num, num]).set("gzt_zj2_back", num).set("ai", function (button) {
 				if (ui.selected.buttons.length >= get.event().gzt_zj2_back) return 0;
 				return Math.max(1, 10 - get.value(button.link, get.player()));
@@ -4271,6 +5488,9 @@ let block = {
 					if (!pool.length) return;
 					await player.gain(pool.randomGet(), "draw");
 					player.updateMark("gzt_zijin2");
+					game.broadcastAll((p) => {
+						game.playAudio(`../extension/鸽府包/audio/skill/gzt_zijin2${[1, 2].randomGet()}.mp3`);
+					}, player);
 				},
 				sub: true,
 			},
@@ -4325,6 +5545,9 @@ let block = {
 				player.updateMark("gzt_zijin2");
 				return true;
 			};
+			game.broadcastAll((p) => {
+				game.playAudio(`../extension/鸽府包/audio/skill/gzt_huanyao${[1, 2].randomGet()}.mp3`);
+			}, player);
 			if (!(await gain(2, false))) return;
 			if (target == player) return;
 			const bool = await player.chooseBool("欢谣：是否令【" + get.translation(target) + "】额外选择两张“资金”？").set("ai", () => get.attitude(player, target) > 0).forResult();
@@ -4380,6 +5603,9 @@ let block = {
 			}).forResult();
 			if (!res || !res.bool || !res.targets || !res.targets.length) return;
 			const target = res.targets[0];
+			game.broadcastAll((p) => {
+				game.playAudio(`../extension/鸽府包/audio/skill/gzt_haozhi${[1, 2].randomGet()}.mp3`);
+			}, player);
 			if (!target.isDamaged()) {
 				await target.draw(2);
 				return;
@@ -24759,7 +25985,7 @@ let block = {
 				},
 				silentForce: true,
 				filter(event, player) {
-					return player.storage.wzzs_yuyan_success && get.type(event.card, "trick") == "trick" && player.countCards("he") > 0;
+					return player.storage.wzzs_yuyan_success && get.type(event.card) == "trick" && player.countCards("he") > 0;
 				},
 				async content(event, trigger, player) {
 					player.storage.wzzs_yuyan_success = false;
@@ -28746,7 +29972,7 @@ let block = {
 				if(event.triggername == 'useCardBefore'){
 					player.addTempSkill("gf_card", {player: "useCardAfter"});
 				} else {
-					trigger.cancel = () => {};
+					if (trigger.source) trigger.source.gf_trueDamage(trigger);
 					trigger._triggered = null;
 				}
 			}
@@ -39459,7 +40685,7 @@ let block = {
 		},
 		"_priority": 0,
 	},
-	"gzj_zhanshi": {
+	"gzhlb_zhanshi": {
 		enable: "chooseToUse",
 		intro: {
 			content: "已记录花色：$",
@@ -39490,8 +40716,8 @@ let block = {
 				if (get.name(card) == 'tao') return false;
 			}
 			if (get.type(card) == 'equip' || get.name(card) == 'wuxie' || get.name(card) == 'shan' || get.type(card) == 'delay') return false;
-			if (!player.storage.gzj_zhanshi) return true;
-			return !player.storage.gzj_zhanshi.contains(get.suit(card));
+			if (!player.storage.gzhlb_zhanshi) return true;
+			return !player.storage.gzhlb_zhanshi.contains(get.suit(card));
 		},
 		position: "h",
 		discard: false,
@@ -39501,7 +40727,7 @@ let block = {
 			'step 0'
 			event.count = 0;
 			player.showCards(cards[0]);
-			player.markAuto('gzj_zhanshi', [get.suit(cards[0])]);
+			player.markAuto('gzhlb_zhanshi', [get.suit(cards[0])]);
 			var list = game.filterPlayer();
 			for (var i = 0; i < list.length; i++) {
 				if (list[i].hp < 1 && list[i] != player) {
@@ -39513,11 +40739,11 @@ let block = {
 			}
 			if (event.count > 0) {
 				if (get.name(cards[0]) == 'jiu') {
-					var next = game.createEvent('gzj_zhanshi_jiu');
+					var next = game.createEvent('gzhlb_zhanshi_jiu');
 					next.player = player;
-					next.setContent(lib.skill.gzj_zhanshi_jiu.content);
+					next.setContent(lib.skill.gzhlb_zhanshi_jiu.content);
 				} else {
-					player.addSkill('gzj_zhanshi_mod');
+					player.addSkill('gzhlb_zhanshi_mod');
 					var card = {
 						name: get.name(cards[0], player),
 						nature: get.nature(cards[0], player),
@@ -39528,14 +40754,14 @@ let block = {
 			}
 			'step 1'
 			if (get.name(cards[0]) == 'sha') {
-				var next = game.createEvent('gzj_zhanshi_mod');
+				var next = game.createEvent('gzhlb_zhanshi_mod');
 				next.player = player;
-				next.setContent(lib.skill.gzj_zhanshi_mod.content);
+				next.setContent(lib.skill.gzhlb_zhanshi_mod.content);
 			}
-			player.removeSkill('gzj_zhanshi_mod');
+			player.removeSkill('gzhlb_zhanshi_mod');
 		},
 		"_priority": 0,
-		group: ["gzj_zhanshi_1", "gzj_zhanshi_2", "gzj_zhanshi_3", "gzj_zhanshi_reset"],
+		group: ["gzhlb_zhanshi_1", "gzhlb_zhanshi_2", "gzhlb_zhanshi_3", "gzhlb_zhanshi_reset"],
 		subSkill: {
 			"1": {
 				trigger: {
@@ -39546,10 +40772,10 @@ let block = {
 					if (!event.filterCard({ name: 'shan' }, player, event)) return false;
 					var hs = player.getCards('h');
 					for (var j = 0; j < hs.length; j++) {
-						if (!player.storage.gzj_zhanshi) {
+						if (!player.storage.gzhlb_zhanshi) {
 							if (get.name(hs[j]) == 'shan') return true;
 						} else {
-							if (!player.storage.gzj_zhanshi.contains(get.suit(hs[j])) && get.name(hs[j]) == 'shan') return true;
+							if (!player.storage.gzhlb_zhanshi.contains(get.suit(hs[j])) && get.name(hs[j]) == 'shan') return true;
 						}
 					}
 				},
@@ -39557,17 +40783,17 @@ let block = {
 				content: function () {
 					"step 0"
 					var goon = (get.damageEffect(player, trigger.player, player) <= 0);
-					player.chooseCard('h', get.prompt('gzj_zhanshi'), function (card, player) {
+					player.chooseCard('h', get.prompt('gzhlb_zhanshi'), function (card, player) {
 						if (get.name(card) != 'shan') return false;
-						if (!player.storage.gzj_zhanshi) return true;
-						return !player.storage.gzj_zhanshi.contains(get.suit(card));
+						if (!player.storage.gzhlb_zhanshi) return true;
+						return !player.storage.gzhlb_zhanshi.contains(get.suit(card));
 					}).ai = function () {
 						return goon ? 1 : 0;
 					}
 					"step 1"
 					if (result.bool) {
 						player.showCards(result.cards);
-						player.markAuto('gzj_zhanshi', [get.suit(result.cards)]);
+						player.markAuto('gzhlb_zhanshi', [get.suit(result.cards)]);
 						trigger.untrigger();
 						trigger.responded = true;
 						trigger.result = { bool: true, card: { name: 'shan' } }
@@ -39585,10 +40811,10 @@ let block = {
 					if (!event.filterCard({ name: 'wuxie' }, player, event)) return false;
 					var hs = player.getCards('h');
 					for (var j = 0; j < hs.length; j++) {
-						if (!player.storage.gzj_zhanshi) {
+						if (!player.storage.gzhlb_zhanshi) {
 							if (get.name(hs[j]) == 'wuxie') return true;
 						} else {
-							if (!player.storage.gzj_zhanshi.contains(get.suit(hs[j])) && get.name(hs[j]) == 'wuxie') return true;
+							if (!player.storage.gzhlb_zhanshi.contains(get.suit(hs[j])) && get.name(hs[j]) == 'wuxie') return true;
 						}
 					}
 				},
@@ -39596,17 +40822,17 @@ let block = {
 				content: function () {
 					"step 0"
 					var goon = (get.damageEffect(player, trigger.player, player) <= 0);
-					player.chooseCard(get.prompt('gzj_zhanshi'), function (card, player, target) {
+					player.chooseCard(get.prompt('gzhlb_zhanshi'), function (card, player, target) {
 						if (get.name(card) != 'wuxie') return false;
-						if (!player.storage.gzj_zhanshi) return true;
-						return !player.storage.gzj_zhanshi.contains(get.suit(card));
+						if (!player.storage.gzhlb_zhanshi) return true;
+						return !player.storage.gzhlb_zhanshi.contains(get.suit(card));
 					}).ai = function () {
 						return goon ? 1 : 0;
 					}
 					"step 1"
 					if (result.bool) {
 						player.showCards(result.cards);
-						player.markAuto('gzj_zhanshi', [get.suit(result.cards)]);
+						player.markAuto('gzhlb_zhanshi', [get.suit(result.cards)]);
 						trigger.untrigger();
 						trigger.responded = true;
 						trigger.result = { bool: true, card: { name: 'wuxie' } }
@@ -39625,16 +40851,16 @@ let block = {
 					var hs = player.getCards('h');
 					var filter = event.filterCard;
 					for (var j = 0; j < hs.length; j++) {
-						if (!player.storage.gzj_zhanshi) {
+						if (!player.storage.gzhlb_zhanshi) {
 							if (filter({ name: 'sha' }, player, event) && player.countCards('h', { name: 'sha' })) return true;
 							if (filter({ name: 'shan' }, player, event) && player.countCards('h', { name: 'shan' })) return true;
 						} else {
 							if (filter({ name: 'shan' }, player, event)) {
-								if (!player.storage.gzj_zhanshi.contains(get.suit(hs[j]))
+								if (!player.storage.gzhlb_zhanshi.contains(get.suit(hs[j]))
 									&& get.name(hs[j]) == 'shan') return true;
 							}
 							if (filter({ name: 'sha' }, player, event)) {
-								if (!player.storage.gzj_zhanshi.contains(get.suit(hs[j]))
+								if (!player.storage.gzhlb_zhanshi.contains(get.suit(hs[j]))
 									&& get.name(hs[j]) == 'sha') return true;
 							}
 						}
@@ -39647,19 +40873,19 @@ let block = {
 					var players = game.filterPlayer();
 					var goon = (get.damageEffect(player, trigger.player, player) <= 0);
 					if (trigger.filterCard({ name: 'shan' })) {
-						player.chooseCard(get.prompt('gzj_zhanshi'), function (card, player, target) {
+						player.chooseCard(get.prompt('gzhlb_zhanshi'), function (card, player, target) {
 							if (get.name(card) != 'shan') return false;
-							if (!player.storage.gzj_zhanshi) return true;
-							return !player.storage.gzj_zhanshi.contains(get.suit(card));
+							if (!player.storage.gzhlb_zhanshi) return true;
+							return !player.storage.gzhlb_zhanshi.contains(get.suit(card));
 						}).ai = function () {
 							return goon ? 1 : 0;
 						}
 					}
 					if (trigger.filterCard({ name: 'sha' })) {
-						player.chooseCard(get.prompt('gzj_zhanshi'), function (card, player, target) {
+						player.chooseCard(get.prompt('gzhlb_zhanshi'), function (card, player, target) {
 							if (get.name(card) != 'sha') return false;
-							if (!player.storage.gzj_zhanshi) return true;
-							return !player.storage.gzj_zhanshi.contains(get.suit(card));
+							if (!player.storage.gzhlb_zhanshi) return true;
+							return !player.storage.gzhlb_zhanshi.contains(get.suit(card));
 						}).ai = function () {
 							return goon ? 1 : 0;
 						}
@@ -39667,7 +40893,7 @@ let block = {
 					"step 1"
 					if (result.bool) {
 						player.showCards(result.cards);
-						player.markAuto('gzj_zhanshi', [get.suit(result.cards)]);
+						player.markAuto('gzhlb_zhanshi', [get.suit(result.cards)]);
 						trigger.untrigger();
 						trigger.responded = true;
 						trigger.result = { bool: true, card: {} };
@@ -39705,8 +40931,8 @@ let block = {
 				},
 				silent: true,
 				content: function () {
-					player.unmarkSkill('gzj_zhanshi');
-					delete player.storage.gzj_zhanshi;
+					player.unmarkSkill('gzhlb_zhanshi');
+					delete player.storage.gzhlb_zhanshi;
 				},
 				sub: true,
 				silentForce: true,
@@ -39907,7 +41133,7 @@ let block = {
 		},
 		"_priority": 0,
 	},
-	"gzj_renyi": {
+	"gzhlb_renyi": {
 		enable: "phaseUse",
 		usable: 1,
 		filterCard: true,
@@ -39997,7 +41223,7 @@ let block = {
 		},
 		"_priority": 0,
 	},
-	"gzj_zhengxiong": {
+	"gzhlb_zhengxiong": {
 		enable: "phaseUse",
 		usable: 1,
 		filterCard: true,
@@ -40009,8 +41235,8 @@ let block = {
 		log: false,
 		content: function () {
 			'step 0'
-			player.chooseTarget(get.prompt('gzj_zhengxiong'), '选择任意一名其他角色对其使用一张虚拟杀', function (card, player, target) {
-				return target.countMark('gzj_zhengxiong') < 1 && target != player;
+			player.chooseTarget(get.prompt('gzhlb_zhengxiong'), '选择任意一名其他角色对其使用一张虚拟杀', function (card, player, target) {
+				return target.countMark('gzhlb_zhengxiong') < 1 && target != player;
 			}).set('ai', function (target) {
 				var player = _status.event.player, att = get.attitude(player, target);
 				if (att > 0) return -1;
@@ -40020,7 +41246,7 @@ let block = {
 			if (result.bool) {
 				var target = result.targets[0];
 				player.useCard({ name: 'sha', isCard: true }, target, false);
-				player.addTempSkill('gzj_zhengxiong_1', 'shaAfter');
+				player.addTempSkill('gzhlb_zhengxiong_1', 'shaAfter');
 			}
 		},
 		subSkill: {
@@ -40030,12 +41256,12 @@ let block = {
 					source: "damageBegin",
 				},
 				filter: function (event, player) {
-					if (event.player.countMark('gzj_renyi') < 1) return false;
+					if (event.player.countMark('gzhlb_renyi') < 1) return false;
 					return event.card && event.card.name == 'sha' && event.notLink();
 				},
 				content: function () {
 					trigger.num += 2;
-					trigger.player.addMark('gzj_zhengxiong', 1);
+					trigger.player.addMark('gzhlb_zhengxiong', 1);
 				},
 				sub: true,
 				"_priority": 0,
@@ -50873,7 +52099,210 @@ let block = {
 			}
 		}
 	},
+	gzhlb_paolu: {
+		enable: "phaseUse",
+		usable: 1,
+		group: ["gzhlb_paolu_summon"],
+		filter(event, player) {
+			return !player.removed && !player.isOut();
+		},
+		async content(event, trigger, player) {
+			const cards = player.getCards("hej").slice(0);
+			const state = {
+				position: parseInt(player.dataset.position),
+				name: player.name1 || player.name,
+				name2: player.name2 || "",
+				hp: player.hp,
+				maxHp: player.maxHp,
+				identity: player.identity,
+				side: player.side,
+				sex: player.sex,
+				group: player.group,
+				mine: player == game.me,
+				playerid: player.playerid,
+				ws: lib.wsOL ? lib.wsOL[player.playerid] : null,
+				self: player,
+				skills: player.skills.slice(0),
+				equip: player.getCards("e").slice(0),
+				judge: player.getCards("j").slice(0),
+				cards: cards,
+			};
+			game.gzhlb_paolu_saved = state;
+			if (!game._gzhlbNoSwap) {
+				const guard = function (name) {
+					const fn = game[name];
+					if (typeof fn != "function") return;
+					game[name] = function () {
+						const saved = game.gzhlb_paolu_saved;
+						const first = arguments[0];
+						if (saved && saved.self && first !== saved.self && first !== game.gzhlb_paolu_allow) return;
+						return fn.apply(game, arguments);
+					};
+				};
+				guard("swapPlayer");
+				guard("swapPlayerAuto");
+				guard("swapControl");
+				guard("modeSwapPlayer");
+				let realMe = game.me;
+				Object.defineProperty(game, "me", {
+					configurable: true,
+					enumerable: true,
+					get() {
+						return realMe;
+					},
+					set(v) {
+						const saved = game.gzhlb_paolu_saved;
+						if (saved && saved.self && v && v !== saved.self && v !== game.gzhlb_paolu_allow) return;
+						realMe = v;
+					},
+				});
+				game._gzhlbNoSwap = true;
+			}
+			if (cards.length) await player.lose(cards, ui.special);
+			const realMe = game.me;
+			if (realMe == player) game.me = null;
+			try {
+				await game.GF_removeKuiLei(player);
+			} catch (e) {}
+			if (realMe == player) game.me = player;
+			game.notMe = true;
+			_status.auto = false;
+			try { ui.handcards1.hide(); ui.handcards2.hide(); } catch (e) {}
+			if (!lib.skill.global.includes("gzhlb_paolu_summon")) game.addGlobalSkill("gzhlb_paolu_summon");
+		},
+		ai: {
+			order: 0.05,
+			result: {
+				player: 1,
+			},
+		},
+		subSkill: {
+			summon: {
+				trigger: {
+					global: "roundEnd",
+				},
+				silentForce: true,
+				filter(event, player) {
+					return !event._gzhlbPaoluSummoned && !!game.gzhlb_paolu_saved;
+				},
+				async content(event, trigger, player) {
+					trigger._gzhlbPaoluSummoned = true;
+					const state = game.gzhlb_paolu_saved;
+					if (!state) return;
+					let anchor = null;
+					for (const p of game.players) {
+						if (!p || p === player || p.removed) continue;
+						if (parseInt(p.dataset.position) == state.position - 1) {
+							anchor = p;
+							break;
+						}
+					}
+					if (!anchor) {
+						const alive = game.players.filter(p => p && p !== player && !p.removed);
+						anchor = alive.length ? alive[alive.length - 1] : null;
+					}
+					if (!anchor) return;
+					const info = lib.character[state.name] || [];
+					let summoned = null;
+					try {
+						summoned = await anchor.GF_ZhaoHuan({
+							id: state.name,
+							name: lib.translate[state.name] || state.name,
+							sex: state.sex || info[0] || "male",
+							group: state.group || info[1] || "qun",
+							hp: state.hp + "/" + state.maxHp + "/0",
+							initCards: 0,
+							standImg: (info[4] && info[4][0]) || `ext:鸽府包/image/character/stand/${state.name}.jpg`,
+							skill: "gzhlb_paolu",
+							skills: state.skills,
+							targetPosPlayer: anchor,
+							mode: "control",
+						});
+					} catch (e) {}
+					if (!summoned) return;
+					game.gzhlb_paolu_allow = summoned;
+					summoned.maxHp = state.maxHp;
+					summoned.hp = Math.min(state.hp, state.maxHp);
+					summoned.update();
+					if (state.identity) {
+						summoned.identity = state.identity;
+						if (summoned.node && summoned.node.identity && summoned.node.identity.firstChild) {
+							summoned.node.identity.firstChild.innerHTML = get.translation(state.identity);
+							summoned.node.identity.dataset.color = state.identity;
+						}
+						if (summoned.node && summoned.node.dieidentity) {
+							summoned.node.dieidentity.innerHTML = get.translation(state.identity + "2");
+						}
+					}
+					if (state.side) summoned.side = state.side;
+					if (state.self) {
+						summoned._trueMe = state.self;
+						delete summoned._gf_trueMe;
+					}
+					if (state.cards.length) await summoned.gain(state.cards, "gain2");
+					for (const card of state.equip) {
+						if (card && card.name) await summoned.equip(card);
+					}
+					for (const card of state.judge) {
+						if (card && card.name) await summoned.addJudge(card);
+					}
+					try {
+						if (_status.connectMode && state.ws && lib.wsOL) lib.wsOL[summoned.playerid] = state.ws;
+					} catch (e) {}
+					try {
+						if (_status.connectMode) {
+							game.broadcastAll(function (oldid, summoned2) {
+								if (game.me && oldid && game.me.playerid === oldid) {
+									game.notMe = false;
+									game.observe = false;
+									try { ui.arena.classList.remove("observe"); } catch (e) {}
+									game.swapPlayerAuto(summoned2);
+									if (ui.me) ui.me.show();
+									if (ui.auto) ui.auto.show();
+									if (ui.wuxie) ui.wuxie.show();
+								}
+							}, state.playerid, summoned);
+						} else if (state.mine) {
+							game.notMe = false;
+							game.observe = false;
+							try { ui.arena.classList.remove("observe"); } catch (e) {}
+							try {
+								const oldMe = game.me;
+								if (oldMe && oldMe !== summoned && oldMe.node) {
+									if (oldMe.node.handcards1) oldMe.node.handcards1.remove();
+									if (oldMe.node.handcards2) oldMe.node.handcards2.remove();
+								}
+								game.me = summoned;
+								ui.handcards1 = summoned.node.handcards1.addTempClass("start").fix();
+								ui.handcards2 = summoned.node.handcards2.addTempClass("start").fix();
+								ui.handcards1Container.appendChild(ui.handcards1);
+								ui.handcards2Container.appendChild(ui.handcards2);
+								ui.updatehl();
+							} catch (e) {}
+							if (ui.me) ui.me.show();
+							if (ui.auto) ui.auto.show();
+							if (ui.wuxie) ui.wuxie.show();
+						}
+					} catch (e) {}
+					game.removeGlobalSkill("gzhlb_paolu_summon");
+					delete game.gzhlb_paolu_saved;
+					delete game.gzhlb_paolu_allow;
+					await summoned.dying();
+				},
+			},
+		},
+	},
 };
 
-
 export const skill=block;
+
+try {
+	if (typeof document != "undefined") {
+		if (document.head) block.gzhlb_miyue.gzhlbUiBoot();
+		else
+			document.addEventListener("DOMContentLoaded", function () {
+				block.gzhlb_miyue.gzhlbUiBoot();
+			});
+	}
+} catch (e) { }
+

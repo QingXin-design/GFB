@@ -119,6 +119,15 @@ style.textContent = `
   color: #eafffb !important;
   text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, rgba(56, 232, 208, 1) 0 0 6px, rgba(56, 232, 208, 0.65) 0 0 16px !important;
 }
+/* poptip 弹窗默认只有 220px 宽，装不下鸽府包的列表：让宽度跟着内容走 */
+#window > .dialog.popped#poptip {
+  width: auto !important;
+  min-width: 220px;
+  max-width: min(520px, 86vw);
+}
+#window > .dialog.popped#poptip .content > .text {
+  text-align: left;
+}
 `;
 document.head.appendChild(style);
 let selfNick = "<span class='blood_pulse_flow'>阎罗王</span>";
@@ -199,6 +208,7 @@ if (lib.device || lib.node) {
             const imagePath = `extension/鸽府包/image/character/${outcropConfig === true ? "stand" : outcropConfig}/`;
             const suffix = ".jpg";
             for (const id in characterData) {
+                if (id.startsWith("gzhlb_fig_") || id.startsWith("gzhlb_bg_")) continue;
                 const validPrefixes = ["gf_", "wzzs_", "cxm_","dmwc_" , "tj_", "gzhlb_", "gzt_", "seh_", "aqcs_", "gzlj_", "a_", "Mimi_", "gzr_", "zgtz_", "zncs_"];
                 if (validPrefixes.some(prefix => id.startsWith(prefix))) {
                     const imgPath = imagePath + id + suffix;
@@ -212,7 +222,19 @@ if (lib.device || lib.node) {
                 }
             }
         }
-        for (let name in characterData) {
+        // 白月光
+		{
+			const bgList = ["forest", "night", "valley", "sea", "city", "tower"];
+			const key = bgList[Math.floor(Math.random() * bgList.length)];
+			const path = "extension/鸽府包/image/character/stand/hzr/bg_" + key + ".jpg";
+			const cfg = characterData.gzhlb_hzr;
+			if (cfg) {
+				cfg.img = path;
+				if (!Array.isArray(cfg[4])) cfg[4] = [];
+				cfg[4] = [path];
+			}
+		}
+		for (let name in characterData) {
             const underlineIndex = name.indexOf('_');
             const prefix = underlineIndex > 0 ? name.substring(0, underlineIndex) : 'a';
             const namex = underlineIndex > 0 ? name.substring(underlineIndex + 1) : name;
