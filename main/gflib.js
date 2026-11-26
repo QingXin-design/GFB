@@ -4354,7 +4354,7 @@ if (document.readyState === "complete") {
 		}
 	};
 
-	// 绝对免疫伤害或流失体力且不触发任何技能
+	// 免疫伤害或流失体力且不触发任何技能
 	lib.element.player.gf_immuneDamage = function (trigger) {
 		trigger.unreal = true;
 		trigger.animate = false;
@@ -4388,6 +4388,126 @@ if (document.readyState === "complete") {
 		delete this.storage.gf_absImmune;
 		this.update();
 	};
+
+	// 让本次伤害正常生效
+	lib.element.player.gf_trueDamage = function (trigger) {
+		if (!trigger) return trigger;
+		if (trigger._gfImmune) return trigger;
+		if (!trigger._gfTrueSeen) {
+			trigger._gfTrueSeen = true;
+			if (trigger.unreal) trigger._gfTrueSkip = true;
+		}
+		if (trigger._gfTrueSkip) return trigger;
+		let num = typeof trigger.num === 'number' ? trigger.num : 1;
+		if (num <= 0 && typeof trigger._gfTrueNum !== 'number') return trigger;
+		if (typeof trigger._gfTrueNum !== 'number') trigger._gfTrueNum = num;
+		else if (num > trigger._gfTrueNum) trigger._gfTrueNum = num;
+		if (trigger._gfTrueNum <= 0) return trigger;
+		trigger._gfTrueDamage = true;
+		trigger.num = trigger._gfTrueNum;
+		trigger.unreal = false;
+		if (trigger._gfTrueLock) return trigger;
+		trigger._gfTrueLock = true;
+		const rawGoto = trigger.goto;
+		trigger.goto = function (step) {
+			if (this._gfImmune) return rawGoto.call(this, step);
+			if (typeof step === 'number' && step >= 4) return this;
+			return rawGoto.call(this, step);
+		};
+		const rawCancel = trigger.cancel;
+		trigger.cancel = function () {
+			if (this._gfImmune) return rawCancel.apply(this, arguments);
+			return this;
+		};
+		const rawFilterStop = trigger.filterStop;
+		trigger.filterStop = function () {
+			if (this._gfImmune) return typeof rawFilterStop === 'function' ? rawFilterStop.call(this) : false;
+			if (typeof this._gfTrueNum === 'number') this.num = this._gfTrueNum;
+			this.unreal = false;
+			if (typeof rawFilterStop === 'function') rawFilterStop.call(this);
+			return false;
+		};
+		const rawCallHandler = trigger.callHandler;
+		trigger.callHandler = function (type, evt, option) {
+			if (this._gfImmune) return rawCallHandler.apply(this, arguments);
+			if (typeof this._gfTrueNum === 'number' && typeof this.num === 'number' && this.num < this._gfTrueNum && !this.finished) {
+				this.num = this._gfTrueNum;
+				this.unreal = false;
+			}
+			return rawCallHandler.apply(this, arguments);
+		};
+		return trigger;
+	};
+	const gf_rawImmuneDamage = lib.element.player.gf_immuneDamage;
+	lib.element.player.gf_immuneDamage = function (trigger) {
+		if (trigger) trigger._gfImmune = true;
+		return gf_rawImmuneDamage.call(this, trigger);
+	};
+	lib.element.player.gf_trueDamageTo = function (target, num, nature) {
+		if (!target || typeof target.damage !== 'function') return null;
+		const event = target.damage(num, this);
+		if (nature) event.nature = nature;
+		this.gf_trueDamage(event);
+		return event;
+	};
+	if (!lib.skill.gf_trueDamage) {
+		lib.skill.gf_trueDamage = {
+			trigger: {
+				source: ['damageBefore']
+			},
+			silentForce: true,
+			firstDo: true,
+			priority: 99999,
+			filter(event, player) {
+				return player.hasSkill('gf_damage');
+			},
+			content(event, trigger, player) {
+				player.gf_trueDamage(trigger);
+			},
+		};
+	}
+	if (lib.skill.global.includes('gf_trueDamage') == false) game.addGlobalSkill('gf_trueDamage');
+	if (!lib.skill.gf_trueDamage_lock) {
+		lib.skill.gf_trueDamage_lock = {
+			trigger: {
+				source: ['damageBegin1', 'damageBegin2', 'damageBegin3', 'damageBegin4']
+			},
+			silentForce: true,
+			lastDo: true,
+			priority: -99999,
+			filter(event, player) {
+				return player.hasSkill('gf_damage');
+			},
+			content(event, trigger, player) {
+				player.gf_trueDamage(trigger);
+			},
+		};
+	}
+	if (lib.skill.global.includes('gf_trueDamage_lock') == false) game.addGlobalSkill('gf_trueDamage_lock');
+	if (!lib.skill.gf_damageBegin5) {
+		lib.skill.gf_damageBegin5 = {
+			trigger: {
+				global: ['damageBegin4', 'damageBegin5']
+			},
+			silentForce: true,
+			lastDo: true,
+			priority: -99999,
+			filter(event, player) {
+				if (event.name != 'damageBegin4') return false;
+				return event._gfTrueDamage === true || event._gfWantBegin5 === true;
+			},
+			async content(event, trigger, player) {
+				if (trigger._gfBegin5) return;
+				trigger._gfBegin5 = true;
+				await trigger.trigger('damageBegin5');
+				if (typeof trigger._gfTrueNum === 'number' && typeof trigger.num === 'number' && trigger.num < trigger._gfTrueNum) {
+					trigger.num = trigger._gfTrueNum;
+					trigger.unreal = false;
+				}
+			},
+		};
+	}
+	if (lib.skill.global.includes('gf_damageBegin5') == false) game.addGlobalSkill('gf_damageBegin5');
 	lib.element.player.outSkill = function () {
 		if (!this.classList.contains("outSkill")) {
           	this.classList.add("outSkill");
